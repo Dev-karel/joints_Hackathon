@@ -1,20 +1,24 @@
 # Instalasi & Setup AyoMatch
 
-Panduan ini untuk menjalankan AyoMatch di komputer lokal (Windows/macOS/Linux) dan menyiapkan project Supabase.
+Panduan ini untuk menjalankan AyoMatch (aplikasi Android, React Native + Expo) dan menyiapkan project Supabase.
 
 ## 1. Prasyarat
 
 - [Node.js](https://nodejs.org/) versi 20 LTS atau lebih baru
-- npm (ikut terpasang dengan Node.js)
 - Git
+- **HP Android fisik** (Android 10 atau lebih baru) dengan *USB debugging* aktif — fitur Wi-Fi/BSSID tidak bisa diuji dengan andal di emulator
+- [Android Studio](https://developer.android.com/studio) (untuk Android SDK & JDK) — dibutuhkan untuk `npx expo run:android`
 - Akun [Supabase](https://supabase.com/) (gratis)
-- Editor kode (Kiro/VS Code direkomendasikan)
+- Akun [Expo](https://expo.dev/) (gratis) — untuk EAS Build APK
+- Docker Desktop — **opsional**, hanya untuk Supabase lokal (fallback demo)
+- Editor kode (Kiro/VS Code)
 
-Cek versi Node & npm (PowerShell):
+Cek versi (PowerShell):
 
 ```powershell
 node -v
 npm -v
+adb devices   # HP Android harus muncul di sini
 ```
 
 ## 2. Clone Repository
@@ -28,81 +32,116 @@ cd ayomatch
 
 ```powershell
 npm install
+npx expo-doctor   # cek kecocokan versi library dengan Expo SDK
 ```
+
+Untuk menambah library native baru, selalu gunakan `npx expo install <paket>`, bukan `npm install`.
 
 ## 4. Setup Project Supabase
 
-1. Buka [supabase.com](https://supabase.com/) → buat project baru, pilih region terdekat (Singapore).
-2. Di dashboard Supabase, buka **Project Settings → API**, catat:
-   - `Project URL`
-   - `anon public key`
-   - `service_role key` (rahasia, jangan expose ke client/browser)
-3. Buka **SQL Editor** di dashboard, jalankan migration yang ada di `supabase/migrations/` secara berurutan (atau gunakan Supabase CLI, lihat langkah 5).
-4. Aktifkan **Row Level Security** untuk setiap tabel yang dibuat (lihat detail policy di `supabase/migrations/`).
-5. Di **Authentication → Providers**, aktifkan Email provider. Di **Authentication → URL Configuration**, tambahkan domain email kampus ke allowlist sesuai kebutuhan (implementasi allowlist domain ada di Auth Hook / API route, lihat ARCHITECTURE.md bagian keamanan).
-6. Di **Storage**, buat bucket privat: `avatars`, `ktm-verification`, `report-evidence`.
+1. Buka [supabase.com](https://supabase.com/) → buat project baru, region Singapore.
+2. **Project Settings → API**, catat `Project URL` dan `anon public key`. `service_role key` hanya dipakai sebagai secret Edge Function — **jangan** masukkan ke aplikasi.
+3. Install Supabase CLI lalu hubungkan project:
 
-### 4.1 (Opsional) Pakai Supabase CLI untuk migration lokal
+   ```powershell
+   npm install -g supabase
+   supabase login
+   supabase link --project-ref <project-ref-anda>
+   supabase db push                 # jalankan migration (schema + RLS)
+   ```
+4. **Authentication → Providers → Email**: aktifkan, lalu ubah template email agar mengirim **kode OTP** (`{{ .Token }}`), bukan hanya link. Allowlist domain kampus diterapkan lewat Auth Hook (lihat `supabase/migrations/`).
+5. **Storage**: buat bucket privat `avatars`, `ktm-verification`, `report-evidence`.
+6. Aktifkan ekstensi **pg_cron** (Database → Extensions) untuk membersihkan `presence` yang kedaluwarsa.
+7. Deploy Edge Functions dan set secret:
 
-```powershell
-npm install -g supabase
-supabase login
-supabase link --project-ref <project-ref-anda>
-supabase db push
-```
+   ```powershell
+   supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+   supabase functions deploy resolve-zone
+   supabase functions deploy register-access-point
+   supabase functions deploy create-event
+   ```
+8. Isi data demo: jalankan `supabase/seed.sql` (zona, mata kuliah, venue, event contoh).
+9. Beri role admin ke akun tim: `update profiles set role = 'admin' where campus_email = '<email-anda>';` (lakukan setelah akun tersebut login pertama kali).
 
 ## 5. Konfigurasi Environment Variable
 
-Salin file contoh environment lalu isi dengan kredensial dari langkah 4:
-
 ```powershell
-Copy-Item .env.example .env.local
+Copy-Item .env.example .env
 ```
 
-Isi `.env.local`:
+Isi `.env`:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxxxxxxxxxxxxxx
-SUPABASE_SERVICE_ROLE_KEY=xxxxxxxxxxxxxxxx
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-ALLOWED_EMAIL_DOMAIN=mail.ugm.ac.id
+EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=xxxxxxxxxxxxxxxx
+EXPO_PUBLIC_ALLOWED_EMAIL_DOMAIN=mail.ugm.ac.id
 ```
 
-> `SUPABASE_SERVICE_ROLE_KEY` hanya dipakai di server (API route/server action). Jangan pernah menambahkan prefix `NEXT_PUBLIC_` pada key ini karena akan terekspos ke browser.
+> Semua variabel `EXPO_PUBLIC_*` ikut terbundel ke dalam APK dan bisa dibaca siapa pun. Jangan pernah menaruh `service_role key` di file ini.
 
-## 6. Jalankan Development Server
+## 6. Jalankan di HP Android
+
+Sambungkan HP lewat USB, lalu:
 
 ```powershell
-npm run dev
+npx expo run:android   # build & pasang development build (sekali di awal, dan setiap menambah library native)
+npm run start          # dev server; buka aplikasi AyoMatch (dev build) di HP
 ```
 
-Buka `http://localhost:3000` di browser.
+Saat pertama kali menyalakan "Tampil di peta", izinkan **lokasi presisi** dan pastikan **layanan lokasi (GPS) di HP aktif** — Android mewajibkan keduanya untuk membaca BSSID Wi-Fi, walaupun aplikasi tidak memakai GPS.
 
-## 7. Perintah Lain yang Tersedia
+## 7. Mendaftarkan Access Point (Survei Wi-Fi)
+
+1. Login dengan akun berrole `admin`.
+2. Buka **Profil → Admin → Daftarkan Wi-Fi** sambil tersambung ke Wi-Fi kampus di ruangan yang ingin didaftarkan.
+3. Pilih zona (atau buat zona baru), simpan. Ulangi untuk setiap access point/band di ruangan itu.
+
+## 8. Build APK (demo & submission)
 
 ```powershell
-npm run build        # build production, jalankan sebelum submission untuk memastikan tidak ada error
-npm run start         # jalankan hasil build production secara lokal
-npm run lint          # cek linting
-npm run test          # jalankan unit test (vitest --run)
-npm run test:watch    # jalankan test mode watch (untuk development, jangan dipakai di CI)
+npm install -g eas-cli
+eas login
+eas build:configure
+npm run build:apk      # profil "preview" di eas.json menghasilkan file .apk
 ```
 
-## 8. Deploy ke Vercel (untuk demo/Grand Final)
+Unduh APK dari link hasil build, lalu pasang di HP demo.
 
-1. Push repo ke GitHub.
-2. Buka [vercel.com](https://vercel.com/) → Import Project → pilih repo.
-3. Tambahkan environment variable yang sama seperti `.env.local` di **Project Settings → Environment Variables** pada Vercel.
-4. Deploy. Vercel akan otomatis build ulang setiap ada push ke branch `main`.
+## 9. Persiapan Demo Grand Final (hotspot)
 
-## 9. Troubleshooting Umum
+1. Siapkan **perangkat ketiga** (HP cadangan atau laptop dengan data seluler) sebagai hotspot. Jangan jadikan HP demo sendiri sebagai hotspot.
+2. Sambungkan HP demo A dan B ke hotspot tersebut.
+3. Di HP A (akun admin), buka **Daftarkan Wi-Fi** dan daftarkan hotspot sebagai zona "Ruang Pitching". Lakukan di hari H, karena alamat hotspot di beberapa HP Android berubah setiap hotspot dinyalakan ulang.
+4. Nyalakan "Tampil di peta" di A dan B, lalu cek keduanya muncul di "Ruang Pitching".
+
+### 9.1 Fallback tanpa internet: Supabase lokal
+
+```powershell
+supabase start           # butuh Docker
+supabase db reset        # migration + seed
+supabase functions serve
+```
+
+Jadikan laptop sebagai hotspot, lalu build APK dengan profil `demo-local` yang mengarah ke IP laptop (contoh `http://192.168.137.1:54321`).
+
+## 10. Perintah Lain
+
+```powershell
+npm run lint
+npm run typecheck
+npm run test
+npm run doctor
+```
+
+## 11. Troubleshooting Umum
 
 | Masalah | Solusi |
 |---|---|
-| `Invalid API key` saat memanggil Supabase | Pastikan `.env.local` terisi benar dan server dev di-restart setelah mengubah env |
-| RLS error "new row violates row-level security policy" | Pastikan user sudah login dan policy RLS sudah dijalankan sesuai migration |
-| Peta (Leaflet) tidak muncul / blank | Pastikan CSS Leaflet ter-import di layout, dan komponen map di-render hanya di client (`dynamic import` dengan `ssr: false`) |
-| Perubahan `.env.local` tidak terbaca | Next.js perlu restart dev server (`Ctrl+C` lalu `npm run dev` lagi) |
+| BSSID terbaca `02:00:00:00:00:00` atau kosong | Izin lokasi presisi belum diberikan, atau layanan lokasi HP mati. Nyalakan keduanya |
+| BSSID tidak terbaca di emulator | Uji di HP Android fisik |
+| Pengguna tidak muncul di peta padahal tersambung Wi-Fi | BSSID belum didaftarkan ke zona — daftarkan lewat mode admin (ingat: satu AP bisa punya BSSID berbeda untuk 2,4 GHz dan 5 GHz) |
+| `adb devices` kosong | Aktifkan USB debugging dan izinkan komputer di HP |
+| Error versi library setelah `npm install` | Jalankan `npx expo install --fix` |
+| RLS error "new row violates row-level security policy" | Pastikan sudah login dan migration RLS sudah dijalankan |
 
-Untuk pertanyaan arsitektur lebih lanjut, lihat [ARCHITECTURE.md](./ARCHITECTURE.md).
+Untuk pertanyaan arsitektur, lihat [ARCHITECTURE.md](./ARCHITECTURE.md).

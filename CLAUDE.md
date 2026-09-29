@@ -4,62 +4,79 @@ Dokumen ini memberi konteks kerja untuk AI coding assistant (Claude/Kiro/LLM lai
 
 ## Ringkasan Project
 
-AyoMatch adalah web app (mobile-first, PWA) yang mencocokkan mahasiswa dalam satu kampus untuk belajar bareng, mabar, ikut lomba bareng, dll, berdasarkan kepribadian dan minat. Dibangun untuk Hackathon JOINTS UGM 2026, deadline submission **16 Oktober 2026** dan Grand Final **1 November 2026**.
+AyoMatch adalah **aplikasi Android native (React Native + Expo)** yang mencocokkan mahasiswa dalam satu kampus untuk belajar bareng, ikut lomba bareng, dan bertemu di acara luar kampus, berdasarkan kepribadian dan minat. Dibangun untuk Hackathon JOINTS UGM 2026, deadline submission **16 Oktober 2026** dan Grand Final **1 November 2026**.
 
-Scope MVP hackathon = **Study Match** saja. Fitur match lain (sport, gaming, art, organisasi) adalah roadmap pasca-MVP — jangan implementasikan penuh dulu kecuali diminta eksplisit, cukup sediakan struktur data yang extensible.
+Navigasi utama: **Beranda · Match (Belajar/Lomba) · Event · Peta · Profil**.
 
-Detail fitur & alasan produk ada di [README.md](./README.md). Detail arsitektur & data model ada di [ARCHITECTURE.md](./ARCHITECTURE.md).
+Scope MVP ada di [PRD.md](./PRD.md) §5 — ikuti urutan prioritas (Must-have dulu). Fitur match lain (sport, gaming, art, organisasi) adalah roadmap — jangan implementasikan penuh kecuali diminta eksplisit.
+
+Detail arsitektur & data model ada di [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Tech Stack (wajib diikuti, jangan ganti tanpa alasan kuat)
 
-- Next.js 14 App Router + TypeScript (strict mode)
-- Tailwind CSS + shadcn/ui untuk semua komponen UI
-- Supabase untuk auth, database (Postgres), realtime, dan storage
-- Leaflet + OpenStreetMap untuk Match Map (jangan pakai Google Maps — butuh billing/API key)
-- TanStack Query untuk data fetching dari Supabase, Zustand untuk state UI lokal (bukan server state)
-- React Hook Form + Zod untuk semua form dan validasi input
-- Vitest + Testing Library untuk test
+- Expo SDK 57 (React Native 0.86) + TypeScript strict, pakai **development build** (`expo-dev-client`)
+- expo-router untuk navigasi (file-based, folder `app/`)
+- NativeWind (Tailwind untuk React Native) untuk styling
+- Supabase: Auth (OTP email kampus), Postgres + RLS, Realtime, Storage, **Edge Functions** untuk logika sensitif
+- TanStack Query untuk data server, Zustand untuk state UI lokal
+- React Hook Form + Zod untuk semua form dan validasi
+- `@react-native-community/netinfo` untuk membaca BSSID Wi-Fi
+- react-native-svg untuk peta zona skematis (**jangan** pakai Google Maps / react-native-maps — butuh API key & billing, dan kita memang tidak memakai koordinat)
+- expo-notifications (notifikasi lokal) untuk pengingat RSVP
+- Jest (jest-expo) + React Native Testing Library untuk test
+
+Tambah library native baru selalu lewat `npx expo install <paket>` agar versinya cocok dengan SDK.
 
 ## Konvensi Kode
 
-- Semua komponen baru pakai TypeScript (`.tsx`), tidak ada `.jsx`.
-- Komponen UI generik (button, card, dsb) taruh di `src/components/ui/` — cek dulu apakah shadcn/ui sudah punya sebelum membuat sendiri.
-- Komponen spesifik fitur taruh di `src/components/<feature>/` (contoh: `src/components/match/`, `src/components/event/`).
-- Query/mutation ke Supabase dibungkus di `src/lib/supabase/queries/` atau custom hook di `src/hooks/`, jangan panggil Supabase client langsung dari dalam komponen halaman.
-- Skema database & Row Level Security policy hidup di `supabase/migrations/`, bukan diatur manual lewat dashboard tanpa migration file — supaya reproducible.
-- Semua tabel yang menyimpan data personal (lokasi, hasil kepribadian, kontak) **wajib** punya RLS policy sebelum dianggap selesai.
-- Gunakan Zod schema yang sama untuk validasi client (React Hook Form) dan server (API route) — definisikan sekali di `src/types/` atau `src/lib/validation/`, import di kedua sisi.
+- Semua file baru TypeScript (`.ts`/`.tsx`), tidak ada `.js`/`.jsx`.
+- Route/layar di `app/` (expo-router). Logika fitur di `src/features/<fitur>/` (hooks, query, komponen khusus fitur). Komponen generik di `src/components/`.
+- Jangan panggil Supabase client langsung dari layar — bungkus di hook/query di `src/features/` atau `src/lib/supabase/`.
+- Skema database, RLS, dan Edge Functions hidup di `supabase/` sebagai migration/kode — jangan ubah manual lewat dashboard tanpa migration.
+- Semua tabel data personal **wajib** punya RLS policy sebelum dianggap selesai.
+- Skema Zod didefinisikan sekali di `src/lib/validation/` dan dipakai juga oleh Edge Functions.
+- Teks UI dalam **Bahasa Indonesia**. Istilah fitur tetap: Study Match, Competition Match, Match Map, Visual Learner (dan tipe kepribadian lain). Sub-tab Match bernama "Belajar" dan "Lomba".
+- Warna mengikuti Figma: biru utama `#0072B8`; aksen kuning 50–900 (dasar `#F39C12`). Teks aksen pakai 700 (`#A65C00`), bukan 500.
 - Commit kecil dan deskriptif. Jangan gabungkan perubahan skema database dengan perubahan UI yang tidak berhubungan.
 
 ## Batasan & Keputusan Desain Penting
 
-- **Privasi lokasi (Match Map)**: jangan pernah expose koordinat GPS presisi pengguna lain ke client. Lokasi harus dibulatkan ke area/gedung (geohash atau grid, presisi ~100–300m) sebelum dikirim. Ini non-negotiable — lihat bagian keamanan di ARCHITECTURE.md.
-- **Login kampus**: autentikasi dibatasi ke domain email institusi (allowlist domain), bukan email bebas. Jangan implementasikan sign-up dengan email sembarang.
-- **Moderasi/report**: akun yang di-report harus melalui status `pending_review` sebelum benar-benar `banned` — jangan auto-ban dari satu report saja kecuali diminta.
-- **Tidak ada fitur pembayaran** di scope MVP. Jangan tambahkan integrasi payment gateway tanpa diminta.
-- App ini SSR/CSR web biasa (Next.js), **bukan** native mobile app. Jangan sarankan Flutter/React Native kecuali user eksplisit minta pivot.
+- **Lokasi hanya dari access point Wi-Fi (BSSID).** Jangan gunakan GPS/koordinat, QR check-in, atau cek IP untuk lokasi. `expo-location` hanya dipakai untuk **meminta izin** yang diwajibkan Android untuk membaca BSSID — jangan memanggil API posisi.
+- **BSSID pengguna tidak boleh disimpan atau di-log.** Kirim hanya ke Edge Function `resolve-zone`, yang memetakan ke `zone_id` lalu membuangnya.
+- **Tidak tersambung Wi-Fi kampus = tidak tampil di peta.** Jangan tambahkan fallback lokasi lain tanpa diminta.
+- **Visibilitas timbal balik** di Match Map: pengguna yang tidak tampil tidak boleh bisa membaca presence orang lain (ditegakkan di RLS, bukan hanya UI).
+- **Lokasi hanya dikirim saat app di foreground** dan toggle aktif. Tidak ada background location/task.
+- **Event luar kampus hanya bisa dibuat role `curator`/`admin`**, dicek di RLS dan Edge Function `create-event`. Venue harus berstatus `approved`.
+- **Login kampus**: domain email institusi di-allowlist; login via kode OTP. Jangan implementasikan sign-up email bebas.
+- **Moderasi**: `pending_review` sebelum `banned`; tidak ada auto-ban dari satu laporan.
+- **Tidak ada pembayaran** di aplikasi. Biaya event hanya ditampilkan sebagai catatan ("bayar di tempat").
+- **Android saja** untuk MVP. Jangan menambah kode khusus iOS kecuali diminta.
+- **Service role key Supabase tidak boleh ada di aplikasi.** Semua variabel `EXPO_PUBLIC_*` ikut terbundel di APK dan bisa dibaca siapa pun.
 
 ## Yang TIDAK perlu dilakukan tanpa diminta
 
 - Jangan menambah dependency baru di luar stack yang sudah ditentukan tanpa konfirmasi.
 - Jangan menulis test untuk setiap perubahan kecil kalau user tidak minta (tapi tetap jalankan test yang sudah ada sebelum menganggap task selesai).
 - Jangan membuat ulang skema database dari nol kalau migration sudah ada — tambahkan migration baru.
+- Jangan eject ke bare workflow atau mengedit folder `android/` secara manual; gunakan config plugin di `app.config.ts`.
 
 ## Git: Jangan Commit atau Push Sendiri
 
 - **Jangan pernah menjalankan `git commit` atau `git push` secara mandiri**, dengan alasan apa pun, kecuali user secara eksplisit memintanya di pesan tersebut.
 - Ini berlaku juga untuk operasi git lain yang mengubah riwayat/remote: `git add` diikuti commit otomatis, `git merge`, `git rebase`, `git tag`, dan sejenisnya.
 - Setelah selesai mengubah file, cukup laporkan file apa yang berubah dan biarkan user yang review lalu commit/push sendiri.
-- Jika user memang minta commit, tetap ikuti aturan di bagian git_safety pada system prompt (stage file spesifik, jangan `git add .`, jangan force push ke `main`/`master`, jangan `--amend` kecuali diminta).
+- Jika user memang minta commit, tetap ikuti aturan git safety (stage file spesifik, jangan `git add .`, jangan force push ke `main`/`master`, jangan `--amend` kecuali diminta).
 
 ## Cara Menjalankan & Verifikasi
 
 ```powershell
 npm install
-npm run dev        # dev server
-npm run lint        # linting
-npm run test        # unit test (vitest --run)
-npm run build       # verifikasi build production sebelum submission
+npx expo run:android   # build & pasang development build ke HP Android (sekali di awal / setelah ganti library native)
+npm run start          # dev server untuk development build
+npm run lint
+npm run typecheck
+npm run test
+npm run build:apk      # APK untuk demo/submission (EAS Build profil preview)
 ```
 
-Lihat [INSTALLATION.md](./INSTALLATION.md) untuk setup Supabase project dan environment variable.
+Uji fitur Wi-Fi/BSSID di **HP Android fisik**, bukan emulator. Lihat [INSTALLATION.md](./INSTALLATION.md) untuk setup Supabase, Edge Functions, dan environment variable.
