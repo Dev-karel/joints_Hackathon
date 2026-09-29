@@ -1,9 +1,9 @@
 # Product Requirements Document (PRD) — AyoMatch
 
-> Versi: 1.3 — 29 September 2026
+> Versi: 1.5 — 29 September 2026
 > Untuk: Hackathon JOINTS UGM 2026 (FMIPA UGM), track **Healthcare** dengan sentuhan **Education**
 
-Dokumen pelengkap: [README.md](./README.md) (latar belakang & fitur), [ARCHITECTURE.md](./ARCHITECTURE.md) (arsitektur & data model), [ROADMAP.md](./ROADMAP.md) (timeline), [CLAUDE.md](./CLAUDE.md) (konvensi kerja AI assistant).
+Dokumen pelengkap: [README.md](./README.md) (latar belakang & fitur), [ARCHITECTURE.md](./ARCHITECTURE.md) (arsitektur & data model), [METHODOLOGY.md](./METHODOLOGY.md) (isi & skoring kuis kepribadian), [ROADMAP.md](./ROADMAP.md) (timeline), [CLAUDE.md](./CLAUDE.md) (konvensi kerja AI assistant).
 
 ### Riwayat Perubahan
 
@@ -13,6 +13,8 @@ Dokumen pelengkap: [README.md](./README.md) (latar belakang & fitur), [ARCHITECT
 | 1.1 | 28 Sep 2026 | Match Map beralih dari grid koordinat ke zona bernama. Tambah bagian deteksi lokasi & integrasi Wi-Fi kampus. |
 | 1.2 | 28 Sep 2026 | Tab Study & Competitions, data model sesi/lowongan, keputusan visibilitas timbal balik & zona kosong. |
 | 1.3 | 29 Sep 2026 | **Pivot ke aplikasi native React Native (Expo), Android dulu.** Lokasi **hanya dari access point Wi-Fi (BSSID)** — QR, GPS, dan cek IP dihapus. Study & Competitions pindah ke tab **Match** (sub-tab Belajar & Lomba). Tab **Event** baru untuk acara di luar kampus, hanya dibuat kurator, **masuk scope MVP**. Strategi demo pakai hotspot. Tabel MVP ditulis ulang. |
+| 1.4 | 29 Sep 2026 | Tambah §6.1: kuis kepribadian **tidak boleh diulang** setelah submit akhir (hasil jadi label permanen akun), tapi pengguna **boleh menekan "Kembali"** untuk mengubah jawaban sebelum submit akhir. Tambah wajib modal peringatan jumlah pertanyaan & anjuran isi jujur. |
+| 1.5 | 29 Sep 2026 | Kuis kepribadian resmi jadi **15 pertanyaan** (bukan 6) dengan metodologi archetype tim 6 kategori (skoring berbobot 70/30) — lihat [METHODOLOGY.md](./METHODOLOGY.md). Menjawab Open Question #1 di §14. |
 
 ---
 
@@ -79,7 +81,7 @@ Semua fitur di tabel ini **masuk scope hackathon**. Prioritas menentukan urutan 
 | # | Fitur | Deskripsi | Prioritas |
 |---|---|---|---|
 | 1 | Login kampus | Email institusi (domain allowlist), login via kode OTP 6 digit | Must-have |
-| 2 | Kuis kepribadian | Onboarding quiz 6 pertanyaan, wajib sebelum masuk Beranda → klasifikasi rule-based | Must-have |
+| 2 | Kuis kepribadian | Onboarding quiz 15 pertanyaan, wajib sebelum masuk Beranda → klasifikasi archetype tim rule-based (lihat [METHODOLOGY.md](./METHODOLOGY.md)). Sekali submit, terkunci permanen (boleh "Kembali" sebelum submit akhir) — detail §6.1 | Must-have |
 | 3 | Match › Belajar (Study Match) | Rekomendasi partner belajar (skor kecocokan) + buat/gabung sesi belajar di zona kampus | Must-have |
 | 4 | Match Map via Wi-Fi | Zona ditentukan dari BSSID access point yang tersambung; peta skematis per gedung/ruangan; visibilitas timbal balik. Detail §7 | Must-have (inti inovasi) |
 | 5 | Mode admin: daftarkan Wi-Fi | Layar khusus admin untuk mendaftarkan BSSID yang sedang tersambung ke sebuah zona — dipakai untuk survei AP dan demo hotspot | Must-have (syarat demo) |
@@ -95,6 +97,8 @@ Semua fitur di tabel ini **masuk scope hackathon**. Prioritas menentukan urutan 
 
 - Sebagai mahasiswa baru, saya ingin login dengan email kampus saya agar hanya sesama mahasiswa yang bisa mengakses aplikasi ini.
 - Sebagai pengguna baru, saya ingin mengisi kuis kepribadian singkat agar sistem tahu gaya belajar saya sebelum mulai mencari match.
+- Sebagai pengguna baru, saya ingin tahu dari awal berapa banyak pertanyaan kuis dan bahwa hasilnya jadi label permanen, agar saya menjawab dengan jujur, bukan asal cepat selesai.
+- Sebagai pengguna yang sedang mengisi kuis, saya ingin bisa kembali ke pertanyaan sebelumnya untuk mengubah jawaban yang salah pilih, selama saya belum menekan submit akhir.
 - Sebagai mahasiswa yang kesulitan di mata kuliah tertentu, saya ingin dicocokkan dengan mahasiswa lain yang mengambil mata kuliah sama dan gaya belajarnya cocok.
 - Sebagai host belajar kelompok, saya ingin membuat sesi belajar dengan waktu, ruangan, dan kuota agar orang yang tepat bisa bergabung.
 - Sebagai peserta, saya ingin melihat sesi belajar per tanggal dan jam, beserta berapa teman saya yang sudah ikut.
@@ -105,6 +109,21 @@ Semua fitur di tabel ini **masuk scope hackathon**. Prioritas menentukan urutan 
 - Sebagai kurator, saya ingin membuat event dengan tempat, waktu, kuota, dan perkiraan biaya agar mahasiswa bisa RSVP.
 - Sebagai peserta event, saya ingin diingatkan sebelum acara dan bisa memilih siapa yang ingin saya temui lagi setelahnya.
 - Sebagai pengguna, saya ingin melaporkan pengguna atau event yang tidak pantas dan yakin laporan saya ditinjau sebelum ada tindakan.
+
+## 6.1 Aturan Kuis Kepribadian (Sekali Seumur Hidup Akun)
+
+Kuis kepribadian menentukan `personality_type` (archetype tim, lihat [METHODOLOGY.md](./METHODOLOGY.md)) dan `learning_style` yang dipakai untuk Study Match dan ditampilkan ke pengguna lain di View Profile. Karena label ini menempel ke akun **seumur hidup** (bukan sekadar preferensi yang bisa diganti-ganti), berikut aturannya:
+
+1. **Modal pembuka wajib**, muncul sebelum pertanyaan pertama, sebelum pengguna bisa menekan "Mulai". Isinya minimal:
+   - Jumlah total pertanyaan (15 pertanyaan, estimasi ±2–3 menit).
+   - Peringatan eksplisit: hasil kuis akan jadi **label kepribadian permanen** di akun pengguna dan terlihat mahasiswa lain, jadi harus dijawab **jujur sesuai kepribadian asli**, bukan jawaban yang "kelihatan bagus".
+   - Penjelasan bahwa jawaban **tidak bisa diubah lagi setelah disubmit**.
+2. **Boleh navigasi maju/mundur ("Kembali") selama belum submit akhir.** Selama sesi pengisian belum selesai, pengguna bebas kembali ke pertanyaan sebelumnya dan mengganti jawaban. Jawaban selama fase ini adalah **draft**, disimpan sementara di state lokal (atau tabel draft sisi server, lihat ARCHITECTURE §4.1) — belum final.
+3. **Progress indicator**: setiap layar pertanyaan menampilkan posisi saat ini (contoh "Pertanyaan 3 dari 6") supaya pengguna tahu berapa lagi sebelum submit akhir.
+4. **Konfirmasi submit akhir**: setelah pertanyaan terakhir dijawab, tampilkan ringkasan/konfirmasi ("Setelah ini jawabanmu tidak bisa diubah lagi — lanjutkan?") sebelum benar-benar mengunci hasil.
+5. **Setelah submit akhir, kuis terkunci permanen.** Tidak ada menu "Ulangi Kuis" atau "Edit Jawaban" di MVP. Pengguna yang sudah submit dan membuka lagi rute kuis harus diarahkan ke Beranda (kuis sudah tidak bisa diakses lagi, bukan ditampilkan sebagai form terisi yang bisa diedit).
+6. **Penguncian ditegakkan di server (RLS), bukan hanya disembunyikan di UI** — lihat detail teknis di [ARCHITECTURE.md §4.1](./ARCHITECTURE.md) dan §6.
+7. Pengecualian manual (misalnya pengguna salah isi total dan minta reset) hanya lewat intervensi admin langsung di database, bukan fitur yang diekspos ke pengguna.
 
 ## 7. Deteksi Lokasi per Access Point Wi-Fi
 
@@ -226,6 +245,7 @@ Match = akademik, di dalam kampus, bisa hari ini juga. **Event = sosial, di luar
 - **Persetujuan eksplisit**: fitur lokasi default **off**, izin lokasi presisi diminta dengan penjelasan bahwa izin itu hanya untuk membaca Wi-Fi. Pengguna bisa mematikan kapan saja dan status langsung dihapus. Sejalan dengan UU No. 27/2022 tentang Pelindungan Data Pribadi.
 - **Keamanan data**: RLS aktif di semua tabel data personal (presence, hasil kepribadian, kontak, KTM, RSVP). Service role key Supabase hanya ada di Edge Function, tidak pernah di dalam aplikasi.
 - **Autentikasi terbatas domain**: hanya email kampus yang di-allowlist.
+- **Integritas hasil kuis kepribadian**: setelah submit akhir, `personality_answers` dan hasil di `profiles` tidak bisa di-update/insert ulang oleh pengguna (ditegakkan RLS + trigger, lihat ARCHITECTURE §4.1 & §6). Navigasi ulang ("Kembali") hanya diperbolehkan sebelum submit akhir terjadi.
 - **Role**: `student` (default), `curator` (buat event), `admin` (daftarkan Wi-Fi, beri role kurator, moderasi). Pengecekan role di RLS dan Edge Function, bukan hanya di UI.
 - **Moderasi bertahap**: `pending_review` sebelum `banned`, tidak ada auto-ban dari satu laporan.
 - **Platform**: Android 10+, distribusi APK untuk demo.
@@ -267,13 +287,6 @@ Lihat [ROADMAP.md](./ROADMAP.md). Milestone kunci:
 | Grand Final (pitching di FMIPA UGM) | 1 November 2026 |
 
 ## 14. Open Questions
-
-- Sumber pertanyaan kuis kepribadian & bobot skoringnya.
-- Kampus mana yang dipakai untuk survei access point, dan ruangan apa saja yang jadi zona awal.
-- Siapa saja kurator awal (tim AyoMatch saja, atau langsung menggandeng UKM/kafe mitra)?
-- Daftar venue awal yang disetujui untuk Event.
-- Apakah Meja Kecil perlu opsi grup sesama gender untuk rasa aman?
-- Daftar mata kuliah untuk sesi belajar: seed manual atau data kurikulum kampus?
-- Apakah lowongan tim Lomba wajib menyertakan link guidebook untuk mencegah spam?
-- Apakah zona dengan hanya 1 orang online tetap ditampilkan?
-- Kebijakan retensi data setelah lomba selesai.
+- ~~Sumber pertanyaan kuis kepribadian & bobot skoringnya~~ — **selesai**, lihat [METHODOLOGY.md](./METHODOLOGY.md) (v1.5).
+- Definisi "online" untuk Match Map (threshold waktu presence sebelum dianggap offline).
+- Kebijakan retensi data setelah lomba selesai (apakah akun mahasiswa dihapus atau dilanjutkan sebagai produk nyata — lihat roadmap pasca-hackathon).

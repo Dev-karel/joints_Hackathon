@@ -19,7 +19,7 @@ Data I-NAMHS menunjukkan 1 dari 3 remaja Indonesia (34,9%, ±15,5 juta jiwa) pun
 | Tab | Fitur | Deskripsi |
 |---|---|---|
 | — | Login kampus | Email institusi (domain allowlist) dengan kode OTP |
-| — | Kuis kepribadian | 6 pertanyaan onboarding → tipe kepribadian & gaya belajar (contoh: Visual Learner) |
+| — | Kuis kepribadian | 15 pertanyaan onboarding → archetype tim (contoh: Heartkeeper) & gaya belajar (contoh: Visual Learner). Metodologi & skoring di [METHODOLOGY.md](./METHODOLOGY.md). Boleh navigasi "Kembali" sebelum submit akhir, tapi hasilnya jadi label permanen akun setelah disubmit — lihat [PRD.md §6.1](./PRD.md) |
 | Match › Belajar | Study Match | Rekomendasi partner belajar + buat/gabung sesi belajar di ruangan kampus |
 | Match › Lomba | Competition Match | Lowongan anggota tim lomba + permintaan bergabung |
 | Peta | Match Map | Siapa yang online per ruangan, dideteksi dari **access point Wi-Fi kampus** (BSSID) — tanpa GPS, tanpa titik koordinat |
@@ -83,6 +83,7 @@ Fitur Match Map harus diuji di HP Android fisik yang tersambung Wi-Fi.
 - [PRD.md](./PRD.md) — kebutuhan produk & scope MVP
 - [CLAUDE.md](./CLAUDE.md) — konteks & konvensi kerja untuk AI coding assistant
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — arsitektur sistem, data model, dan pertimbangan keamanan
+- [METHODOLOGY.md](./METHODOLOGY.md) — metodologi & skoring kuis kepribadian (archetype tim)
 - [INSTALLATION.md](./INSTALLATION.md) — panduan instalasi & setup environment
 - [ROADMAP.md](./ROADMAP.md) — timeline pengembangan mengikuti jadwal hackathon
 

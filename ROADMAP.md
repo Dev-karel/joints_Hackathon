@@ -32,7 +32,7 @@ Deliverables wajib saat pengumpulan: Video demo (≤2 menit, YouTube publik), So
 ## Fase 1 — Auth & Onboarding (2 – 5 Okt 2026)
 
 - [ ] Login OTP email kampus + allowlist domain (Auth Hook)
-- [ ] Kuis kepribadian 6 pertanyaan + klasifikasi rule-based
+- [ ] Kuis kepribadian 15 pertanyaan + klasifikasi archetype tim rule-based (isi & skoring lihat [METHODOLOGY.md](./METHODOLOGY.md)) — dengan modal peringatan (jumlah soal + anjuran jujur karena hasil permanen), navigasi "Kembali" sebelum submit akhir, dan penguncian permanen di RLS/trigger setelah submit (lihat PRD §6.1 & ARCHITECTURE §4.1)
 - [ ] Profil dasar (avatar, jurusan, semester)
 - [ ] Shell navigasi: Beranda · Match · Event · Peta · Profil
 - [ ] Survei access point di kampus mulai (mode admin sementara lewat SQL jika layar belum jadi)

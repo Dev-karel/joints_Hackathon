@@ -6,7 +6,6 @@ Dokumen ini memberi konteks kerja untuk AI coding assistant (Claude/Kiro/LLM lai
 
 AyoMatch adalah **aplikasi Android native (React Native + Expo)** yang mencocokkan mahasiswa dalam satu kampus untuk belajar bareng, ikut lomba bareng, dan bertemu di acara luar kampus, berdasarkan kepribadian dan minat. Dibangun untuk Hackathon JOINTS UGM 2026, deadline submission **16 Oktober 2026** dan Grand Final **1 November 2026**.
 
-Navigasi utama: **Beranda · Match (Belajar/Lomba) · Event · Peta · Profil**.
 
 Scope MVP ada di [PRD.md](./PRD.md) §5 — ikuti urutan prioritas (Must-have dulu). Fitur match lain (sport, gaming, art, organisasi) adalah roadmap — jangan implementasikan penuh kecuali diminta eksplisit.
 
@@ -48,6 +47,7 @@ Tambah library native baru selalu lewat `npx expo install <paket>` agar versinya
 - **Lokasi hanya dikirim saat app di foreground** dan toggle aktif. Tidak ada background location/task.
 - **Event luar kampus hanya bisa dibuat role `curator`/`admin`**, dicek di RLS dan Edge Function `create-event`. Venue harus berstatus `approved`.
 - **Login kampus**: domain email institusi di-allowlist; login via kode OTP. Jangan implementasikan sign-up email bebas.
+- **Kuis kepribadian diisi sekali, seumur hidup akun.** 15 pertanyaan, sistem archetype tim 6 kategori dengan skoring berbobot 70/30 — isi pertanyaan, pemetaan skor, dan algoritmanya **sudah final**, ada di [METHODOLOGY.md](./METHODOLOGY.md). Jangan mengubah isi pertanyaan/bobot skor kuis tanpa merujuk dan memperbarui dokumen itu. Setelah pengguna submit akhir, jawaban dan hasil (`personality_type`, `personality_scores`, `learning_style`) terkunci permanen — tidak ada menu ulang/reset kuis di MVP. Sebelum submit akhir, pengguna boleh menekan "Kembali" untuk melihat dan mengubah jawaban pertanyaan sebelumnya (jawaban yang belum di-submit dianggap draft). Wajib ada modal peringatan sebelum kuis dimulai (jumlah pertanyaan + peringatan isi jujur karena hasil jadi label permanen) dan konfirmasi terakhir sebelum submit. Penguncian harus ditegakkan di RLS, bukan hanya UI. Detail di [PRD.md §6.1](./PRD.md) dan [ARCHITECTURE.md §4.1](./ARCHITECTURE.md).
 - **Moderasi**: `pending_review` sebelum `banned`; tidak ada auto-ban dari satu laporan.
 - **Tidak ada pembayaran** di aplikasi. Biaya event hanya ditampilkan sebagai catatan ("bayar di tempat").
 - **Android saja** untuk MVP. Jangan menambah kode khusus iOS kecuali diminta.
@@ -79,4 +79,4 @@ npm run test
 npm run build:apk      # APK untuk demo/submission (EAS Build profil preview)
 ```
 
-Uji fitur Wi-Fi/BSSID di **HP Android fisik**, bukan emulator. Lihat [INSTALLATION.md](./INSTALLATION.md) untuk setup Supabase, Edge Functions, dan environment variable.
+Uji fitur Wi-Fi/BSSID di **HP Android fisik**, bukan emulator. Lihat [INSTALLATION.md](./INSTALLATION.md) untuk setup Supabase, Edge Functions, dan environment variable. Lihat [METHODOLOGY.md](./METHODOLOGY.md) untuk isi lengkap kuis kepribadian.

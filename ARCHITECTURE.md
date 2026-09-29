@@ -1,6 +1,6 @@
 # Arsitektur AyoMatch
 
-> Versi 2.0 — 29 September 2026. Menggantikan arsitektur Next.js/PWA (v1). Latar keputusan ada di [PRD.md](./PRD.md) v1.3.
+> Versi 2.1 — 29 September 2026. Menggantikan arsitektur Next.js/PWA (v1). Latar keputusan ada di [PRD.md](./PRD.md) v1.3+. Isi & skoring kuis kepribadian ada di [METHODOLOGY.md](./METHODOLOGY.md).
 
 ## 1. Gambaran Umum
 
@@ -61,10 +61,15 @@ Aturan pembagian: operasi CRUD biasa yang cukup dijaga RLS boleh langsung dari a
 ## 4. Alur Pengguna Utama
 
 ### 4.1 Onboarding
+
 1. Pengguna memasukkan email kampus → Supabase Auth mengirim **kode OTP 6 digit** (lebih andal di mobile daripada magic link karena tidak butuh deep link). Domain di-allowlist lewat Auth Hook.
-2. Setelah verifikasi, aplikasi mewajibkan kuis kepribadian (6 pertanyaan).
-3. Jawaban disimpan ke `personality_answers`; fungsi Postgres menghitung `personality_type` dan `learning_style` di `profiles`.
-4. Masuk ke Beranda.
+2. Setelah verifikasi, aplikasi mewajibkan kuis kepribadian (15 pertanyaan, sistem archetype tim — isi lengkap & skoring di [METHODOLOGY.md](./METHODOLOGY.md)). `profiles.personality_quiz_completed_at` masih `null` untuk pengguna baru — ini penanda kuis belum final.
+3. **Sebelum pertanyaan pertama muncul**, tampilkan modal peringatan (blocking, harus ditutup dengan tombol "Mulai"): jumlah pertanyaan, estimasi waktu, dan peringatan bahwa hasil kuis jadi **label kepribadian permanen** di akun sehingga harus dijawab jujur (lihat PRD §6.1).
+4. **Fase pengisian (draft, sebelum submit akhir)**: setiap jawaban di-*upsert* ke `personality_answers` per `question_id` (bukan insert-only), supaya pengguna bisa menekan "Kembali" ke pertanyaan sebelumnya dan menimpa jawaban draft-nya. Selama `personality_quiz_completed_at` masih `null`, upsert ini diperbolehkan RLS. Layar menampilkan progress ("Pertanyaan n dari 15") dan tombol Kembali/Lanjut.
+5. Setelah pertanyaan terakhir, tampilkan konfirmasi submit akhir ("jawaban tidak bisa diubah lagi setelah ini").
+6. Submit akhir memanggil fungsi Postgres `submit_personality_quiz(profile_id)` (`security definer`), yang: memvalidasi semua 15 pertanyaan sudah terjawab → menghitung `personality_type` (archetype tertinggi) & `personality_scores` (persentase keenam archetype, algoritma di [METHODOLOGY.md §5](./METHODOLOGY.md)) & `learning_style` → menulis hasil ke `profiles` → mengisi `profiles.personality_quiz_completed_at = now()`. Sejak baris ini terisi, trigger dan RLS menolak semua insert/update lanjutan ke `personality_answers` milik pengguna itu maupun ke kolom hasil di `profiles` — lihat §6.
+7. Jika pengguna yang sudah submit membuka kembali rute kuis, aplikasi mengarahkan langsung ke Beranda (dicek dari `personality_quiz_completed_at`, bukan menampilkan form terisi yang bisa diedit).
+8. Masuk ke Beranda.
 
 ### 4.2 Match › Belajar
 1. Rekomendasi partner: fungsi Postgres `recommend_study_partners(user_id)` menghitung skor kecocokan dari mata kuliah yang sama, gaya belajar, dan kepribadian.
@@ -107,8 +112,8 @@ Aturan pembagian: operasi CRUD biasa yang cukup dijaga RLS boleh langsung dari a
 
 | Tabel | Kolom penting | Catatan |
 |---|---|---|
-| `profiles` | id (FK auth.users), full_name, campus_email, major, semester, personality_type, learning_style, role (`student`/`curator`/`admin`), avatar_url, ktm_url, show_on_map (bool) | 1:1 dengan auth.users |
-| `personality_answers` | profile_id, question_id, answer | Jawaban kuis |
+| `profiles` | id (FK auth.users), full_name, campus_email, major, semester, personality_type, personality_scores (jsonb), learning_style, personality_quiz_completed_at (timestamptz, null = belum submit), role (`student`/`curator`/`admin`), avatar_url, ktm_url, show_on_map (bool) | 1:1 dengan auth.users. `personality_type` = archetype dengan skor tertinggi dari 6 archetype (lihat [METHODOLOGY.md](./METHODOLOGY.md)); `personality_scores` menyimpan persentase keenamnya untuk ditampilkan sebagai trait sekunder. Ketiganya terkunci (read-only bagi pengguna) begitu `personality_quiz_completed_at` terisi |
+| `personality_answers` | profile_id, question_id (`q1`–`q15`), answer (`A`/`B`) | Jawaban kuis, isi & pemetaan skor lengkap di [METHODOLOGY.md §4](./METHODOLOGY.md). Bisa di-upsert bebas oleh pemiliknya **selama** `profiles.personality_quiz_completed_at` masih null (fase draft, mendukung tombol "Kembali"); terkunci permanen sesudahnya |
 | `courses` | id, code, name | Seed manual untuk MVP |
 | `campus_zones` | id, name, parent_zone_id, level (`building`/`room`), map_x, map_y, map_w, map_h | Posisi untuk peta skematis (bukan koordinat GPS) |
 | `wifi_access_points` | bssid (PK, lowercase), zone_id, label, registered_by, created_at | Data infrastruktur, bukan data pengguna |
@@ -132,6 +137,8 @@ Skema detail ditulis sebagai SQL migration di `supabase/migrations/`.
 
 - **Autentikasi**: hanya domain email kampus yang di-allowlist (Auth Hook). Tidak ada sign-up bebas.
 - **Row Level Security** aktif di semua tabel. Contoh:
+  - `personality_answers`: policy `UPDATE`/`INSERT` untuk pemilik baris memakai `USING`/`WITH CHECK` yang mengecek `(select personality_quiz_completed_at from profiles where id = auth.uid()) is null` — begitu kuis submit akhir, semua insert/update ditolak di level database, bukan cuma disembunyikan di UI. Ini yang menegakkan aturan "boleh Kembali sebelum submit, terkunci sesudahnya" dari PRD §6.1.
+  - `profiles`: kolom `personality_type`, `personality_scores`, `learning_style`, `personality_quiz_completed_at` tidak boleh diubah lewat client sama sekali oleh pengguna biasa (hanya ditulis oleh fungsi `submit_personality_quiz`, `security definer`) — gunakan trigger `BEFORE UPDATE` yang menolak perubahan kolom tersebut jika pemanggil bukan role internal, sebagai lapisan kedua selain RLS.
   - `presence`: pengguna hanya bisa melihat baris milik orang lain jika dirinya sendiri punya baris `presence` aktif (timbal balik) dan `expires_at > now()`.
   - `reconnect_votes`: hanya voter yang bisa membaca suaranya sendiri.
   - `events`: insert/update ditolak untuk role selain `curator`/`admin`.
