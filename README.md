@@ -1,6 +1,6 @@
 # AyoMatch
 
-> Aplikasi matching mahasiswa dalam satu kampus — nemuin partner belajar, partner lomba, partner mabar, dan teman baru berdasarkan kecocokan gaya belajar, hobi, dan kepribadian.
+> Aplikasi Android untuk mahasiswa dalam satu kampus — nemuin partner belajar, partner lomba, dan teman baru berdasarkan kecocokan gaya belajar, hobi, dan kepribadian. Di dalam kampus lewat Match dan Match Map, di luar kampus lewat Event yang dikurasi.
 
 Dibuat untuk **Hackathon JOINTS UGM 2026** (FMIPA UGM) — track **Healthcare** (kesehatan mental & isolasi sosial mahasiswa), dengan sentuhan **Education** (peer learning).
 
@@ -14,52 +14,53 @@ Data I-NAMHS menunjukkan 1 dari 3 remaja Indonesia (34,9%, ±15,5 juta jiwa) pun
 
 **AyoMatch** memutus siklus isolasi ↔ kerusakan mental ini dengan sistem *matching* yang mempertemukan mahasiswa berdasarkan gaya belajar, kepribadian, dan minat mereka sejak awal — bukan menunggu mereka "kebetulan" ketemu.
 
-## Fitur Utama (MVP: Study Match)
+## Fitur Utama (MVP)
 
-| Fitur | Deskripsi |
-|---|---|
-| Login kampus | Autentikasi menggunakan email institusi (SSO/domain-restricted) |
-| Kuis kepribadian | Onboarding quiz singkat → sistem mengklasifikasikan gaya belajar/kepribadian pengguna (contoh: slow/fast learner) |
-| Study Match | Cocokkan mahasiswa berdasarkan mata kuliah, gaya belajar, dan kepribadian |
-| Buat / Join Event | Buat sesi belajar (agenda, kapasitas peserta) atau join event orang lain; bisa ganti grup atau keluar |
-| Match Map | Peta lokasi mahasiswa lain yang sedang online, bisa difilter berdasarkan kepribadian, hobi, jurusan, atau game — lokasi ditampilkan approximate demi privasi |
-| Add Friend & Grup | Tambah teman, chat privat/grup |
-| View Profile | Lihat profil & hasil kepribadian pengguna lain |
-| Report & Moderasi | Lapor pengguna bermasalah → tinjauan → banned via email jika terverifikasi |
+| Tab | Fitur | Deskripsi |
+|---|---|---|
+| — | Login kampus | Email institusi (domain allowlist) dengan kode OTP |
+| — | Kuis kepribadian | 6 pertanyaan onboarding → tipe kepribadian & gaya belajar (contoh: Visual Learner) |
+| Match › Belajar | Study Match | Rekomendasi partner belajar + buat/gabung sesi belajar di ruangan kampus |
+| Match › Lomba | Competition Match | Lowongan anggota tim lomba + permintaan bergabung |
+| Peta | Match Map | Siapa yang online per ruangan, dideteksi dari **access point Wi-Fi kampus** (BSSID) — tanpa GPS, tanpa titik koordinat |
+| Event | Event luar kampus | Nongkrong, hobi, event langka bulanan, acara mitra — **hanya dibuat kurator**, dengan RSVP dan pengingat |
+| Profil | Profil & sosial | Profil, teman, chat, laporan & moderasi |
 
-**Roadmap fitur lanjutan** (di luar MVP hackathon): Sport Match, Gaming Match, Art Match, Organisation Match — lihat [ROADMAP.md](./ROADMAP.md).
+**Roadmap** (di luar MVP): Sport/Gaming/Art/Organisation Match, dukungan iOS, integrasi controller Wi-Fi kampus — lihat [ROADMAP.md](./ROADMAP.md).
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router) + TypeScript
-- **UI**: Tailwind CSS + shadcn/ui
-- **Backend & Database**: Supabase (PostgreSQL, Auth, Realtime, Storage)
-- **Peta**: Leaflet + OpenStreetMap
+- **Aplikasi**: React Native + Expo SDK 57 (TypeScript), Android
+- **Navigasi**: expo-router
+- **UI**: NativeWind (Tailwind untuk React Native), react-native-svg (peta zona)
+- **Backend**: Supabase (PostgreSQL + RLS, Auth, Realtime, Storage, Edge Functions)
+- **Wi-Fi/BSSID**: @react-native-community/netinfo
 - **State & Data Fetching**: TanStack Query + Zustand
 - **Form & Validasi**: React Hook Form + Zod
-- **Testing**: Vitest + Testing Library
-- **Deployment**: Vercel (app) + Supabase Cloud (database)
+- **Testing**: Jest (jest-expo) + React Native Testing Library
+- **Distribusi**: APK via EAS Build
 
-Alasan lengkap pemilihan stack dan diagram arsitektur ada di [ARCHITECTURE.md](./ARCHITECTURE.md).
+Alasan pemilihan stack dan diagram arsitektur ada di [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Struktur Project
 
 ```
 ayomatch/
+├── app/                # expo-router: (auth), (tabs), admin
 ├── src/
-│   ├── app/                # Next.js App Router (pages, layouts, API routes)
-│   ├── components/         # Komponen UI reusable
-│   ├── lib/supabase/       # Supabase client & helper query
-│   ├── hooks/              # Custom React hooks
-│   ├── stores/             # Zustand stores
-│   └── types/              # Tipe TypeScript & hasil generate Supabase
+│   ├── components/     # komponen UI reusable
+│   ├── features/       # match, map, event, social
+│   ├── lib/            # supabase, wifi (BSSID), validation (Zod)
+│   ├── stores/         # Zustand stores
+│   └── types/          # tipe TypeScript & hasil generate Supabase
 ├── supabase/
-│   ├── migrations/         # SQL migration (schema, RLS policy)
-│   └── seed.sql            # Data dummy untuk demo
-├── public/                 # Aset statis
-├── tests/                  # Unit & integration test
-├── package.json
-└── README.md
+│   ├── migrations/     # SQL schema + RLS policy
+│   ├── functions/      # Edge Functions (resolve-zone, register-access-point, create-event)
+│   └── seed.sql        # data demo
+├── assets/
+├── app.config.ts
+├── eas.json
+└── package.json
 ```
 
 ## Cara Mulai
@@ -70,14 +71,16 @@ Lihat panduan lengkap di [INSTALLATION.md](./INSTALLATION.md). Ringkas:
 git clone <repo-url> ayomatch
 cd ayomatch
 npm install
-copy .env.example .env.local   # isi kredensial Supabase
-npm run dev
+copy .env.example .env   # isi URL & anon key Supabase
+npx expo run:android     # pasang development build ke HP Android via USB
+npm run start
 ```
 
-Aplikasi berjalan di `http://localhost:3000`.
+Fitur Match Map harus diuji di HP Android fisik yang tersambung Wi-Fi.
 
 ## Dokumentasi Lain
 
+- [PRD.md](./PRD.md) — kebutuhan produk & scope MVP
 - [CLAUDE.md](./CLAUDE.md) — konteks & konvensi kerja untuk AI coding assistant
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — arsitektur sistem, data model, dan pertimbangan keamanan
 - [INSTALLATION.md](./INSTALLATION.md) — panduan instalasi & setup environment
