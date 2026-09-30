@@ -6,6 +6,7 @@ Dokumen ini memberi konteks kerja untuk AI coding assistant (Claude/Kiro/LLM lai
 
 AyoMatch adalah **aplikasi Android native (React Native + Expo)** yang mencocokkan mahasiswa dalam satu kampus untuk belajar bareng, ikut lomba bareng, dan bertemu di acara luar kampus, berdasarkan kepribadian dan minat. Dibangun untuk Hackathon JOINTS UGM 2026, deadline submission **16 Oktober 2026** dan Grand Final **1 November 2026**.
 
+Navigasi utama: **Beranda · Match (Belajar/Lomba) · Event · Peta · Profil**. Kampus pilot: **BINUS @Kemanggisan** (Anggrek, Syahdan, Kijang).
 
 Scope MVP ada di [PRD.md](./PRD.md) §5 — ikuti urutan prioritas (Must-have dulu). Fitur match lain (sport, gaming, art, organisasi) adalah roadmap — jangan implementasikan penuh kecuali diminta eksplisit.
 
@@ -21,7 +22,8 @@ Detail arsitektur & data model ada di [ARCHITECTURE.md](./ARCHITECTURE.md).
 - React Hook Form + Zod untuk semua form dan validasi
 - `@react-native-community/netinfo` untuk membaca BSSID Wi-Fi
 - react-native-svg untuk peta zona skematis (**jangan** pakai Google Maps / react-native-maps — butuh API key & billing, dan kita memang tidak memakai koordinat)
-- expo-notifications (notifikasi lokal) untuk pengingat RSVP
+- expo-notifications (notifikasi lokal) untuk pengingat RSVP & sesi
+- expo-document-picker + expo-file-system untuk upload/unduh **materi dari host**; expo-image-picker untuk avatar & foto KTM; expo-crypto untuk `device_id` di `trusted_devices`. Keempatnya library native: setelah `npm install`, **wajib rebuild** dev build (`npx expo run:android`)
 - Jest (jest-expo) + React Native Testing Library untuk test
 
 Tambah library native baru selalu lewat `npx expo install <paket>` agar versinya cocok dengan SDK.
@@ -34,7 +36,7 @@ Tambah library native baru selalu lewat `npx expo install <paket>` agar versinya
 - Skema database, RLS, dan Edge Functions hidup di `supabase/` sebagai migration/kode — jangan ubah manual lewat dashboard tanpa migration.
 - Semua tabel data personal **wajib** punya RLS policy sebelum dianggap selesai.
 - Skema Zod didefinisikan sekali di `src/lib/validation/` dan dipakai juga oleh Edge Functions.
-- Teks UI dalam **Bahasa Indonesia**. Istilah fitur tetap: Study Match, Competition Match, Match Map, Visual Learner (dan tipe kepribadian lain). Sub-tab Match bernama "Belajar" dan "Lomba".
+- Teks UI dalam **Bahasa Indonesia**. Istilah yang tetap bahasa Inggris: Study Match, Competition Match, Match Map, nama 6 archetype (Wildheart, Heartkeeper, Mindsmith, Groundbreaker, Kindled Flame, Sagekeeper), dan nama jurusan versi BINUS (contoh: Computer Science). Sub-tab Match bernama "Belajar" dan "Lomba".
 - Warna mengikuti Figma: biru utama `#0072B8`; aksen kuning 50–900 (dasar `#F39C12`). Teks aksen pakai 700 (`#A65C00`), bukan 500.
 - Commit kecil dan deskriptif. Jangan gabungkan perubahan skema database dengan perubahan UI yang tidak berhubungan.
 
@@ -46,8 +48,9 @@ Tambah library native baru selalu lewat `npx expo install <paket>` agar versinya
 - **Visibilitas timbal balik** di Match Map: pengguna yang tidak tampil tidak boleh bisa membaca presence orang lain (ditegakkan di RLS, bukan hanya UI).
 - **Lokasi hanya dikirim saat app di foreground** dan toggle aktif. Tidak ada background location/task.
 - **Event luar kampus hanya bisa dibuat role `curator`/`admin`**, dicek di RLS dan Edge Function `create-event`. Venue harus berstatus `approved`.
-- **Login kampus**: domain email institusi di-allowlist; login via kode OTP. Jangan implementasikan sign-up email bebas.
-- **Kuis kepribadian diisi sekali, seumur hidup akun.** 15 pertanyaan, sistem archetype tim 6 kategori dengan skoring berbobot 70/30 — isi pertanyaan, pemetaan skor, dan algoritmanya **sudah final**, ada di [METHODOLOGY.md](./METHODOLOGY.md). Jangan mengubah isi pertanyaan/bobot skor kuis tanpa merujuk dan memperbarui dokumen itu. Setelah pengguna submit akhir, jawaban dan hasil (`personality_type`, `personality_scores`, `learning_style`) terkunci permanen — tidak ada menu ulang/reset kuis di MVP. Sebelum submit akhir, pengguna boleh menekan "Kembali" untuk melihat dan mengubah jawaban pertanyaan sebelumnya (jawaban yang belum di-submit dianggap draft). Wajib ada modal peringatan sebelum kuis dimulai (jumlah pertanyaan + peringatan isi jujur karena hasil jadi label permanen) dan konfirmasi terakhir sebelum submit. Penguncian harus ditegakkan di RLS, bukan hanya UI. Detail di [PRD.md §6.1](./PRD.md) dan [ARCHITECTURE.md §4.1](./ARCHITECTURE.md).
+- **Login kampus**: domain `@binus.ac.id` di-allowlist; email + kata sandi, dan kode OTP ke email kampus hanya saat Daftar dan saat masuk dari HP yang belum dikenali. Tombol Google/Facebook/Apple hanya tampilan di MVP — jangan implementasikan OAuth tanpa diminta. Jangan implementasikan sign-up dengan email non-kampus.
+- **Sesi belajar**: tanpa daftar tunggu dan tanpa "ganti sesi". Kuota **wajib** dijaga di database (kunci baris sesi saat gabung), bukan hanya dicek di aplikasi. Peserta keluar lewat dialog konfirmasi. Host keluar punya aturan sendiri (batas H-24, polling host baru / voting batal 80%, sesi tanpa host jadi terkunci) — lihat [PRD.md §8.1](./PRD.md). Event juga tanpa daftar tunggu.
+- **Kuis kepribadian diisi sekali, seumur hidup akun.** 15 pertanyaan, sistem archetype tim 6 kategori dengan skoring berbobot 70/30 — isi pertanyaan, pemetaan skor, dan algoritmanya **sudah final**, ada di [METHODOLOGY.md](./METHODOLOGY.md) (v1.1, pemetaan sudah diseimbangkan: tiap archetype 5× primer + 5× sekunder). Jangan mengubah isi pertanyaan/bobot skor kuis tanpa merujuk dan memperbarui dokumen itu, dan cek ulang keseimbangannya (METHODOLOGY §10). **`learning_style` (contoh "Visual Learner") tidak dipakai di MVP** — kartu pengguna menampilkan archetype. Setelah pengguna submit akhir, jawaban dan hasil (`personality_type`, `personality_scores`) terkunci permanen — tidak ada menu ulang/reset kuis di MVP. Sebelum submit akhir, pengguna boleh menekan "Kembali" untuk melihat dan mengubah jawaban pertanyaan sebelumnya (jawaban yang belum di-submit dianggap draft). Wajib ada modal peringatan sebelum kuis dimulai (jumlah pertanyaan + peringatan isi jujur karena hasil jadi label permanen) dan konfirmasi terakhir sebelum submit. Penguncian harus ditegakkan di RLS, bukan hanya UI. Detail di [PRD.md §6.1](./PRD.md) dan [ARCHITECTURE.md §4.1](./ARCHITECTURE.md).
 - **Moderasi**: `pending_review` sebelum `banned`; tidak ada auto-ban dari satu laporan.
 - **Tidak ada pembayaran** di aplikasi. Biaya event hanya ditampilkan sebagai catatan ("bayar di tempat").
 - **Android saja** untuk MVP. Jangan menambah kode khusus iOS kecuali diminta.

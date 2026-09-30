@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD) — AyoMatch
 
-> Versi: 1.5 — 29 September 2026
+> Versi: 1.6 — 30 September 2026
 > Untuk: Hackathon JOINTS UGM 2026 (FMIPA UGM), track **Healthcare** dengan sentuhan **Education**
 
 Dokumen pelengkap: [README.md](./README.md) (latar belakang & fitur), [ARCHITECTURE.md](./ARCHITECTURE.md) (arsitektur & data model), [METHODOLOGY.md](./METHODOLOGY.md) (isi & skoring kuis kepribadian), [ROADMAP.md](./ROADMAP.md) (timeline), [CLAUDE.md](./CLAUDE.md) (konvensi kerja AI assistant).
@@ -15,6 +15,7 @@ Dokumen pelengkap: [README.md](./README.md) (latar belakang & fitur), [ARCHITECT
 | 1.3 | 29 Sep 2026 | **Pivot ke aplikasi native React Native (Expo), Android dulu.** Lokasi **hanya dari access point Wi-Fi (BSSID)** — QR, GPS, dan cek IP dihapus. Study & Competitions pindah ke tab **Match** (sub-tab Belajar & Lomba). Tab **Event** baru untuk acara di luar kampus, hanya dibuat kurator, **masuk scope MVP**. Strategi demo pakai hotspot. Tabel MVP ditulis ulang. |
 | 1.4 | 29 Sep 2026 | Tambah §6.1: kuis kepribadian **tidak boleh diulang** setelah submit akhir (hasil jadi label permanen akun), tapi pengguna **boleh menekan "Kembali"** untuk mengubah jawaban sebelum submit akhir. Tambah wajib modal peringatan jumlah pertanyaan & anjuran isi jujur. |
 | 1.5 | 29 Sep 2026 | Kuis kepribadian resmi jadi **15 pertanyaan** (bukan 6) dengan metodologi archetype tim 6 kategori (skoring berbobot 70/30) — lihat [METHODOLOGY.md](./METHODOLOGY.md). Menjawab Open Question #1 di §14. |
+| 1.6 | 30 Sep 2026 | **Kampus pilot BINUS @Kemanggisan** (`@binus.ac.id`); zona contoh BeeHub, LKC, Lab Komputer, Creative Space, Gazebo. **`learning_style` keluar dari MVP** — kartu pengguna menampilkan archetype. Login: OTP hanya saat Daftar dan dari HP baru; tombol Google/Facebook/Apple hanya tampilan. Sesi belajar: **tanpa daftar tunggu dan tanpa ganti sesi**, keluar lewat konfirmasi, kuota dijaga di database, agenda berjam, **materi dari host**. Aturan **host keluar** (§8.1). **Daftar tunggu Event dihapus.** METHODOLOGY naik ke v1.1 (pemetaan archetype diseimbangkan). |
 
 ---
 
@@ -24,18 +25,18 @@ Interaksi dengan teman sebaya berkontribusi besar terhadap kemampuan kognitif da
 
 Data I-NAMHS: 1 dari 3 remaja Indonesia (34,9%, ±15,5 juta jiwa) punya masalah kesehatan mental, dan sebagian besar melaporkan gangguan tersebut merusak kemampuan mereka berhubungan dengan teman sebaya (41,1%) dan berfungsi di sekolah/kampus (39,3%).
 
-**Masalah inti**: tidak ada cara sistematis bagi mahasiswa baru/introvert/pindahan untuk menemukan partner belajar atau teman yang cocok secara gaya belajar, kepribadian, dan minat — mereka bergantung pada pertemuan kebetulan.
+**Masalah inti**: tidak ada cara sistematis bagi mahasiswa baru/introvert/pindahan untuk menemukan partner belajar atau teman yang cocok secara kepribadian, mata kuliah, dan minat — mereka bergantung pada pertemuan kebetulan.
 
 ## 2. Solusi & Tujuan Produk
 
-**AyoMatch** adalah **aplikasi mobile native (React Native + Expo), Android lebih dulu**, yang mempertemukan mahasiswa dalam satu kampus berdasarkan gaya belajar, kepribadian, dan minat — di dalam kampus lewat **Match** (belajar & lomba) dan **Match Map** berbasis Wi-Fi kampus, dan di luar kampus lewat **Event** yang dikurasi.
+**AyoMatch** adalah **aplikasi mobile native (React Native + Expo), Android lebih dulu**, yang mempertemukan mahasiswa dalam satu kampus berdasarkan kepribadian (archetype tim), mata kuliah, dan minat — di dalam kampus lewat **Match** (belajar & lomba) dan **Match Map** berbasis Wi-Fi kampus, dan di luar kampus lewat **Event** yang dikurasi.
 
 Alasan memilih native: hanya aplikasi native yang bisa membaca access point Wi-Fi yang sedang tersambung (BSSID), dan itulah dasar deteksi lokasi per ruangan tanpa GPS (§7).
 
 ### Tujuan (Goals)
 
 1. Memutus siklus isolasi ↔ kerusakan kesehatan mental dengan mempertemukan mahasiswa secara proaktif, bukan menunggu "kebetulan".
-2. Memvalidasi bahwa matching berbasis kepribadian & gaya belajar bisa mendorong pembentukan kelompok belajar baru dan pertemanan di luar kelas.
+2. Memvalidasi bahwa matching berbasis kepribadian (archetype tim) bisa mendorong pembentukan kelompok belajar baru dan pertemanan di luar kelas.
 3. Menyediakan MVP yang bisa didemokan penuh di HP Android (bukan mockup) pada Grand Final, dengan fondasi data model yang extensible untuk fitur match lain.
 
 ### Non-Goals (MVP ini)
@@ -56,8 +57,8 @@ Alasan memilih native: hanya aplikasi native yang bisa membaca access point Wi-F
 |---|---|
 | Mahasiswa baru/pindahan | Cepat kenal lingkungan kampus, cari teman & partner belajar sejak awal semester |
 | Mahasiswa introvert/kesulitan bersosialisasi | Cara berinteraksi yang terstruktur & tidak mengintimidasi — termasuk datang ke acara tanpa harus sendirian |
-| Mahasiswa yang butuh partner belajar/lomba spesifik | Cocok berdasarkan mata kuliah, gaya belajar, jadwal, atau peran tim |
-| Mahasiswa yang ingin menjaga privasi lokasi | Tetap bisa terhubung lewat Match Map yang hanya menampilkan **nama ruangan** (misalnya "Atrium"), bukan titik koordinat |
+| Mahasiswa yang butuh partner belajar/lomba spesifik | Cocok berdasarkan mata kuliah, archetype, jadwal, atau peran tim |
+| Mahasiswa yang ingin menjaga privasi lokasi | Tetap bisa terhubung lewat Match Map yang hanya menampilkan **nama ruangan** (misalnya "BeeHub"), bukan titik koordinat |
 | **Kurator** (tim AyoMatch, UKM, kafe/komunitas mitra) | Membuat dan mengelola Event di luar kampus yang aman dan relevan untuk mahasiswa |
 
 Batasan akses: hanya mahasiswa dengan email institusi kampus (domain di-allowlist). Kurator juga harus punya akun terverifikasi dengan role `curator` yang diberikan admin.
@@ -80,7 +81,7 @@ Semua fitur di tabel ini **masuk scope hackathon**. Prioritas menentukan urutan 
 
 | # | Fitur | Deskripsi | Prioritas |
 |---|---|---|---|
-| 1 | Login kampus | Email institusi (domain allowlist), login via kode OTP 6 digit | Must-have |
+| 1 | Login kampus | Email `@binus.ac.id` + kata sandi. **Kode OTP 6 digit** ke email kampus hanya diminta saat **Daftar** dan saat masuk dari **HP yang belum dikenali**. Tombol Google/Facebook/Apple hanya tampilan di MVP | Must-have |
 | 2 | Kuis kepribadian | Onboarding quiz 15 pertanyaan, wajib sebelum masuk Beranda → klasifikasi archetype tim rule-based (lihat [METHODOLOGY.md](./METHODOLOGY.md)). Sekali submit, terkunci permanen (boleh "Kembali" sebelum submit akhir) — detail §6.1 | Must-have |
 | 3 | Match › Belajar (Study Match) | Rekomendasi partner belajar (skor kecocokan) + buat/gabung sesi belajar di zona kampus | Must-have |
 | 4 | Match Map via Wi-Fi | Zona ditentukan dari BSSID access point yang tersambung; peta skematis per gedung/ruangan; visibilitas timbal balik. Detail §7 | Must-have (inti inovasi) |
@@ -96,14 +97,16 @@ Semua fitur di tabel ini **masuk scope hackathon**. Prioritas menentukan urutan 
 ## 6. User Stories (Ringkas)
 
 - Sebagai mahasiswa baru, saya ingin login dengan email kampus saya agar hanya sesama mahasiswa yang bisa mengakses aplikasi ini.
-- Sebagai pengguna baru, saya ingin mengisi kuis kepribadian singkat agar sistem tahu gaya belajar saya sebelum mulai mencari match.
+- Sebagai pengguna baru, saya ingin mengisi kuis kepribadian singkat agar sistem tahu archetype (peran saya di tim) sebelum mulai mencari match.
 - Sebagai pengguna baru, saya ingin tahu dari awal berapa banyak pertanyaan kuis dan bahwa hasilnya jadi label permanen, agar saya menjawab dengan jujur, bukan asal cepat selesai.
 - Sebagai pengguna yang sedang mengisi kuis, saya ingin bisa kembali ke pertanyaan sebelumnya untuk mengubah jawaban yang salah pilih, selama saya belum menekan submit akhir.
-- Sebagai mahasiswa yang kesulitan di mata kuliah tertentu, saya ingin dicocokkan dengan mahasiswa lain yang mengambil mata kuliah sama dan gaya belajarnya cocok.
+- Sebagai mahasiswa yang kesulitan di mata kuliah tertentu, saya ingin dicocokkan dengan mahasiswa lain yang mengambil mata kuliah sama dan archetype-nya cocok dengan saya.
 - Sebagai host belajar kelompok, saya ingin membuat sesi belajar dengan waktu, ruangan, dan kuota agar orang yang tepat bisa bergabung.
+- Sebagai host, saya ingin membagikan materi (PDF/gambar) dan agenda berjam agar peserta tahu apa yang dibahas dan bisa bersiap.
+- Sebagai host yang berhalangan, saya ingin bisa memindahkan peran host atau membatalkan sesi dengan persetujuan peserta, bukan menghilang begitu saja.
 - Sebagai peserta, saya ingin melihat sesi belajar per tanggal dan jam, beserta berapa teman saya yang sudah ikut.
 - Sebagai mahasiswa yang ikut lomba, saya ingin memasang lowongan anggota tim dengan peran yang saya butuhkan.
-- Sebagai peserta, saya ingin melihat mahasiswa lain yang sedang online di ruangan yang sama (misalnya "Atrium") tanpa membagikan titik lokasi saya.
+- Sebagai peserta, saya ingin melihat mahasiswa lain yang sedang online di ruangan yang sama (misalnya "BeeHub") tanpa membagikan titik lokasi saya.
 - Sebagai pengguna, saya ingin memilih sendiri kapan lokasi saya terlihat, dan status saya hilang otomatis saat saya berhenti memakai aplikasi.
 - Sebagai mahasiswa introvert, saya ingin ikut acara di luar kampus yang aman dan dikurasi, dan tahu bahwa saya tidak akan datang sendirian.
 - Sebagai kurator, saya ingin membuat event dengan tempat, waktu, kuota, dan perkiraan biaya agar mahasiswa bisa RSVP.
@@ -112,14 +115,14 @@ Semua fitur di tabel ini **masuk scope hackathon**. Prioritas menentukan urutan 
 
 ## 6.1 Aturan Kuis Kepribadian (Sekali Seumur Hidup Akun)
 
-Kuis kepribadian menentukan `personality_type` (archetype tim, lihat [METHODOLOGY.md](./METHODOLOGY.md)) dan `learning_style` yang dipakai untuk Study Match dan ditampilkan ke pengguna lain di View Profile. Karena label ini menempel ke akun **seumur hidup** (bukan sekadar preferensi yang bisa diganti-ganti), berikut aturannya:
+Kuis kepribadian menentukan `personality_type` (archetype tim, lihat [METHODOLOGY.md](./METHODOLOGY.md)) dan `personality_scores` yang dipakai untuk Study Match dan ditampilkan ke pengguna lain di View Profile. **`learning_style` (contoh "Visual Learner") tidak dipakai di MVP** — kuis ini satu-satunya kuis onboarding, dan kartu pengguna menampilkan archetype. Karena label ini menempel ke akun **seumur hidup** (bukan sekadar preferensi yang bisa diganti-ganti), berikut aturannya:
 
 1. **Modal pembuka wajib**, muncul sebelum pertanyaan pertama, sebelum pengguna bisa menekan "Mulai". Isinya minimal:
    - Jumlah total pertanyaan (15 pertanyaan, estimasi ±2–3 menit).
    - Peringatan eksplisit: hasil kuis akan jadi **label kepribadian permanen** di akun pengguna dan terlihat mahasiswa lain, jadi harus dijawab **jujur sesuai kepribadian asli**, bukan jawaban yang "kelihatan bagus".
    - Penjelasan bahwa jawaban **tidak bisa diubah lagi setelah disubmit**.
 2. **Boleh navigasi maju/mundur ("Kembali") selama belum submit akhir.** Selama sesi pengisian belum selesai, pengguna bebas kembali ke pertanyaan sebelumnya dan mengganti jawaban. Jawaban selama fase ini adalah **draft**, disimpan sementara di state lokal (atau tabel draft sisi server, lihat ARCHITECTURE §4.1) — belum final.
-3. **Progress indicator**: setiap layar pertanyaan menampilkan posisi saat ini (contoh "Pertanyaan 3 dari 6") supaya pengguna tahu berapa lagi sebelum submit akhir.
+3. **Progress indicator**: setiap layar pertanyaan menampilkan posisi saat ini (contoh "3 / 15") supaya pengguna tahu berapa lagi sebelum submit akhir.
 4. **Konfirmasi submit akhir**: setelah pertanyaan terakhir dijawab, tampilkan ringkasan/konfirmasi ("Setelah ini jawabanmu tidak bisa diubah lagi — lanjutkan?") sebelum benar-benar mengunci hasil.
 5. **Setelah submit akhir, kuis terkunci permanen.** Tidak ada menu "Ulangi Kuis" atau "Edit Jawaban" di MVP. Pengguna yang sudah submit dan membuka lagi rute kuis harus diarahkan ke Beranda (kuis sudah tidak bisa diakses lagi, bukan ditampilkan sebagai form terisi yang bisa diedit).
 6. **Penguncian ditegakkan di server (RLS), bukan hanya disembunyikan di UI** — lihat detail teknis di [ARCHITECTURE.md §4.1](./ARCHITECTURE.md) dan §6.
@@ -129,7 +132,7 @@ Kuis kepribadian menentukan `personality_type` (archetype tim, lihat [METHODOLOG
 
 ### 7.1 Prinsip
 
-1. **Zona, bukan koordinat.** Unit lokasi terkecil yang disimpan atau ditampilkan adalah **zona bernama** (contoh: "Atrium FMIPA", "Perpustakaan Lt. 2"), yang dipetakan dari satu atau beberapa access point.
+1. **Zona, bukan koordinat.** Unit lokasi terkecil yang disimpan atau ditampilkan adalah **zona bernama** (contoh: "BeeHub Anggrek", "LKC Kemanggisan"), yang dipetakan dari satu atau beberapa access point.
 2. **Satu sumber: access point Wi-Fi.** Aplikasi membaca BSSID dari Wi-Fi yang **sedang tersambung**. Tidak ada GPS, QR, atau cek IP.
 3. **Tidak tersambung Wi-Fi kampus = tidak tampil.** Pengguna yang memakai data seluler atau Wi-Fi yang tidak terdaftar tidak muncul di Match Map (status "Kamu di luar jaringan kampus").
 4. **Opt-in dan hanya saat aplikasi dibuka.** BSSID hanya dikirim saat toggle "Tampil di peta" aktif dan aplikasi di foreground. Tidak ada pelacakan di background.
@@ -178,7 +181,7 @@ sequenceDiagram
     S->>S: BSSID tidak disimpan & tidak di-log
     S->>D: UPSERT presence {user_id, zone_id, expires_at} atau DELETE jika tidak cocok
     D-->>B: Supabase Realtime: jumlah & daftar per zona berubah (RLS)
-    B->>B: Peta: "Atrium · 4 online" → tap → daftar mahasiswa
+    B->>B: Peta: "BeeHub · 4 online" → tap → daftar mahasiswa
     loop Tiap 2 menit & setiap Wi-Fi berganti, selama app di foreground
         A->>S: Heartbeat {bssid}
     end
@@ -187,7 +190,7 @@ sequenceDiagram
 
 ### 7.6 Strategi Demo Grand Final (Hotspot)
 
-Wi-Fi venue (FMIPA UGM) bukan Wi-Fi kampus tim, jadi demo memakai **hotspot sebagai "access point kampus"**:
+Wi-Fi venue (FMIPA UGM) bukan Wi-Fi kampus tim (BINUS @Kemanggisan), jadi demo memakai **hotspot sebagai "access point kampus"**:
 
 - Satu perangkat khusus (HP ketiga atau laptop dengan data seluler) menyalakan hotspot. **Jangan pakai HP demo sendiri sebagai hotspot**: perangkat yang menjadi hotspot tidak tersambung ke AP mana pun, sehingga pemiliknya tidak akan muncul di zona.
 - HP demo A dan B tersambung ke hotspot tersebut. Hotspot memberi akses internet ke Supabase.
@@ -209,11 +212,36 @@ Tab Match punya dua sub-tab dengan satu tombol tambah yang labelnya menyesuaikan
 | Tujuan | Sesi belajar bareng dalam waktu dekat di kampus | Mencari anggota tim untuk lomba |
 | Pengelompokan | Strip tanggal + grup per jam | Grup per deadline pendaftaran |
 | Filter | Mata kuliah, jenis sesi | Kategori lomba |
-| Field wajib | Judul, mata kuliah, tanggal, jam, zona kampus, jenis (Kelompok / Tutor sebaya / Diskusi), kuota | Nama lomba, kategori, deadline, ukuran tim, anggota saat ini, peran yang dicari |
-| Cara bergabung | Langsung, sampai kuota penuh | Permintaan → disetujui/ditolak pembuat |
+| Field wajib | Judul, mata kuliah, tanggal, jam, zona kampus, jenis (Belajar kelompok / Tutor sebaya / Diskusi), kuota | Nama lomba, kategori, deadline, ukuran tim, anggota saat ini, peran yang dicari |
+| Field opsional | Agenda berjam (jam + kegiatan), materi dari host (file), yang perlu dibawa | Tautan panduan lomba, tentang tim |
+| Cara bergabung | Langsung, sampai kuota penuh. Tidak ada daftar tunggu | Permintaan → disetujui/ditolak pembuat |
+| Keluar | Peserta: lewat dialog konfirmasi. Host: aturan khusus §8.1. Tidak ada ganti sesi | — |
 | Hilang dari daftar | Setelah jam selesai | Setelah deadline lewat atau tim penuh |
 
-Aturan: tempat sesi dipilih dari daftar zona (bukan teks bebas) sehingga sesi muncul di sheet zona pada Peta; pembuat otomatis jadi anggota pertama; sesi penuh tetap tampil dengan status "Penuh".
+Aturan sesi belajar:
+
+- Tempat sesi dipilih dari daftar zona (bukan teks bebas) sehingga sesi muncul di sheet zona pada Peta. Pembuat otomatis jadi anggota pertama (host).
+- **Kuota dijaga di database**, bukan di aplikasi: gabung ditolak jika sesi sudah penuh, termasuk saat dua orang merebut tempat terakhir bersamaan.
+- **Keluar wajib dikonfirmasi dulu** lewat dialog "Keluar dari sesi ini?" ("Ya, keluar" / "Batal"). Setelah dikonfirmasi, tempat langsung terbuka untuk orang lain dan tidak dijamin bisa didapat lagi — risiko pengguna.
+- **Tidak ada daftar tunggu dan tidak ada ganti sesi.** Sesi penuh tetap tampil di daftar dengan label "Penuh" dan tidak bisa digabung; tidak ada layar khusus untuk sesi penuh. Pengguna yang ingin pindah sesi keluar dulu, lalu gabung sesi lain sendiri.
+- **Materi dari host**: PDF atau gambar, maks. 5 file per sesi, maks. 10 MB per file. Nama file terlihat oleh semua pengguna; isi file hanya bisa dibuka anggota sesi. Hanya host yang bisa menambah atau menghapus materi.
+- Agenda ditulis sebagai daftar jam + kegiatan dan ditampilkan sebagai rundown di detail sesi.
+- Setelah gabung, aplikasi menjadwalkan notifikasi lokal 1 jam sebelum sesi mulai.
+
+### 8.1 Host Keluar dari Sesi
+
+Host tidak bisa keluar seperti peserta biasa, dan peran host **tidak pernah pindah otomatis**.
+
+1. **Batas H-24**: host **tidak bisa keluar maupun memindahkan host kurang dari 24 jam sebelum sesi mulai**. Di rentang itu tombol Keluar untuk host nonaktif, dengan keterangan "Host nggak bisa keluar kurang dari 24 jam sebelum sesi mulai." Konsekuensi yang diterima: sesi yang dibuat kurang dari 24 jam sebelum mulai (sesi "hari ini") membuat host terkunci sejak sesi dibuat.
+2. **Host sendirian** (belum ada peserta lain): sesi langsung batal, **tanpa voting dan tanpa batas H-24** — membatalkan sesi tanpa peserta tidak merugikan siapa pun.
+3. Host menekan "Keluar", lalu **wajib menulis alasan** (tidak boleh kosong) dan memilih salah satu. Host lama langsung keluar saat mengajukan, tidak menunggu hasilnya.
+   - **Pindahkan host → polling calon host.** Semua peserta selain host memilih satu peserta untuk jadi host baru (boleh memilih diri sendiri). Suara terbanyak menang; kalau seri, yang lebih dulu gabung sesi. **Batas waktu 1 jam.**
+   - **Batalkan sesi → voting setuju/tidak.** Lolos jika yang setuju **≥ 80% dari peserta selain host, dibulatkan ke atas** (2 peserta → 2 setuju; 3 → 3; 5 → 4). **Batas waktu 1 jam.**
+4. **Kalau gagal** (polling tanpa suara sama sekali, atau pembatalan kurang dari 80% dalam 1 jam): sesi tetap berjalan **tanpa host dan terkunci**. Tidak ada yang bisa menambah materi atau mengubah detail sesi apa pun (judul, waktu, tempat, kuota, agenda, materi).
+5. Setiap kali host keluar, tercatat di **riwayat keluar host** (alasan, pilihan, hasil, waktu). Riwayat ini **hanya bisa dilihat peserta sesi itu**.
+6. Peserta sesi itu mendapat **tombol "Laporkan"** untuk host tersebut. Laporan masuk alur moderasi yang sama (`pending_review`, tanpa auto-ban).
+
+Karena ada batas H-24, polling dan voting 1 jam selalu selesai sebelum sesi mulai. Tanpa push notification, peserta baru tahu ada polling/voting kalau membuka app dalam 1 jam itu.
 
 ## 9. Tab Event: Acara di Luar Kampus
 
@@ -234,7 +262,7 @@ Match = akademik, di dalam kampus, bisa hari ini juga. **Event = sosial, di luar
 
 - **Tempat publik atau mitra terverifikasi saja**, tidak boleh alamat rumah. Kurator memilih venue dari daftar venue yang sudah disetujui admin.
 - Kartu event menampilkan: kurator, judul, tanggal & jam, nama venue, perkiraan biaya ("Gratis" atau "± Rp35.000, bayar di tempat"), kuota, dan jumlah teman yang ikut.
-- **RSVP dengan kuota**; jika penuh, pengguna masuk daftar tunggu dan naik otomatis saat ada yang batal.
+- **RSVP dengan kuota**; jika penuh, event ditandai "Penuh" dan tidak bisa di-RSVP. **Tidak ada daftar tunggu** (tanpa push notification, orang yang naik dari antrean tidak akan tahu). Tempat dari orang yang batal langsung terbuka untuk siapa saja. Kuota dijaga di database, sama seperti sesi belajar.
 - **Pengingat**: notifikasi lokal H-1 dan 3 jam sebelum acara, dengan tombol "Masih ikut / Batal". Tujuannya menekan no-show.
 - **Keamanan**: tombol "Bagikan detail ke teman" (share sheet bawaan Android) dan tombol lapor event/peserta lewat alur moderasi yang sama.
 - **Setelah acara** *(Could-have)*: "Mau ketemu lagi?" — peserta memilih siapa yang ingin ditemui lagi; jika saling memilih, otomatis berteman. Pilihan yang tidak berbalas tidak pernah ditampilkan ke pihak lain.
@@ -244,7 +272,7 @@ Match = akademik, di dalam kampus, bisa hari ini juga. **Event = sosial, di luar
 - **Privasi lokasi**: BSSID yang dikirim HP pengguna **tidak disimpan** dan **tidak di-log**; server hanya menyimpan `zone_id` terkini dengan TTL. Pengguna lain hanya menerima nama zona dan jumlah/daftar yang opt-in. Non-negotiable, lihat [ARCHITECTURE.md §6](./ARCHITECTURE.md).
 - **Persetujuan eksplisit**: fitur lokasi default **off**, izin lokasi presisi diminta dengan penjelasan bahwa izin itu hanya untuk membaca Wi-Fi. Pengguna bisa mematikan kapan saja dan status langsung dihapus. Sejalan dengan UU No. 27/2022 tentang Pelindungan Data Pribadi.
 - **Keamanan data**: RLS aktif di semua tabel data personal (presence, hasil kepribadian, kontak, KTM, RSVP). Service role key Supabase hanya ada di Edge Function, tidak pernah di dalam aplikasi.
-- **Autentikasi terbatas domain**: hanya email kampus yang di-allowlist.
+- **Autentikasi terbatas domain**: hanya email kampus (`@binus.ac.id`) yang di-allowlist. Kode OTP ke email kampus diminta saat **Daftar** (verifikasi email) dan saat masuk dari **HP yang belum dikenali**; di HP yang sudah terverifikasi cukup email + kata sandi. Akun tanpa email kampus terverifikasi tidak bisa masuk. **Tombol Google/Facebook/Apple hanya tampilan di MVP** (belum ada OAuth).
 - **Integritas hasil kuis kepribadian**: setelah submit akhir, `personality_answers` dan hasil di `profiles` tidak bisa di-update/insert ulang oleh pengguna (ditegakkan RLS + trigger, lihat ARCHITECTURE §4.1 & §6). Navigasi ulang ("Kembali") hanya diperbolehkan sebelum submit akhir terjadi.
 - **Role**: `student` (default), `curator` (buat event), `admin` (daftarkan Wi-Fi, beri role kurator, moderasi). Pengecekan role di RLS dan Edge Function, bukan hanya di UI.
 - **Moderasi bertahap**: `pending_review` sebelum `banned`, tidak ada auto-ban dari satu laporan.
@@ -272,6 +300,7 @@ Untuk validasi produk (indikatif):
 - **Risiko terbesar**: pivot dari Next.js ke React Native di tengah jalan. Anggota tim yang belum pernah memakai React Native butuh waktu adaptasi (navigasi, build Android, izin). Must-have harus dikunci dulu sebelum menyentuh Should-have.
 - Tech stack: Expo (React Native) + TypeScript, Supabase. Lihat [CLAUDE.md](./CLAUDE.md).
 - Android saja; iOS pasca-hackathon.
+- **Kampus pilot: BINUS @Kemanggisan** (Kampus Anggrek, Syahdan, Kijang). Email yang diizinkan: `@binus.ac.id`. Mockup memakai zona BeeHub, LKC, Lab Komputer, Auditorium (Anggrek), Creative Space, Drawing Studio (Syahdan), Gazebo, Moot Court (Kijang).
 - Daftar access point didapat dari survei manual; presisi zona sama dengan jangkauan access point.
 - Klasifikasi kepribadian berbasis rule/skor sederhana, bukan ML.
 - Supabase free tier — perhatikan batas koneksi Realtime saat Grand Final.
@@ -287,6 +316,13 @@ Lihat [ROADMAP.md](./ROADMAP.md). Milestone kunci:
 | Grand Final (pitching di FMIPA UGM) | 1 November 2026 |
 
 ## 14. Open Questions
-- ~~Sumber pertanyaan kuis kepribadian & bobot skoringnya~~ — **selesai**, lihat [METHODOLOGY.md](./METHODOLOGY.md) (v1.5).
+- ~~Sumber pertanyaan kuis kepribadian & bobot skoringnya~~ — **selesai**, lihat [METHODOLOGY.md](./METHODOLOGY.md) v1.1.
 - Definisi "online" untuk Match Map (threshold waktu presence sebelum dianggap offline).
+- Chip di Profil ("Fast learner", "Belajar kelompok", "Produktif pagi", "Terjadwal") asalnya dari kuis gaya belajar yang sudah keluar dari MVP: diganti trait sekunder dari `personality_scores`, jadi tag yang diisi sendiri pengguna, atau dihapus?
+- Ruangan BINUS @Kemanggisan mana saja yang jadi zona awal untuk survei access point (daftar di §12 masih usulan dari mockup)?
+- Siapa kurator awal Event, dan daftar venue awal yang disetujui.
+- Apakah Meja Kecil perlu opsi grup sesama gender untuk rasa aman?
+- Daftar mata kuliah untuk sesi belajar: seed manual atau data kurikulum kampus?
+- Apakah lowongan tim Lomba wajib menyertakan link guidebook untuk mencegah spam?
+- Apakah zona dengan hanya 1 orang online tetap ditampilkan? (Kalau ya, identitas orang itu praktis terungkap.)
 - Kebijakan retensi data setelah lomba selesai (apakah akun mahasiswa dihapus atau dilanjutkan sebagai produk nyata — lihat roadmap pasca-hackathon).

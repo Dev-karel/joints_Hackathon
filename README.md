@@ -1,6 +1,6 @@
 # AyoMatch
 
-> Aplikasi Android untuk mahasiswa dalam satu kampus — nemuin partner belajar, partner lomba, dan teman baru berdasarkan kecocokan gaya belajar, hobi, dan kepribadian. Di dalam kampus lewat Match dan Match Map, di luar kampus lewat Event yang dikurasi.
+> Aplikasi Android untuk mahasiswa dalam satu kampus — nemuin partner belajar, partner lomba, dan teman baru berdasarkan kecocokan kepribadian (archetype tim), mata kuliah, dan hobi. Di dalam kampus lewat Match dan Match Map, di luar kampus lewat Event yang dikurasi.
 
 Dibuat untuk **Hackathon JOINTS UGM 2026** (FMIPA UGM) — track **Healthcare** (kesehatan mental & isolasi sosial mahasiswa), dengan sentuhan **Education** (peer learning).
 
@@ -12,14 +12,14 @@ Interaksi dengan teman sebaya terbukti berkontribusi besar terhadap kemampuan ko
 
 Data I-NAMHS menunjukkan 1 dari 3 remaja Indonesia (34,9%, ±15,5 juta jiwa) punya masalah kesehatan mental, dan sebagian besar dari mereka melaporkan gangguan itu justru merusak kemampuan mereka berhubungan dengan teman sebaya (41,1%) dan berfungsi di sekolah/kampus (39,3%).
 
-**AyoMatch** memutus siklus isolasi ↔ kerusakan mental ini dengan sistem *matching* yang mempertemukan mahasiswa berdasarkan gaya belajar, kepribadian, dan minat mereka sejak awal — bukan menunggu mereka "kebetulan" ketemu.
+**AyoMatch** memutus siklus isolasi ↔ kerusakan mental ini dengan sistem *matching* yang mempertemukan mahasiswa berdasarkan kepribadian, mata kuliah, dan minat mereka sejak awal — bukan menunggu mereka "kebetulan" ketemu.
 
 ## Fitur Utama (MVP)
 
 | Tab | Fitur | Deskripsi |
 |---|---|---|
-| — | Login kampus | Email institusi (domain allowlist) dengan kode OTP |
-| — | Kuis kepribadian | 15 pertanyaan onboarding → archetype tim (contoh: Heartkeeper) & gaya belajar (contoh: Visual Learner). Metodologi & skoring di [METHODOLOGY.md](./METHODOLOGY.md). Boleh navigasi "Kembali" sebelum submit akhir, tapi hasilnya jadi label permanen akun setelah disubmit — lihat [PRD.md §6.1](./PRD.md) |
+| — | Login kampus | Email `@binus.ac.id` + kata sandi; kode OTP ke email kampus saat daftar dan di HP baru |
+| — | Kuis kepribadian | 15 pertanyaan A/B onboarding → salah satu dari 6 archetype tim (contoh: Sagekeeper). Metodologi & skoring di [METHODOLOGY.md](./METHODOLOGY.md). Boleh navigasi "Kembali" sebelum submit akhir, tapi hasilnya jadi label permanen akun setelah disubmit — lihat [PRD.md §6.1](./PRD.md) |
 | Match › Belajar | Study Match | Rekomendasi partner belajar + buat/gabung sesi belajar di ruangan kampus |
 | Match › Lomba | Competition Match | Lowongan anggota tim lomba + permintaan bergabung |
 | Peta | Match Map | Siapa yang online per ruangan, dideteksi dari **access point Wi-Fi kampus** (BSSID) — tanpa GPS, tanpa titik koordinat |
