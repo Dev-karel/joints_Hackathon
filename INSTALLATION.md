@@ -1,6 +1,6 @@
-# Instalasi & Setup AyoMatch
+# Instalasi & Setup AyokMatch
 
-Panduan ini untuk menjalankan AyoMatch (aplikasi Android, React Native + Expo) dan menyiapkan project Supabase.
+Panduan ini untuk menjalankan AyokMatch (aplikasi Android, React Native + Expo) dan menyiapkan project Supabase.
 
 ## 1. Prasyarat
 
@@ -24,8 +24,8 @@ adb devices   # HP Android harus muncul di sini
 ## 2. Clone Repository
 
 ```powershell
-git clone <repo-url> ayomatch
-cd ayomatch
+git clone <repo-url> ayokmatch
+cd ayokmatch
 ```
 
 ## 3. Install Dependencies
@@ -49,8 +49,8 @@ Untuk menambah library native baru, selalu gunakan `npx expo install <paket>`, b
    supabase link --project-ref <project-ref-anda>
    supabase db push                 # jalankan migration (schema + RLS)
    ```
-4. **Authentication → Providers → Email**: aktifkan, lalu ubah template email agar mengirim **kode OTP** (`{{ .Token }}`), bukan hanya link. Allowlist domain kampus diterapkan lewat Auth Hook (lihat `supabase/migrations/`).
-5. **Storage**: buat bucket privat `avatars`, `ktm-verification`, `report-evidence`.
+4. **Authentication → Providers → Email**: aktifkan (dengan kata sandi dan konfirmasi email), lalu ubah template **Confirm signup** dan **Magic Link** agar mengirim **kode OTP** (`{{ .Token }}`), bukan hanya link. Allowlist domain `binus.ac.id` diterapkan lewat Auth Hook (lihat `supabase/migrations/`).
+5. **Storage**: buat bucket privat `avatars`, `ktm-verification`, `report-evidence`, `session-materials`.
 6. Aktifkan ekstensi **pg_cron** (Database → Extensions) untuk membersihkan `presence` yang kedaluwarsa.
 7. Deploy Edge Functions dan set secret:
 
@@ -74,7 +74,7 @@ Isi `.env`:
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=xxxxxxxxxxxxxxxx
-EXPO_PUBLIC_ALLOWED_EMAIL_DOMAIN=mail.ugm.ac.id
+EXPO_PUBLIC_ALLOWED_EMAIL_DOMAIN=binus.ac.id
 ```
 
 > Semua variabel `EXPO_PUBLIC_*` ikut terbundel ke dalam APK dan bisa dibaca siapa pun. Jangan pernah menaruh `service_role key` di file ini.
@@ -85,7 +85,7 @@ Sambungkan HP lewat USB, lalu:
 
 ```powershell
 npx expo run:android   # build & pasang development build (sekali di awal, dan setiap menambah library native)
-npm run start          # dev server; buka aplikasi AyoMatch (dev build) di HP
+npm run start          # dev server; buka aplikasi AyokMatch (dev build) di HP
 ```
 
 Saat pertama kali menyalakan "Tampil di peta", izinkan **lokasi presisi** dan pastikan **layanan lokasi (GPS) di HP aktif** — Android mewajibkan keduanya untuk membaca BSSID Wi-Fi, walaupun aplikasi tidak memakai GPS.
