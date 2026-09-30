@@ -1,6 +1,6 @@
 # Roadmap AyoMatch
 
-Roadmap ini dipetakan ke timeline resmi **Hackathon JOINTS UGM 2026**. Diperbarui: **29 September 2026** (setelah pivot ke React Native — lihat [PRD.md](./PRD.md) v1.3).
+Roadmap ini dipetakan ke timeline resmi **Hackathon JOINTS UGM 2026**. Diperbarui: **30 September 2026** (lihat [PRD.md](./PRD.md) v1.6).
 
 ## Timeline Resmi Lomba (acuan deadline)
 
@@ -32,7 +32,7 @@ Deliverables wajib saat pengumpulan: Video demo (≤2 menit, YouTube publik), So
 ## Fase 1 — Auth & Onboarding (2 – 5 Okt 2026)
 
 - [ ] Login OTP email kampus + allowlist domain (Auth Hook)
-- [ ] Kuis kepribadian 6 pertanyaan + klasifikasi rule-based
+- [ ] Kuis kepribadian 15 pertanyaan + klasifikasi archetype tim rule-based (isi & skoring lihat [METHODOLOGY.md](./METHODOLOGY.md) v1.1) — dengan modal peringatan (jumlah soal + anjuran jujur karena hasil permanen), navigasi "Kembali" sebelum submit akhir, dan penguncian permanen di RLS/trigger setelah submit (lihat PRD §6.1 & ARCHITECTURE §4.1)
 - [ ] Profil dasar (avatar, jurusan, semester)
 - [ ] Shell navigasi: Beranda · Match · Event · Peta · Profil
 - [ ] Survei access point di kampus mulai (mode admin sementara lewat SQL jika layar belum jadi)
@@ -40,7 +40,10 @@ Deliverables wajib saat pengumpulan: Video demo (≤2 menit, YouTube publik), So
 ## Fase 2 — Match Belajar & Match Map (6 – 9 Okt 2026)
 
 - [ ] Rekomendasi partner belajar (fungsi Postgres skor kecocokan)
-- [ ] Buat/gabung sesi belajar (zona kampus, kuota, status Penuh)
+- [ ] Buat/gabung/keluar sesi belajar (zona kampus, kuota dijaga trigger + kunci baris, status Penuh, agenda berjam)
+- [ ] **Rebuild dev build** setelah 4 library native baru masuk `package.json` (expo-document-picker, expo-file-system, expo-image-picker, expo-crypto): `npm install` → `npx expo run:android` → `npm run doctor` untuk memastikan versinya cocok dengan SDK 57
+- [ ] Materi dari host: bucket `session-materials` + policy Storage khusus anggota sesi
+- [ ] Host keluar: `host_leave_session` (alasan wajib, ditolak kurang dari H-24, polling host baru / voting batal 80%, batas 1 jam lewat pg_cron), riwayat keluar host khusus peserta, tombol laporkan host
 - [ ] Edge Function `resolve-zone` + heartbeat presence di foreground
 - [ ] Layar **Daftarkan Wi-Fi** (role admin) + Edge Function `register-access-point`
 - [ ] Peta zona skematis (react-native-svg) + sheet daftar per ruangan + visibilitas timbal balik
@@ -49,7 +52,7 @@ Deliverables wajib saat pengumpulan: Video demo (≤2 menit, YouTube publik), So
 ## Fase 3 — Event Luar Kampus (10 – 12 Okt 2026)
 
 - [ ] Tabel `venues`, `events`, `event_rsvps` + RLS role kurator
-- [ ] Daftar event, detail, RSVP dengan kuota & daftar tunggu
+- [ ] Daftar event, detail, RSVP dengan kuota (tanpa daftar tunggu)
 - [ ] Form buat event (hanya kurator) via Edge Function `create-event`
 - [ ] Notifikasi lokal pengingat H-1 dan 3 jam sebelum acara
 - [ ] Seed event & venue demo
