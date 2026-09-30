@@ -1,6 +1,6 @@
-# Instalasi & Setup AyoMatch
+# Instalasi & Setup AyokMatch
 
-Panduan ini untuk menjalankan AyoMatch (aplikasi Android, React Native + Expo) dan menyiapkan project Supabase.
+Panduan ini untuk menjalankan AyokMatch (aplikasi Android, React Native + Expo) dan menyiapkan project Supabase.
 
 ## 1. Prasyarat
 
@@ -24,8 +24,8 @@ adb devices   # HP Android harus muncul di sini
 ## 2. Clone Repository
 
 ```powershell
-git clone <repo-url> ayomatch
-cd ayomatch
+git clone <repo-url> ayokmatch
+cd ayokmatch
 ```
 
 ## 3. Install Dependencies
@@ -85,7 +85,7 @@ Sambungkan HP lewat USB, lalu:
 
 ```powershell
 npx expo run:android   # build & pasang development build (sekali di awal, dan setiap menambah library native)
-npm run start          # dev server; buka aplikasi AyoMatch (dev build) di HP
+npm run start          # dev server; buka aplikasi AyokMatch (dev build) di HP
 ```
 
 Saat pertama kali menyalakan "Tampil di peta", izinkan **lokasi presisi** dan pastikan **layanan lokasi (GPS) di HP aktif** — Android mewajibkan keduanya untuk membaca BSSID Wi-Fi, walaupun aplikasi tidak memakai GPS.

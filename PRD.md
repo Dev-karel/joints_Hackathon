@@ -1,4 +1,4 @@
-# Product Requirements Document (PRD) — AyoMatch
+# Product Requirements Document (PRD) — AyokMatch
 
 > Versi: 1.6 — 30 September 2026
 > Untuk: Hackathon JOINTS UGM 2026 (FMIPA UGM), track **Healthcare** dengan sentuhan **Education**
@@ -29,7 +29,7 @@ Data I-NAMHS: 1 dari 3 remaja Indonesia (34,9%, ±15,5 juta jiwa) punya masalah 
 
 ## 2. Solusi & Tujuan Produk
 
-**AyoMatch** adalah **aplikasi mobile native (React Native + Expo), Android lebih dulu**, yang mempertemukan mahasiswa dalam satu kampus berdasarkan kepribadian (archetype tim), mata kuliah, dan minat — di dalam kampus lewat **Match** (belajar & lomba) dan **Match Map** berbasis Wi-Fi kampus, dan di luar kampus lewat **Event** yang dikurasi.
+**AyokMatch** adalah **aplikasi mobile native (React Native + Expo), Android lebih dulu**, yang mempertemukan mahasiswa dalam satu kampus berdasarkan kepribadian (archetype tim), mata kuliah, dan minat — di dalam kampus lewat **Match** (belajar & lomba) dan **Match Map** berbasis Wi-Fi kampus, dan di luar kampus lewat **Event** yang dikurasi.
 
 Alasan memilih native: hanya aplikasi native yang bisa membaca access point Wi-Fi yang sedang tersambung (BSSID), dan itulah dasar deteksi lokasi per ruangan tanpa GPS (§7).
 
@@ -59,7 +59,7 @@ Alasan memilih native: hanya aplikasi native yang bisa membaca access point Wi-F
 | Mahasiswa introvert/kesulitan bersosialisasi | Cara berinteraksi yang terstruktur & tidak mengintimidasi — termasuk datang ke acara tanpa harus sendirian |
 | Mahasiswa yang butuh partner belajar/lomba spesifik | Cocok berdasarkan mata kuliah, archetype, jadwal, atau peran tim |
 | Mahasiswa yang ingin menjaga privasi lokasi | Tetap bisa terhubung lewat Match Map yang hanya menampilkan **nama ruangan** (misalnya "BeeHub"), bukan titik koordinat |
-| **Kurator** (tim AyoMatch, UKM, kafe/komunitas mitra) | Membuat dan mengelola Event di luar kampus yang aman dan relevan untuk mahasiswa |
+| **Kurator** (tim AyokMatch, UKM, kafe/komunitas mitra) | Membuat dan mengelola Event di luar kampus yang aman dan relevan untuk mahasiswa |
 
 Batasan akses: hanya mahasiswa dengan email institusi kampus (domain di-allowlist). Kurator juga harus punya akun terverifikasi dengan role `curator` yang diberikan admin.
 

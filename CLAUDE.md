@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-Dokumen ini memberi konteks kerja untuk AI coding assistant (Claude/Kiro/LLM lain) yang membantu pengembangan **AyoMatch**. Baca dulu sebelum membuat atau mengubah kode di repo ini.
+Dokumen ini memberi konteks kerja untuk AI coding assistant (Claude/Kiro/LLM lain) yang membantu pengembangan **AyokMatch**. Baca dulu sebelum membuat atau mengubah kode di repo ini.
 
 ## Ringkasan Project
 
-AyoMatch adalah **aplikasi Android native (React Native + Expo)** yang mencocokkan mahasiswa dalam satu kampus untuk belajar bareng, ikut lomba bareng, dan bertemu di acara luar kampus, berdasarkan kepribadian dan minat. Dibangun untuk Hackathon JOINTS UGM 2026, deadline submission **16 Oktober 2026** dan Grand Final **1 November 2026**.
+AyokMatch adalah **aplikasi Android native (React Native + Expo)** yang mencocokkan mahasiswa dalam satu kampus untuk belajar bareng, ikut lomba bareng, dan bertemu di acara luar kampus, berdasarkan kepribadian dan minat. Dibangun untuk Hackathon JOINTS UGM 2026, deadline submission **16 Oktober 2026** dan Grand Final **1 November 2026**.
 
 Navigasi utama: **Beranda · Match (Belajar/Lomba) · Event · Peta · Profil**. Kampus pilot: **BINUS @Kemanggisan** (Anggrek, Syahdan, Kijang).
 

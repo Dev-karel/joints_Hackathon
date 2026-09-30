@@ -1,4 +1,4 @@
-# Metodologi Kuis Kepribadian AyoMatch
+# Metodologi Kuis Kepribadian AyokMatch
 
 > Versi 1.1 — 30 September 2026. Menjawab [PRD.md §14](./PRD.md) Open Question #1 ("sumber pertanyaan kuis kepribadian & bobot skoringnya"). Dokumen ini adalah rujukan tunggal untuk isi pertanyaan, bobot skor, dan cara menghitung `personality_type` yang disebut di [ARCHITECTURE.md §4.1 & §5](./ARCHITECTURE.md) dan aturan penguncian di [PRD.md §6.1](./PRD.md).
 

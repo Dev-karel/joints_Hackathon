@@ -1,4 +1,4 @@
-# Roadmap AyoMatch
+# Roadmap AyokMatch
 
 Roadmap ini dipetakan ke timeline resmi **Hackathon JOINTS UGM 2026**. Diperbarui: **30 September 2026** (lihat [PRD.md](./PRD.md) v1.6).
 

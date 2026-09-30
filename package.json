@@ -1,8 +1,8 @@
 {
-  "name": "ayomatch",
+  "name": "ayokmatch",
   "version": "0.2.0",
   "private": true,
-  "description": "AyoMatch - aplikasi Android (React Native/Expo) untuk matching mahasiswa: Study Match, Competition Match, Match Map berbasis Wi-Fi kampus, dan Event luar kampus yang dikurasi. Dibuat untuk Hackathon JOINTS UGM 2026.",
+  "description": "AyokMatch - aplikasi Android (React Native/Expo) untuk matching mahasiswa: Study Match, Competition Match, Match Map berbasis Wi-Fi kampus, dan Event luar kampus yang dikurasi. Dibuat untuk Hackathon JOINTS UGM 2026.",
   "main": "expo-router/entry",
   "engines": {
     "node": ">=20.0.0"

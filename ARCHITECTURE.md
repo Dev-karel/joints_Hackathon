@@ -1,10 +1,10 @@
-# Arsitektur AyoMatch
+# Arsitektur AyokMatch
 
 > Versi 2.2 — 30 September 2026. Menggantikan arsitektur Next.js/PWA (v1). Latar keputusan ada di [PRD.md](./PRD.md) v1.6. Isi & skoring kuis kepribadian ada di [METHODOLOGY.md](./METHODOLOGY.md) v1.1.
 
 ## 1. Gambaran Umum
 
-AyoMatch dibangun sebagai **aplikasi mobile native dengan React Native (Expo) untuk Android**, dengan **Supabase** sebagai backend-as-a-service. Tidak ada server aplikasi sendiri: logika sensitif berjalan di **Supabase Edge Functions** dan fungsi Postgres.
+AyokMatch dibangun sebagai **aplikasi mobile native dengan React Native (Expo) untuk Android**, dengan **Supabase** sebagai backend-as-a-service. Tidak ada server aplikasi sendiri: logika sensitif berjalan di **Supabase Edge Functions** dan fungsi Postgres.
 
 Alasan:
 
@@ -183,7 +183,7 @@ Skema detail ditulis sebagai SQL migration di `supabase/migrations/`.
 ## 8. Struktur Project
 
 ```
-ayomatch/
+ayokmatch/
 ├── app/                      # expo-router (file-based routes)
 │   ├── (auth)/               # login OTP, kuis onboarding
 │   ├── (tabs)/               # beranda, match, event, peta, profil
