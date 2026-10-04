@@ -3,7 +3,7 @@
 > Versi: 1.6 — 30 September 2026
 > Untuk: Hackathon JOINTS UGM 2026 (FMIPA UGM), track **Healthcare** dengan sentuhan **Education**
 
-Dokumen pelengkap: [README.md](./README.md) (latar belakang & fitur), [ARCHITECTURE.md](./ARCHITECTURE.md) (arsitektur & data model), [METHODOLOGY.md](./METHODOLOGY.md) (isi & skoring kuis kepribadian), [ROADMAP.md](./ROADMAP.md) (timeline), [CLAUDE.md](./CLAUDE.md) (konvensi kerja AI assistant).
+Dokumen pelengkap: [README.md](../README.md) (latar belakang & fitur), [ARCHITECTURE.md](./ARCHITECTURE.md) (arsitektur & data model), [METHODOLOGY.md](./METHODOLOGY.md) (isi & skoring kuis kepribadian), [ROADMAP.md](./ROADMAP.md) (timeline), [CLAUDE.md](../CLAUDE.md) (konvensi kerja AI assistant).
 
 ### Riwayat Perubahan
 
@@ -298,7 +298,7 @@ Untuk validasi produk (indikatif):
 
 - Tim 4 orang. Sisa waktu efektif ±17 hari (29 Sep – 16 Okt 2026).
 - **Risiko terbesar**: pivot dari Next.js ke React Native di tengah jalan. Anggota tim yang belum pernah memakai React Native butuh waktu adaptasi (navigasi, build Android, izin). Must-have harus dikunci dulu sebelum menyentuh Should-have.
-- Tech stack: Expo (React Native) + TypeScript, Supabase. Lihat [CLAUDE.md](./CLAUDE.md).
+- Tech stack: Expo (React Native) + TypeScript, Supabase. Lihat [CLAUDE.md](../CLAUDE.md).
 - Android saja; iOS pasca-hackathon.
 - **Kampus pilot: BINUS @Kemanggisan** (Kampus Anggrek, Syahdan, Kijang). Email yang diizinkan: `@binus.ac.id`. Mockup memakai zona BeeHub, LKC, Lab Komputer, Auditorium (Anggrek), Creative Space, Drawing Studio (Syahdan), Gazebo, Moot Court (Kijang).
 - Daftar access point didapat dari survei manual; presisi zona sama dengan jangkauan access point.

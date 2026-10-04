@@ -41,14 +41,27 @@ Untuk menambah library native baru, selalu gunakan `npx expo install <paket>`, b
 
 1. Buka [supabase.com](https://supabase.com/) → buat project baru, region Singapore.
 2. **Project Settings → API**, catat `Project URL` dan `anon public key`. `service_role key` hanya dipakai sebagai secret Edge Function — **jangan** masukkan ke aplikasi.
-3. Install Supabase CLI lalu hubungkan project:
+3. Install Supabase CLI lalu hubungkan project. **Catatan:** `npm install -g supabase` sudah **tidak didukung** lagi oleh Supabase (muncul error "Installing Supabase CLI as a global module is not supported"). Pakai salah satu cara di bawah.
+
+   Cara tanpa install (paling cepat, cocok untuk pemakaian sesekali):
 
    ```powershell
-   npm install -g supabase
+   npx supabase@latest login
+   npx supabase@latest link --project-ref <project-ref-anda>
+   npx supabase@latest db push      # jalankan migration (schema + RLS)
+   ```
+
+   Cara dengan Scoop (dapat perintah `supabase` global, cocok kalau sering dipakai):
+
+   ```powershell
+   scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+   scoop install supabase
    supabase login
    supabase link --project-ref <project-ref-anda>
-   supabase db push                 # jalankan migration (schema + RLS)
+   supabase db push
    ```
+
+   CLI ini baru dibutuhkan saat sudah ada migration/Edge Function — bukan syarat untuk menjalankan aplikasi pertama kali.
 4. **Authentication → Providers → Email**: aktifkan (dengan kata sandi dan konfirmasi email), lalu ubah template **Confirm signup** dan **Magic Link** agar mengirim **kode OTP** (`{{ .Token }}`), bukan hanya link. Allowlist domain `binus.ac.id` diterapkan lewat Auth Hook (lihat `supabase/migrations/`).
 5. **Storage**: buat bucket privat `avatars`, `ktm-verification`, `report-evidence`, `session-materials`.
 6. Aktifkan ekstensi **pg_cron** (Database → Extensions) untuk membersihkan `presence` yang kedaluwarsa.

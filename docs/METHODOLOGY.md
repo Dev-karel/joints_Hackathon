@@ -63,7 +63,7 @@ Persentase akhir merepresentasikan distribusi skor relatif pengguna **di dalam k
 | **Kindled Flame** | Sang Penggerak | ketekunan, daya tahan, pertumbuhan | Menjaga momentum saat keadaan sulit |
 | **Sagekeeper** | Sang Penuntun | kebijaksanaan, ketenangan, perspektif | Membawa kejernihan dan bimbingan yang matang |
 
-Nama archetype (Wildheart, Heartkeeper, dst.) tetap dalam Bahasa Inggris sebagai identitas — mengikuti pola yang sama dengan istilah fitur lain seperti "Study Match" dan "Match Map" (lihat [CLAUDE.md](./CLAUDE.md) bagian Konvensi Kode). Tagline ("Sang Jiwa" dst.) dan deskripsi ditampilkan dalam Bahasa Indonesia di UI.
+Nama archetype (Wildheart, Heartkeeper, dst.) tetap dalam Bahasa Inggris sebagai identitas — mengikuti pola yang sama dengan istilah fitur lain seperti "Study Match" dan "Match Map" (lihat [CLAUDE.md](../CLAUDE.md) bagian Konvensi Kode). Tagline ("Sang Jiwa" dst.) dan deskripsi ditampilkan dalam Bahasa Indonesia di UI.
 
 ### 3.1 Deskripsi Archetype
 
@@ -349,7 +349,7 @@ Urutan tampilan untuk skor yang sama (Wildheart dan Sagekeeper di atas) mengikut
 
 ## 9. Struktur Data Implementasi
 
-Sesuai konvensi [CLAUDE.md](./CLAUDE.md) (TypeScript strict, skema Zod di `src/lib/validation/`), kuis direpresentasikan sebagai data terstruktur, bukan percabangan `if/else` yang di-*hardcode*, supaya UI dan Edge Function/fungsi Postgres membaca sumber yang sama.
+Sesuai konvensi [CLAUDE.md](../CLAUDE.md) (TypeScript strict, skema Zod di `src/lib/validation/`), kuis direpresentasikan sebagai data terstruktur, bukan percabangan `if/else` yang di-*hardcode*, supaya UI dan Edge Function/fungsi Postgres membaca sumber yang sama.
 
 ```typescript
 // src/lib/validation/personalityQuiz.ts

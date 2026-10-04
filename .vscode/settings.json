@@ -1,0 +1,10 @@
+{
+  // Sembunyikan dari panel Explorer semua file/folder yang masuk .gitignore.
+  // Efeknya: yang terlihat di sidebar hanya file yang benar-benar ikut ke GitHub,
+  // sehingga mudah membedakan mana yang di-push dan mana yang cuma lokal
+  // (node_modules/, .expo/, android/, .env, .agents/, .kiro/settings/, dll).
+  //
+  // Ubah ke false kalau sewaktu-waktu perlu melihat file yang di-ignore
+  // (misalnya mau mengedit .env atau mengecek isi .agents/).
+  "explorer.excludeGitIgnore": true
+}

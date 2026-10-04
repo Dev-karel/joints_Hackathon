@@ -8,9 +8,9 @@ AyokMatch adalah **aplikasi Android native (React Native + Expo)** yang mencocok
 
 Navigasi utama: **Beranda · Match (Belajar/Lomba) · Event · Peta · Profil**. Kampus pilot: **BINUS @Kemanggisan** (Anggrek, Syahdan, Kijang).
 
-Scope MVP ada di [PRD.md](./PRD.md) §5 — ikuti urutan prioritas (Must-have dulu). Fitur match lain (sport, gaming, art, organisasi) adalah roadmap — jangan implementasikan penuh kecuali diminta eksplisit.
+Scope MVP ada di [PRD.md](./docs/PRD.md) §5 — ikuti urutan prioritas (Must-have dulu). Fitur match lain (sport, gaming, art, organisasi) adalah roadmap — jangan implementasikan penuh kecuali diminta eksplisit.
 
-Detail arsitektur & data model ada di [ARCHITECTURE.md](./ARCHITECTURE.md).
+Detail arsitektur & data model ada di [ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ## Tech Stack (wajib diikuti, jangan ganti tanpa alasan kuat)
 
@@ -49,8 +49,8 @@ Tambah library native baru selalu lewat `npx expo install <paket>` agar versinya
 - **Lokasi hanya dikirim saat app di foreground** dan toggle aktif. Tidak ada background location/task.
 - **Event luar kampus hanya bisa dibuat role `curator`/`admin`**, dicek di RLS dan Edge Function `create-event`. Venue harus berstatus `approved`.
 - **Login kampus**: domain `@binus.ac.id` di-allowlist; email + kata sandi, dan kode OTP ke email kampus hanya saat Daftar dan saat masuk dari HP yang belum dikenali. Tombol Google/Facebook/Apple hanya tampilan di MVP — jangan implementasikan OAuth tanpa diminta. Jangan implementasikan sign-up dengan email non-kampus.
-- **Sesi belajar**: tanpa daftar tunggu dan tanpa "ganti sesi". Kuota **wajib** dijaga di database (kunci baris sesi saat gabung), bukan hanya dicek di aplikasi. Peserta keluar lewat dialog konfirmasi. Host keluar punya aturan sendiri (batas H-24, polling host baru / voting batal 80%, sesi tanpa host jadi terkunci) — lihat [PRD.md §8.1](./PRD.md). Event juga tanpa daftar tunggu.
-- **Kuis kepribadian diisi sekali, seumur hidup akun.** 15 pertanyaan, sistem archetype tim 6 kategori dengan skoring berbobot 70/30 — isi pertanyaan, pemetaan skor, dan algoritmanya **sudah final**, ada di [METHODOLOGY.md](./METHODOLOGY.md) (v1.1, pemetaan sudah diseimbangkan: tiap archetype 5× primer + 5× sekunder). Jangan mengubah isi pertanyaan/bobot skor kuis tanpa merujuk dan memperbarui dokumen itu, dan cek ulang keseimbangannya (METHODOLOGY §10). **`learning_style` (contoh "Visual Learner") tidak dipakai di MVP** — kartu pengguna menampilkan archetype. Setelah pengguna submit akhir, jawaban dan hasil (`personality_type`, `personality_scores`) terkunci permanen — tidak ada menu ulang/reset kuis di MVP. Sebelum submit akhir, pengguna boleh menekan "Kembali" untuk melihat dan mengubah jawaban pertanyaan sebelumnya (jawaban yang belum di-submit dianggap draft). Wajib ada modal peringatan sebelum kuis dimulai (jumlah pertanyaan + peringatan isi jujur karena hasil jadi label permanen) dan konfirmasi terakhir sebelum submit. Penguncian harus ditegakkan di RLS, bukan hanya UI. Detail di [PRD.md §6.1](./PRD.md) dan [ARCHITECTURE.md §4.1](./ARCHITECTURE.md).
+- **Sesi belajar**: tanpa daftar tunggu dan tanpa "ganti sesi". Kuota **wajib** dijaga di database (kunci baris sesi saat gabung), bukan hanya dicek di aplikasi. Peserta keluar lewat dialog konfirmasi. Host keluar punya aturan sendiri (batas H-24, polling host baru / voting batal 80%, sesi tanpa host jadi terkunci) — lihat [PRD.md §8.1](./docs/PRD.md). Event juga tanpa daftar tunggu.
+- **Kuis kepribadian diisi sekali, seumur hidup akun.** 15 pertanyaan, sistem archetype tim 6 kategori dengan skoring berbobot 70/30 — isi pertanyaan, pemetaan skor, dan algoritmanya **sudah final**, ada di [METHODOLOGY.md](./docs/METHODOLOGY.md) (v1.1, pemetaan sudah diseimbangkan: tiap archetype 5× primer + 5× sekunder). Jangan mengubah isi pertanyaan/bobot skor kuis tanpa merujuk dan memperbarui dokumen itu, dan cek ulang keseimbangannya (METHODOLOGY §10). **`learning_style` (contoh "Visual Learner") tidak dipakai di MVP** — kartu pengguna menampilkan archetype. Setelah pengguna submit akhir, jawaban dan hasil (`personality_type`, `personality_scores`) terkunci permanen — tidak ada menu ulang/reset kuis di MVP. Sebelum submit akhir, pengguna boleh menekan "Kembali" untuk melihat dan mengubah jawaban pertanyaan sebelumnya (jawaban yang belum di-submit dianggap draft). Wajib ada modal peringatan sebelum kuis dimulai (jumlah pertanyaan + peringatan isi jujur karena hasil jadi label permanen) dan konfirmasi terakhir sebelum submit. Penguncian harus ditegakkan di RLS, bukan hanya UI. Detail di [PRD.md §6.1](./docs/PRD.md) dan [ARCHITECTURE.md §4.1](./docs/ARCHITECTURE.md).
 - **Moderasi**: `pending_review` sebelum `banned`; tidak ada auto-ban dari satu laporan.
 - **Tidak ada pembayaran** di aplikasi. Biaya event hanya ditampilkan sebagai catatan ("bayar di tempat").
 - **Android saja** untuk MVP. Jangan menambah kode khusus iOS kecuali diminta.
@@ -82,4 +82,4 @@ npm run test
 npm run build:apk      # APK untuk demo/submission (EAS Build profil preview)
 ```
 
-Uji fitur Wi-Fi/BSSID di **HP Android fisik**, bukan emulator. Lihat [INSTALLATION.md](./INSTALLATION.md) untuk setup Supabase, Edge Functions, dan environment variable. Lihat [METHODOLOGY.md](./METHODOLOGY.md) untuk isi lengkap kuis kepribadian.
+Uji fitur Wi-Fi/BSSID di **HP Android fisik**, bukan emulator. Lihat [INSTALLATION.md](./docs/INSTALLATION.md) untuk setup Supabase, Edge Functions, dan environment variable. Lihat [METHODOLOGY.md](./docs/METHODOLOGY.md) untuk isi lengkap kuis kepribadian.

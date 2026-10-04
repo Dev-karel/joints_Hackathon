@@ -1,0 +1,30 @@
+Hak Cipta (c) 2026 Tim AAD — AyokMatch
+
+Seluruh Hak Dilindungi (All Rights Reserved).
+
+Kode sumber, desain, dokumentasi, dan aset dalam repositori ini adalah karya milik
+Tim AAD. Repositori ini dipublikasikan semata-mata untuk keperluan penilaian
+Hackathon JOINTS UGM 2026.
+
+Tanpa izin tertulis terlebih dahulu dari pemegang hak cipta, tidak diperkenankan
+untuk menyalin, memodifikasi, menggabungkan, menerbitkan, mendistribusikan,
+melisensikan ulang, menjual, atau membuat karya turunan dari sebagian maupun
+seluruh isi repositori ini.
+
+Membaca dan menelaah kode untuk tujuan penilaian lomba, peninjauan, atau
+pembelajaran pribadi diperbolehkan.
+
+PERANGKAT LUNAK INI DISEDIAKAN "SEBAGAIMANA ADANYA", TANPA JAMINAN DALAM BENTUK
+APA PUN, BAIK TERSURAT MAUPUN TERSIRAT, TERMASUK NAMUN TIDAK TERBATAS PADA
+JAMINAN KELAYAKAN JUAL, KESESUAIAN UNTUK TUJUAN TERTENTU, DAN TIDAK ADANYA
+PELANGGARAN HAK. PEMEGANG HAK CIPTA TIDAK BERTANGGUNG JAWAB ATAS KLAIM,
+KERUSAKAN, ATAU TANGGUNG JAWAB LAIN YANG TIMBUL DARI PENGGUNAAN PERANGKAT LUNAK
+INI.
+
+---
+
+Catatan untuk tim: lisensi proprietary ini dipilih karena ROADMAP.md merencanakan
+kelanjutan AyokMatch sebagai produk pasca-hackathon (program kurator mitra, versi
+kampus lain). Keputusan ini reversibel — beralih ke lisensi open source seperti MIT
+di kemudian hari mudah dilakukan, sedangkan arah sebaliknya sulit. Ganti berkas ini
+bila tim memutuskan lain.
