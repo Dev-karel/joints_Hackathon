@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD) — AyokMatch
 
-> Versi: 1.6 — 30 September 2026
+> Versi: 1.6 — 30 September 2026 (+ §15 draft, 11 Oktober 2026)
 > Untuk: Hackathon JOINTS UGM 2026 (FMIPA UGM), track **Healthcare** dengan sentuhan **Education**
 
 Dokumen pelengkap: [README.md](../README.md) (latar belakang & fitur), [ARCHITECTURE.md](./ARCHITECTURE.md) (arsitektur & data model), [METHODOLOGY.md](./METHODOLOGY.md) (isi & skoring kuis kepribadian), [ROADMAP.md](./ROADMAP.md) (timeline), [CLAUDE.md](../CLAUDE.md) (konvensi kerja AI assistant).
@@ -16,6 +16,7 @@ Dokumen pelengkap: [README.md](../README.md) (latar belakang & fitur), [ARCHITEC
 | 1.4 | 29 Sep 2026 | Tambah §6.1: kuis kepribadian **tidak boleh diulang** setelah submit akhir (hasil jadi label permanen akun), tapi pengguna **boleh menekan "Kembali"** untuk mengubah jawaban sebelum submit akhir. Tambah wajib modal peringatan jumlah pertanyaan & anjuran isi jujur. |
 | 1.5 | 29 Sep 2026 | Kuis kepribadian resmi jadi **15 pertanyaan** (bukan 6) dengan metodologi archetype tim 6 kategori (skoring berbobot 70/30) — lihat [METHODOLOGY.md](./METHODOLOGY.md). Menjawab Open Question #1 di §14. |
 | 1.6 | 30 Sep 2026 | **Kampus pilot BINUS @Kemanggisan** (`@binus.ac.id`); zona contoh BeeHub, LKC, Lab Komputer, Creative Space, Gazebo. **`learning_style` keluar dari MVP** — kartu pengguna menampilkan archetype. Login: OTP hanya saat Daftar dan dari HP baru; tombol Google/Facebook/Apple hanya tampilan. Sesi belajar: **tanpa daftar tunggu dan tanpa ganti sesi**, keluar lewat konfirmasi, kuota dijaga di database, agenda berjam, **materi dari host**. Aturan **host keluar** (§8.1). **Daftar tunggu Event dihapus.** METHODOLOGY naik ke v1.1 (pemetaan archetype diseimbangkan). |
+| 1.7 (draft) | 11 Okt 2026 | Tambah **§15 Rencana (Draft)**: pencocokan partner belajar, mata kuliah pengguna, tampilan Peta berupa daftar kartu, penyelarasan UI dengan Figma. Seluruh isinya **belum divalidasi tim**. |
 
 ---
 
@@ -316,7 +317,7 @@ Lihat [ROADMAP.md](./ROADMAP.md). Milestone kunci:
 | Grand Final (pitching di FMIPA UGM) | 1 November 2026 |
 
 ## 14. Open Questions
-- ~~Sumber pertanyaan kuis kepribadian & bobot skoringnya~~ — **selesai**, lihat [METHODOLOGY.md](./METHODOLOGY.md) v1.1.
+- ~~Sumber pertanyaan kuis kepribadian & bobot skoringnya~~ — **selesai**, lihat [METHODOLOGY.md](./METHODOLOGY.md) v1.2.
 - Definisi "online" untuk Match Map (threshold waktu presence sebelum dianggap offline).
 - Chip di Profil ("Fast learner", "Belajar kelompok", "Produktif pagi", "Terjadwal") asalnya dari kuis gaya belajar yang sudah keluar dari MVP: diganti trait sekunder dari `personality_scores`, jadi tag yang diisi sendiri pengguna, atau dihapus?
 - Ruangan BINUS @Kemanggisan mana saja yang jadi zona awal untuk survei access point (daftar di §12 masih usulan dari mockup)?
@@ -326,3 +327,38 @@ Lihat [ROADMAP.md](./ROADMAP.md). Milestone kunci:
 - Apakah lowongan tim Lomba wajib menyertakan link guidebook untuk mencegah spam?
 - Apakah zona dengan hanya 1 orang online tetap ditampilkan? (Kalau ya, identitas orang itu praktis terungkap.)
 - Kebijakan retensi data setelah lomba selesai (apakah akun mahasiswa dihapus atau dilanjutkan sebagai produk nyata — lihat roadmap pasca-hackathon).
+
+## 15. Rencana (Draft)
+
+> **Status: DRAFT, belum divalidasi tim.** Bagian ini mencatat arah yang disepakati saat pengerjaan (11 Okt 2026) agar tidak hilang. Isinya tidak mengubah aturan di §1–§14 sampai tim menyetujuinya. Angka bobot adalah tebakan awal dan belum dikalibrasi dengan data pengguna.
+
+### 15.1 Pencocokan partner belajar (Study Match)
+- Skor kecocokan 0–100 dihitung di database (`recommend_study_partners`): irisan mata kuliah (persentase dari mata kuliah milikku × 60), archetype **sama** (20; berbeda 10), jurusan sama (10), sesi yang pernah diikuti bersama (maks. 10). Rumus dan alasannya ada di [METHODOLOGY.md §15](./METHODOLOGY.md).
+- Pencocokan Lomba nanti memakai arah sebaliknya (archetype **berbeda** bernilai lebih tinggi, tim saling melengkapi). Fungsinya belum dibuat; Lomba tetap berbasis lowongan dan permintaan bergabung.
+
+- **Rencana ubah bobot berdasarkan SKS (draft):** komponen mata kuliah tidak lagi menghitung jumlah, melainkan **total SKS** mata kuliah yang sama dibagi total SKS milikku, × 60. Mata kuliah 4 SKS lebih berpengaruh daripada 2 SKS. Butuh kolom `courses.credits` (SKS) dan pengisian datanya. Rumus lengkap: [METHODOLOGY.md §15.1](./METHODOLOGY.md).
+- **Batas pilihan: maksimal 5 mata kuliah** per pengguna (satu semester berjalan), ditegakkan di database (bukan hanya UI).
+- Skor 100 berasal dari empat komponen: mata kuliah 60 + archetype 20 + jurusan 10 + sesi bersama 10.
+
+### 15.2 Mata kuliah pengguna
+- Pengguna memilih mata kuliah yang diambil di layar **Mata kuliah saya** (Profil → Mata kuliah saya), disimpan di `user_courses`.
+- Daftar mata kuliah masih contoh (seed manual); sumber resmi (kurikulum kampus) belum ditentukan.
+- Pengguna memilih **maksimal 5** mata kuliah.
+
+### 15.3 Peta (Match Map)
+- Tampilan mengikuti frame Figma: daftar kartu ruangan **per kampus**, banner status Wi-Fi, chip filter, dan dua popup: "Sambung ke Wi-Fi kampus" dan "Tampilkan dulu untuk melihat teman". Denah SVG tidak menjadi tampilan utama.
+- Aturan privasi tetap: opt-in, hanya zona, tanpa koordinat, kedaluwarsa otomatis **15 menit**, visibilitas timbal balik, dan **zona berisi satu orang hanya menampilkan jumlah** tanpa identitas.
+- Pembaruan lewat polling berkala (klien tidak boleh membaca tabel `presence` langsung), bukan Realtime.
+
+### 15.4 Tampilan dan identitas
+- Layar yang punya frame Figma (Masuk, Daftar, OTP, Kuis, Peta, Beranda, Profil) disamakan dengan Figma: font **Inter**, tombol pil biru, kolom isian bergaris bawah, popup putih di atas latar redup.
+- Sentuhan kaca dan rasi bintang hanya halus di latar. Palet dan identitas Figma bersifat mengikat (biru `#0072B8`, kuning `#F39C12`, teks aksen `#A65C00`).
+- Ilustrasi archetype memakai karya dari `assets/archetypes/` (asal-usul dan lisensi belum dikonfirmasi).
+
+### 15.5 Ditunda (di luar Must-have sebelum 16 Okt)
+Event (form kurator dan RSVP), Lomba, Chat, Teman, Laporan, `host_leave_session` (polling/voting host), dan bucket Storage materi sesi.
+
+### 15.6 Pertanyaan terbuka tambahan
+- Apakah halaman Syarat & Ketentuan dan Kebijakan Privasi (disebut di checkbox Daftar) akan dibuat sebelum submit?
+- Apakah tautan "Lupa kata sandi?" di Figma perlu alur reset kata sandi di MVP?
+- Penyedia login ketiga di Figma tertulis Apple tetapi gambarnya Microsoft: mana yang dipakai (keduanya hanya tampilan)?

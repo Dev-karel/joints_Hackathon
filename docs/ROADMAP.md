@@ -51,7 +51,7 @@ Aturan kode: semua pembacaan BSSID berada di `src/lib/wifi/` di balik satu fungs
 - [x] Login `@binus.ac.id` + kata sandi + OTP (Daftar & HP baru) — kode selesai (`app/(auth)`, `src/features/auth`), allowlist domain lewat trigger DB; **belum diuji di perangkat**
 
 **12 Okt** *(Technical Meeting)*
-- [x] (kode selesai, belum diuji di perangkat) Kuis kepribadian 15 pertanyaan + modal peringatan + "Kembali" sebelum submit + `submit_personality_quiz` + penguncian permanen di RLS/trigger (lihat [METHODOLOGY.md](./METHODOLOGY.md) v1.1, PRD §6.1)
+- [x] (kode selesai, belum diuji di perangkat) Kuis kepribadian 15 pertanyaan + modal peringatan + "Kembali" sebelum submit + `submit_personality_quiz` + penguncian permanen di RLS/trigger (lihat [METHODOLOGY.md](./METHODOLOGY.md) v1.2, PRD §6.1)
 - [x] Shell navigasi: Beranda · Match · Event · Peta · Profil (placeholder "Segera hadir" untuk Match/Event/Peta)
 - [ ] Profil dasar (avatar, jurusan, semester)
 

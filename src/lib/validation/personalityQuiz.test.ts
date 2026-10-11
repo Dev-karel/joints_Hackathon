@@ -35,15 +35,13 @@ describe('pemetaan kuis (METHODOLOGY §10)', () => {
 
 describe('scoreAnswers', () => {
   const toAnswers = (picks: string): QuizAnswers =>
-    Object.fromEntries(
-      QUIZ_QUESTIONS.map((q, i) => [q.id, picks[i] as AnswerId]),
-    );
+    Object.fromEntries(QUIZ_QUESTIONS.map((q, i) => [q.id, picks[i] as AnswerId]));
 
-  it('contoh METHODOLOGY §8 → heartkeeper 24.7%', () => {
+  it('contoh METHODOLOGY §8 → sagekeeper 24.7%', () => {
     // q1 A, q2 B, q3 A, q4 A, q5 B, q6 A, q7 B, q8 B, q9 A, q10 A, q11 B, q12 A, q13 B, q14 A, q15 A
     const result = scoreAnswers(toAnswers('ABAABABBAABABAA'));
-    expect(result.type).toBe('heartkeeper');
-    expect(result.percentages.heartkeeper).toBeCloseTo(24.67, 1);
+    expect(result.type).toBe('sagekeeper');
+    expect(result.percentages.sagekeeper).toBeCloseTo(24.67, 1);
     expect(result.percentages.groundbreaker).toBeCloseTo(4.0, 1);
   });
 
@@ -51,11 +49,16 @@ describe('scoreAnswers', () => {
     expect(() => scoreAnswers({ q1: 'A' })).toThrow();
   });
 
-  it('seluruh 32.768 kombinasi: total 100%, peluang menang tiap archetype 14,7%–18,9%', () => {
-    const wins = Object.fromEntries(ARCHETYPE_IDS.map((id) => [id, 0])) as Record<ArchetypeId, number>;
+  it('seluruh 32.768 kombinasi: total 100%, peluang menang tiap archetype 14,8%–18,1%', () => {
+    const wins = Object.fromEntries(ARCHETYPE_IDS.map((id) => [id, 0])) as Record<
+      ArchetypeId,
+      number
+    >;
     const combos = 2 ** QUESTION_COUNT;
     for (let mask = 0; mask < combos; mask++) {
-      const picks = Array.from({ length: QUESTION_COUNT }, (_, i) => ((mask >> i) & 1 ? 'B' : 'A')).join('');
+      const picks = Array.from({ length: QUESTION_COUNT }, (_, i) =>
+        (mask >> i) & 1 ? 'B' : 'A'
+      ).join('');
       const { type, percentages } = scoreAnswers(toAnswers(picks));
       const sum = Object.values(percentages).reduce((a, b) => a + b, 0);
       expect(Math.abs(sum - 100)).toBeLessThan(0.01);
@@ -63,8 +66,8 @@ describe('scoreAnswers', () => {
     }
     for (const id of ARCHETYPE_IDS) {
       const share = (wins[id] / combos) * 100;
-      expect(share).toBeGreaterThan(14.6);
-      expect(share).toBeLessThan(19);
+      expect(share).toBeGreaterThan(14.7);
+      expect(share).toBeLessThan(18.2);
     }
   });
 });

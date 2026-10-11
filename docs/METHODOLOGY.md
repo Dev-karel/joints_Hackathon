@@ -1,6 +1,6 @@
 # Metodologi Kuis Kepribadian AyokMatch
 
-> Versi 1.1 — 30 September 2026. Menjawab [PRD.md §14](./PRD.md) Open Question #1 ("sumber pertanyaan kuis kepribadian & bobot skoringnya"). Dokumen ini adalah rujukan tunggal untuk isi pertanyaan, bobot skor, dan cara menghitung `personality_type` yang disebut di [ARCHITECTURE.md §4.1 & §5](./ARCHITECTURE.md) dan aturan penguncian di [PRD.md §6.1](./PRD.md).
+> Versi 1.2 — 11 Oktober 2026. Menjawab [PRD.md §14](./PRD.md) Open Question #1 ("sumber pertanyaan kuis kepribadian & bobot skoringnya"). Dokumen ini adalah rujukan tunggal untuk isi pertanyaan, bobot skor, dan cara menghitung `personality_type` yang disebut di [ARCHITECTURE.md §4.1 & §5](./ARCHITECTURE.md) dan aturan penguncian di [PRD.md §6.1](./PRD.md).
 
 ### Riwayat Perubahan
 
@@ -8,6 +8,7 @@
 |---|---|---|
 | 1.0 | 29 Sep 2026 | Versi awal: 15 pertanyaan, 6 archetype, bobot 70/30 |
 | 1.1 | 30 Sep 2026 | **Pemetaan diseimbangkan**: tiap archetype tepat 5× primer dan 5× sekunder (sebelumnya Mindsmith 7× primer, Groundbreaker 3×). 5 opsi berubah: Q3A, Q6B, Q8A, Q10B, Q14B. Contoh hitungan §7–§8 dibetulkan. Aturan seri no. 2 diperjelas. `learning_style` tidak dipakai di MVP. |
+| 1.2 | 11 Okt 2026 | **Teks 15 pertanyaan dan pemetaan skor diganti** (isi §4 seluruhnya baru; usulan tim). Tiap archetype tetap tepat 5× primer dan 5× sekunder. Bobot 70/30 dan algoritma §5 tidak berubah. Angka §5.2, §8, dan §10 dihitung ulang. Pengguna yang sudah submit kuis memakai hasil lama (terkunci). Juga ditambahkan **§15 Rencana (Draft)** tentang pemakaian archetype untuk pencocokan. |
 
 ## 0. Cakupan & Batas Dokumen
 
@@ -33,9 +34,9 @@ Contoh yang **dihindari**:
 > "Apakah kamu seorang pemimpin alami?"
 
 Contoh yang **dipakai**:
-> "Saat semua orang mentok..."
-> `A. Coba cara baru.`
-> `B. Cari titik temu.`
+> "Saat kelompok tidak menemukan solusi, kamu akan..."
+> `A. Berani mencoba pendekatan yang belum pernah dicoba.`
+> `B. Membantu anggota berdiskusi sampai menemukan kesepakatan.`
 
 Ini membuat hasil akhir tidak terlalu mudah ditebak oleh pengguna saat mengisi, sehingga jawaban lebih mencerminkan reaksi asli — sejalan dengan peringatan "isi jujur" di modal pembuka (PRD §6.1).
 
@@ -109,108 +110,108 @@ Kamu lebih suka memahami dulu sebelum bereaksi. Kamu membawa ketenangan, perspek
 
 ### Q1 (`q1`) — Masalah Tim
 
-**Ketika timmu menghadapi masalah...**
+**Saat tim menghadapi masalah, kamu biasanya...**
 
-- `A. Cari solusinya.` → **Mindsmith 0.70 + Groundbreaker 0.30**
-- `B. Cek kondisi semua orang.` → **Heartkeeper 0.70 + Sagekeeper 0.30**
+- `A. Mencari cara paling masuk akal untuk menyelesaikannya.` → **Mindsmith 0.70 + Groundbreaker 0.30**
+- `B. Memastikan semua anggota merasa didengar.` → **Heartkeeper 0.70 + Sagekeeper 0.30**
 
 ### Q2 (`q2`) — Situasi Baru
 
-**Di situasi yang baru...**
+**Saat berada di tempat atau situasi baru, kamu lebih suka...**
 
-- `A. Menjelajah dulu.` → **Wildheart 0.70 + Groundbreaker 0.30**
-- `B. Mengamati dulu.` → **Sagekeeper 0.70 + Mindsmith 0.30**
+- `A. Langsung mencoba dan menjelajah.` → **Wildheart 0.70 + Heartkeeper 0.30**
+- `B. Mengamati dulu sebelum bertindak.` → **Sagekeeper 0.70 + Mindsmith 0.30**
 
 ### Q3 (`q3`) — Perbedaan Pendapat
 
-**Saat ada yang tidak sependapat denganmu...**
+**Saat berbeda pendapat dengan orang lain, kamu cenderung...**
 
-- `A. Dengarkan pendapatnya.` → **Wildheart 0.70 + Heartkeeper 0.30** *(v1.1: sebelumnya Heartkeeper + Wildheart)*
-- `B. Pertahankan pendirianmu.` → **Kindled Flame 0.70 + Groundbreaker 0.30**
+- `A. Mendengarkan dan memahami alasan mereka terlebih dahulu.` → **Sagekeeper 0.70 + Mindsmith 0.30**
+- `B. Berani menyampaikan pendapatmu secara langsung.` → **Groundbreaker 0.70 + Kindled Flame 0.30**
 
-### Q4 (`q4`) — Kekuatan Pribadi
+### Q4 (`q4`) — Tugas Sulit
 
-**Kekuatan terbesarmu adalah...**
+**Saat mendapat tugas yang sulit, kamu lebih memilih...**
 
-- `A. Kreativitas.` → **Mindsmith 0.70 + Wildheart 0.30**
-- `B. Ketekunan.` → **Kindled Flame 0.70 + Groundbreaker 0.30**
+- `A. Mencari ide atau cara baru.` → **Mindsmith 0.70 + Groundbreaker 0.30**
+- `B. Terus berusaha sampai tugas selesai.` → **Kindled Flame 0.70 + Wildheart 0.30**
 
-### Q5 (`q5`) — Membantu Teman
+### Q5 (`q5`) — Teman dalam Kesulitan
 
-**Temanmu sedang kesulitan...**
+**Ketika teman sedang mengalami kesulitan, kamu biasanya...**
 
-- `A. Beri dia sudut pandang baru.` → **Sagekeeper 0.70 + Heartkeeper 0.30**
-- `B. Dorong dia untuk terus maju.` → **Kindled Flame 0.70 + Mindsmith 0.30**
+- `A. Mendengarkan dan membantu mencari jalan keluar.` → **Heartkeeper 0.70 + Sagekeeper 0.30**
+- `B. Menyemangatinya agar tidak menyerah.` → **Kindled Flame 0.70 + Wildheart 0.30**
 
 ### Q6 (`q6`) — Gaya Kerja
 
-**Kamu lebih suka...**
+**Kamu lebih nyaman...**
 
-- `A. Mengikuti alur yang ada.` → **Wildheart 0.70 + Sagekeeper 0.30**
-- `B. Punya rencana yang jelas.` → **Mindsmith 0.70 + Kindled Flame 0.30** *(v1.1: sebelumnya Mindsmith + Groundbreaker)*
+- `A. Mengikuti keadaan dan mencoba hal baru.` → **Wildheart 0.70 + Heartkeeper 0.30**
+- `B. Membuat rencana sebelum bertindak.` → **Mindsmith 0.70 + Groundbreaker 0.30**
 
-### Q7 (`q7`) — Tim Mentok
+### Q7 (`q7`) — Solusi Buntu
 
-**Saat semua orang mentok...**
+**Saat kelompok tidak menemukan solusi, kamu akan...**
 
-- `A. Coba cara baru.` → **Groundbreaker 0.70 + Kindled Flame 0.30**
-- `B. Cari titik temu.` → **Heartkeeper 0.70 + Sagekeeper 0.30**
+- `A. Berani mencoba pendekatan yang belum pernah dicoba.` → **Groundbreaker 0.70 + Kindled Flame 0.30**
+- `B. Membantu anggota berdiskusi sampai menemukan kesepakatan.` → **Heartkeeper 0.70 + Sagekeeper 0.30**
 
-### Q8 (`q8`) — Mana yang Lebih Penting?
+### Q8 (`q8`) — Cara Mengerjakan
 
-**Mana yang lebih penting?**
+**Saat mengerjakan sesuatu, kamu lebih suka...**
 
-- `A. Menemukan jawabannya.` → **Mindsmith 0.70 + Kindled Flame 0.30** *(v1.1: sebelumnya Mindsmith + Groundbreaker)*
-- `B. Memahami orang-orangnya.` → **Heartkeeper 0.70 + Wildheart 0.30**
+- `A. Memecah masalah menjadi langkah-langkah yang jelas.` → **Mindsmith 0.70 + Groundbreaker 0.30**
+- `B. Menjelajahi berbagai kemungkinan dan mencoba cara baru.` → **Wildheart 0.70 + Heartkeeper 0.30**
 
-### Q9 (`q9`) — Menghadapi Tantangan
+### Q9 (`q9`) — Menghadapi Kegagalan
 
-**Saat menghadapi tantangan...**
+**Ketika mengalami kegagalan, kamu biasanya...**
 
-- `A. Terus maju.` → **Kindled Flame 0.70 + Wildheart 0.30**
-- `B. Berhenti sebentar dan berpikir.` → **Sagekeeper 0.70 + Heartkeeper 0.30**
+- `A. Bangkit dan mencoba lagi dengan lebih kuat.` → **Kindled Flame 0.70 + Wildheart 0.30**
+- `B. Berhenti sejenak untuk memahami penyebabnya.` → **Sagekeeper 0.70 + Mindsmith 0.30**
 
-### Q10 (`q10`) — Kontribusi dalam Kelompok
+### Q10 (`q10`) — Peran dalam Kelompok
 
-**Dalam kelompok, biasanya kamu...**
+**Saat berada dalam kelompok, kamu biasanya...**
 
-- `A. Menjaga semua orang tetap kompak.` → **Heartkeeper 0.70 + Sagekeeper 0.30**
-- `B. Membawa ide-ide baru.` → **Groundbreaker 0.70 + Mindsmith 0.30** *(v1.1: sebelumnya Mindsmith + Kindled Flame)*
+- `A. Menjaga agar semua anggota tetap akrab dan terlibat.` → **Heartkeeper 0.70 + Sagekeeper 0.30**
+- `B. Berani menyampaikan hal yang mungkin dihindari orang lain.` → **Groundbreaker 0.70 + Kindled Flame 0.30**
 
-### Q11 (`q11`) — Ada yang Terasa Tidak Beres
+### Q11 (`q11`) — Aturan yang Kurang Tepat
 
-**Kalau ada yang terasa tidak beres...**
+**Jika ada aturan yang menurutmu kurang tepat, kamu akan...**
 
-- `A. Pertanyakan hal itu.` → **Groundbreaker 0.70 + Wildheart 0.30**
-- `B. Pahami dulu duduk perkaranya.` → **Sagekeeper 0.70 + Heartkeeper 0.30**
+- `A. Berani mempertanyakan aturan tersebut.` → **Groundbreaker 0.70 + Kindled Flame 0.30**
+- `B. Mencari tahu alasan di balik aturan tersebut.` → **Sagekeeper 0.70 + Mindsmith 0.30**
 
-### Q12 (`q12`) — Momen Sulit
+### Q12 (`q12`) — Rencana Tidak Lancar
 
-**Saat keadaan makin sulit...**
+**Saat rencana tidak berjalan lancar, kamu akan...**
 
-- `A. Tetap bergerak.` → **Kindled Flame 0.70 + Groundbreaker 0.30**
-- `B. Cari cara lain.` → **Mindsmith 0.70 + Wildheart 0.30**
+- `A. Tetap fokus dan berusaha sampai tuntas.` → **Kindled Flame 0.70 + Wildheart 0.30**
+- `B. Mencari alternatif yang lebih efektif.` → **Mindsmith 0.70 + Groundbreaker 0.30**
 
-### Q13 (`q13`) — Kepercayaan
+### Q13 (`q13`) — Dasar Keputusan
 
-**Kamu lebih percaya pada...**
+**Saat membuat keputusan, kamu lebih sering mengandalkan...**
 
-- `A. Intuisimu.` → **Wildheart 0.70 + Sagekeeper 0.30**
-- `B. Pengalamanmu.` → **Sagekeeper 0.70 + Mindsmith 0.30**
+- `A. Intuisi dan perasaanmu terhadap situasi sekitar.` → **Wildheart 0.70 + Heartkeeper 0.30**
+- `B. Pengalaman dan pertimbangan yang matang.` → **Sagekeeper 0.70 + Mindsmith 0.30**
 
-### Q14 (`q14`) — Mengambil Keputusan
+### Q14 (`q14`) — Pertimbangan Keputusan
 
-**Saat mengambil keputusan...**
+**Ketika harus mengambil keputusan, kamu lebih memikirkan...**
 
-- `A. Pikirkan semua orang.` → **Heartkeeper 0.70 + Kindled Flame 0.30**
-- `B. Pikirkan tujuannya.` → **Groundbreaker 0.70 + Mindsmith 0.30** *(v1.1: sebelumnya Mindsmith + Sagekeeper)*
+- `A. Dampaknya bagi orang-orang yang terlibat.` → **Heartkeeper 0.70 + Sagekeeper 0.30**
+- `B. Tujuan yang ingin dicapai dan usaha untuk meraihnya.` → **Kindled Flame 0.70 + Wildheart 0.30**
 
-### Q15 (`q15`) — Warisan
+### Q15 (`q15`) — Ingin Dikenal
 
-**Kamu lebih ingin meninggalkan...**
+**Kamu ingin dikenal sebagai orang yang...**
 
-- `A. Dampak positif.` → **Wildheart 0.70 + Heartkeeper 0.30**
-- `B. Pencapaian yang bertahan lama.` → **Groundbreaker 0.70 + Kindled Flame 0.30**
+- `A. Membawa dampak baik bagi orang dan lingkungan sekitar.` → **Wildheart 0.70 + Heartkeeper 0.30**
+- `B. Berani mengambil langkah berbeda saat orang lain ragu.` → **Groundbreaker 0.70 + Kindled Flame 0.30**
 
 ## 5. Algoritma Skoring
 
@@ -263,11 +264,11 @@ primaryArchetype = archetypeWithHighestScore(scores)
 
 ### 5.2 Aturan Tie-Breaking
 
-Seri (tie) **tidak jarang**: dari semua 32.768 kombinasi jawaban, skor tertinggi seri di sekitar 11,5% kombinasi (pemetaan v1.1). Gunakan aturan deterministik berikut, berurutan:
+Seri (tie) **tidak jarang**: dari semua 32.768 kombinasi jawaban, skor tertinggi seri di sekitar 14,7% kombinasi (pemetaan v1.2). Gunakan aturan deterministik berikut, berurutan:
 
 1. Bandingkan archetype yang seri berdasarkan jumlah kemunculan sebagai **bobot primer (`0.70`)**. Terbanyak menang.
 2. Jika masih seri, telusuri pertanyaan dari `q1` ke `q15` dan berhenti di **pertanyaan pertama di mana archetype yang seri mendapat bobot berbeda**; yang bobotnya lebih besar di pertanyaan itu menang.
-3. Jika masih seri, gunakan urutan archetype sesuai §3 (Wildheart → Heartkeeper → Mindsmith → Groundbreaker → Kindled Flame → Sagekeeper). Dengan pemetaan v1.1, aturan ini tidak pernah tercapai di seluruh 32.768 kombinasi, tapi tetap dipertahankan sebagai pengaman.
+3. Jika masih seri, gunakan urutan archetype sesuai §3 (Wildheart → Heartkeeper → Mindsmith → Groundbreaker → Kindled Flame → Sagekeeper). Dengan pemetaan v1.2, aturan ini tidak pernah tercapai di seluruh 32.768 kombinasi, tapi tetap dipertahankan sebagai pengaman.
 
 Ini mencegah hasil yang tidak konsisten antar-klien atau antar-perhitungan ulang.
 
@@ -293,22 +294,22 @@ Aplikasi menampilkan satu identitas utama sekaligus memperlihatkan trait sekunde
 Contoh struktur hasil:
 
 ```text
-KAMU ADALAH SANG HATI
-Heartkeeper
+KAMU ADALAH SANG PENUNTUN
+Sagekeeper
 
-Heartkeeper — 24.7%
+Sagekeeper — 24.7%
 
-Kamu peka terhadap perasaan orang lain. Kamu peduli pada
-orang-orang di sekitarmu dan ingin semua orang merasa
-didukung dan terhubung.
+Kamu lebih suka memahami dulu sebelum bereaksi. Kamu membawa
+ketenangan, perspektif, dan saran yang matang saat situasi
+mulai kacau.
 
-Perananmu: Yang menjaga tim tetap terhubung.
+Perananmu: Yang membantu tim menemukan kejernihan.
 
 Trait sekunder:
+Heartkeeper — 20.0%
 Wildheart — 20.0%
-Sagekeeper — 20.0%
-Kindled Flame — 16.0%
-Mindsmith — 15.3%
+Mindsmith — 17.3%
+Kindled Flame — 14.0%
 Groundbreaker — 4.0%
 ```
 
@@ -335,17 +336,17 @@ Skor akumulasi:
 
 | Archetype | Skor | Persentase |
 |---|---:|---:|
-| Heartkeeper | 3.7 | 24.7% |
+| Sagekeeper | 3.7 | 24.7% |
 | Wildheart | 3.0 | 20.0% |
-| Sagekeeper | 3.0 | 20.0% |
-| Kindled Flame | 2.4 | 16.0% |
-| Mindsmith | 2.3 | 15.3% |
+| Heartkeeper | 3.0 | 20.0% |
+| Mindsmith | 2.6 | 17.3% |
+| Kindled Flame | 2.1 | 14.0% |
 | Groundbreaker | 0.6 | 4.0% |
 | **Total** | **15.0** | **100.0%** |
 
-Hasil utama: `heartkeeper`. Angka ini sudah dihitung ulang dengan kode terhadap pemetaan v1.1 (angka di v1.0 tidak cocok dengan tabel bobotnya sendiri).
+Hasil utama: `sagekeeper`. Angka ini dihitung dengan kode terhadap pemetaan v1.2.
 
-Urutan tampilan untuk skor yang sama (Wildheart dan Sagekeeper di atas) mengikuti urutan §3.
+Urutan tampilan untuk skor yang sama (Wildheart dan Heartkeeper di atas) mengikuti urutan §3.
 
 ## 9. Struktur Data Implementasi
 
@@ -384,7 +385,7 @@ Implementasi wajib menegakkan:
 - Bobot primer + sekunder = `1.00`.
 - Nilai bobot numerik dan tidak negatif.
 - ID archetype harus cocok dengan daftar resmi di §3.
-- **Keseimbangan pemetaan**: dari 30 opsi, tiap archetype muncul tepat 5× sebagai primer dan 5× sebagai sekunder. Setiap perubahan pertanyaan atau bobot wajib dicek ulang dengan menghitung pemenang di seluruh 32.768 kombinasi jawaban. Pemetaan v1.1 menghasilkan peluang menang 14,7%–18,9% per archetype (ideal 16,7%).
+- **Keseimbangan pemetaan**: dari 30 opsi, tiap archetype muncul tepat 5× sebagai primer dan 5× sebagai sekunder. Setiap perubahan pertanyaan atau bobot wajib dicek ulang dengan menghitung pemenang di seluruh 32.768 kombinasi jawaban. Pemetaan v1.2 menghasilkan peluang menang 14,8%–18,1% per archetype (ideal 16,7%).
 - Kuis yang dianggap selesai harus punya jawaban untuk seluruh 15 pertanyaan (dicek di `submit_personality_quiz` sebelum menghitung — jika belum lengkap, tolak submit, bukan menghitung skor parsial).
 - Persentase ternormalisasi akhir harus berjumlah mendekati `100%`, dengan toleransi pembulatan floating-point:
 
@@ -459,3 +460,52 @@ Tampilkan Archetype + Peran + Deskripsi (§7)
 ```
 
 Sistem ini sengaja dibuat sederhana agar bisa diimplementasikan penuh di dalam aplikasi (fungsi Postgres + konstanta client), tanpa memerlukan layanan atau API pihak ketiga untuk tes kepribadian — sejalan dengan [PRD.md §12](./PRD.md) ("Bukan model klasifikasi kepribadian berbasis ML").
+
+## 15. Rencana (Draft): Pemakaian Archetype untuk Pencocokan
+
+> **Status: DRAFT, belum divalidasi.** Bagian ini hanya menjelaskan bagaimana hasil kuis (`personality_type`) dipakai aplikasi. Ia **tidak mengubah** isi pertanyaan, bobot skor, atau algoritma di §4–§5. Bobot di bawah adalah tebakan awal; lihat §13 untuk rencana kalibrasi.
+
+### 15.1 Study Match (Belajar)
+Skor 0–100 per calon partner, dihitung di fungsi Postgres `recommend_study_partners`:
+
+| Komponen | Poin | Catatan |
+|---|---:|---|
+| Irisan mata kuliah | `round(matkul_sama / matkul_milikku × 60)` | 0–60. Pembagi = jumlah mata kuliah **milikku**; bila belum memilih, bernilai 0 |
+| Archetype | 20 bila **sama**, 10 bila berbeda | Belajar paling efektif dengan gaya yang mirip |
+| Jurusan | 10 bila sama | |
+| Sesi bersama | `min(jumlah, 2) × 5` | 0–10, dari sesi belajar yang pernah diikuti bersama |
+| **Total maksimum** | **100** | Hasil diurutkan menurun, 20 teratas |
+
+Hanya pengguna yang sudah menyelesaikan kuis yang ikut dihitung.
+
+#### Rencana: bobot mata kuliah berdasarkan SKS (draft)
+Komponen mata kuliah (maks. 60) diubah dari hitungan jumlah menjadi **hitungan SKS**:
+
+`poin_matkul = round( Σ SKS(matkul yang sama) / Σ SKS(semua matkul milikku) × 60 )`
+
+- Pengguna memilih **maksimal 5 mata kuliah** (ditegakkan di database lewat trigger pada `user_courses`).
+- Butuh kolom `courses.credits` (SKS, bilangan bulat 1–6), diisi saat seed.
+- Contoh: aku memilih A (4 SKS), B (2 SKS), C (2 SKS) = 8 SKS. Partner mengambil A dan C: (4+2)/8 × 60 = 45 poin. Tanpa SKS, hasilnya 2/3 × 60 = 40.
+- Alasan: mata kuliah ber-SKS besar menuntut waktu belajar lebih banyak, jadi kesamaannya lebih bermakna. Masih asumsi, belum diuji.
+- Tetap tidak simetris (lihat 15.3) dan bernilai 0 bila belum memilih mata kuliah.
+
+#### Asal skor 100
+| Komponen | Maks. | Sumber data |
+|---|---:|---|
+| Mata kuliah (berbobot SKS) | 60 | `user_courses` + `courses.credits` |
+| Archetype sama / berbeda | 20 / 10 | `profiles.personality_type` |
+| Jurusan sama | 10 | `profiles.major` |
+| Sesi belajar bersama | 10 | `study_session_members` (maks. 2 sesi × 5) |
+| **Total** | **100** | |
+
+### 15.2 Competition Match (Lomba), belum dibuat
+Arah archetype dibalik: **berbeda** bernilai lebih tinggi karena tim lomba butuh peran yang saling melengkapi. Komponen lain menyesuaikan saat fiturnya dikerjakan. Saat ini Lomba hanya berupa lowongan dan permintaan bergabung.
+
+### 15.3 Keterbatasan yang harus diakui
+- **Heuristik sederhana**, bukan model ML dan bukan prediksi yang divalidasi. Bobot belum diuji dengan data nyata.
+- **Tidak simetris:** skor dihitung dari sudut pandang pengguna yang bertanya. Bila A memilih 2 mata kuliah dan B memilih 10 yang mencakup keduanya, A melihat B 60 poin untuk komponen matkul, sedangkan B melihat A hanya 12. Jangan tampilkan sebagai "kecocokan dua arah".
+- Hasil kuis bukan diagnosis psikologis (§11); pencocokan memakai archetype sebagai petunjuk, bukan penentu.
+- Pengguna lain hanya melihat archetype lewat `public_profiles`; jawaban kuis dan persentase mentah tidak dibuka ke pengguna lain.
+
+### 15.4 Rencana kalibrasi
+Setelah ada data pemakaian: bandingkan skor dengan sesi yang benar-benar diikuti dan dinilai berguna, lalu sesuaikan bobot. Perubahan bobot dicatat sebagai versi baru dokumen ini, sama seperti perubahan skoring kuis (§13).

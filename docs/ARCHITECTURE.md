@@ -1,6 +1,6 @@
 # Arsitektur AyokMatch
 
-> Versi 2.2 — 30 September 2026. Menggantikan arsitektur Next.js/PWA (v1). Latar keputusan ada di [PRD.md](./PRD.md) v1.6. Isi & skoring kuis kepribadian ada di [METHODOLOGY.md](./METHODOLOGY.md) v1.1.
+> Versi 2.2 — 30 September 2026. Menggantikan arsitektur Next.js/PWA (v1). Latar keputusan ada di [PRD.md](./PRD.md) v1.6. Isi & skoring kuis kepribadian ada di [METHODOLOGY.md](./METHODOLOGY.md) v1.2.
 
 ## 1. Gambaran Umum
 
