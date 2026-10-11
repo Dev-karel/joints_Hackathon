@@ -60,11 +60,11 @@ Aturan kode: semua pembacaan BSSID berada di `src/lib/wifi/` di balik satu fungs
 **13 Okt**
 - [ ] Buat/gabung/keluar sesi belajar (kuota dijaga trigger + kunci baris; status Penuh; agenda berjam)
 - [ ] Rekomendasi partner belajar (`recommend_study_partners`)
-- [ ] Edge Function `resolve-zone` + heartbeat presence di foreground
-- [ ] Layar admin **Daftarkan Wi-Fi** + Edge Function `register-access-point`
+- [x] (kode selesai, belum di-deploy/diuji di HP) Edge Function `resolve-zone` + heartbeat presence di foreground
+- [x] (kode selesai, belum di-deploy/diuji di HP) Layar admin **Daftarkan Wi-Fi** + Edge Function `register-access-point`
 
 **14 Okt**
-- [ ] Peta zona skematis (react-native-svg) + sheet daftar per ruangan + visibilitas timbal balik
+- [x] (kode selesai, belum diuji di HP) Peta zona skematis (react-native-svg) + sheet daftar per ruangan + visibilitas timbal balik
 - [ ] **Feature freeze Must-have**; bangun APK `preview` pertama (`npm run build:apk`)
 - [ ] *Hanya jika Must-have stabil:* Event (daftar, detail, RSVP berkuota, seed event & venue demo)
 - [ ] Ditunda ke Should-have/pasca bila waktu tidak cukup: materi dari host (butuh 4 library native), host keluar (`host_leave_session`, polling/voting), Lomba, Chat, Laporan

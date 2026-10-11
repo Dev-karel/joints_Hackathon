@@ -65,7 +65,7 @@ Untuk menambah library native baru, selalu gunakan `npx expo install <paket>`, b
 4. **Authentication → Providers → Email**: aktifkan (dengan kata sandi dan konfirmasi email), lalu ubah template **Confirm signup** dan **Magic Link** agar mengirim **kode OTP** (`{{ .Token }}`), bukan hanya link. Allowlist domain `binus.ac.id` ditegakkan oleh trigger di database (`supabase/migrations/20261010000200_auth_guards.sql`), jadi tidak butuh Auth Hook. Detail pengaturan di §4.1.
 5. **Storage**: buat bucket privat `avatars`, `ktm-verification`, `report-evidence`, `session-materials`.
 6. Aktifkan ekstensi **pg_cron** (Database → Extensions) untuk membersihkan `presence` yang kedaluwarsa.
-7. Deploy Edge Functions dan set secret:
+7. Deploy Edge Functions. **Tanpa CLI** (paling mudah): Dashboard → **Edge Functions** → **Deploy a new function** → beri nama persis `resolve-zone` lalu tempel isi `supabase/functions/resolve-zone/index.ts`; ulangi untuk `register-access-point`. Biarkan *Verify JWT* aktif. `SUPABASE_URL`, `SUPABASE_ANON_KEY`, dan `SUPABASE_SERVICE_ROLE_KEY` sudah tersedia otomatis di runtime, jadi tidak perlu diatur manual. Dengan CLI:
 
    ```powershell
    supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
