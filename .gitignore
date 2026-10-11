@@ -38,3 +38,5 @@ assets/archetypes/archetype_png/
 
 expo-env.d.ts
 # @end expo-cli
+# Konfigurasi Claude/Impeccable lokal per mesin
+.claude/
