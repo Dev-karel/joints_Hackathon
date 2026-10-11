@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Mail } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { BackHandler, KeyboardAvoidingView, Pressable, View } from 'react-native';
+import { AppState, BackHandler, KeyboardAvoidingView, Pressable, View } from 'react-native';
 
 import { OtpBoxes } from '@/components/auth/OtpBoxes';
 import { glass } from '@/components/glass/tokens';
@@ -32,14 +32,25 @@ export default function VerifikasiScreen() {
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [cooldown, setCooldown] = useState(RESEND_SECONDS);
+  // Hitung mundur dari jam dinding (bukan dikurangi 1 per detik) supaya tetap benar setelah
+  // app di latar belakang: timer JS berhenti saat app ditutup sementara.
+  const [endAt, setEndAt] = useState(() => Date.now() + RESEND_SECONDS * 1000);
+  const [now, setNow] = useState(() => Date.now());
   const [resent, setResent] = useState(false);
+  const cooldown = Math.max(0, Math.ceil((endAt - now) / 1000));
+  const counting = cooldown > 0;
 
   useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [cooldown]);
+    if (!counting) return;
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') setNow(Date.now());
+    });
+    return () => {
+      clearInterval(tick);
+      sub.remove();
+    };
+  }, [counting]);
 
   const close = async () => {
     // HP baru: batal berarti keluar supaya sesi sementara tidak menggantung.
@@ -79,7 +90,8 @@ export default function VerifikasiScreen() {
     try {
       if (isDevice) await requestDeviceCode(email);
       else await resendSignupCode(email);
-      setCooldown(RESEND_SECONDS);
+      setEndAt(Date.now() + RESEND_SECONDS * 1000);
+      setNow(Date.now());
       setResent(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Terjadi kesalahan.');

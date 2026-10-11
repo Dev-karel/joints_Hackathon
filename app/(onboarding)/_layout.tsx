@@ -1,12 +1,14 @@
 import { Stack } from 'expo-router';
 
+import { palette } from '@/components/onboarding/palette';
+
 export default function OnboardingLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
-        contentStyle: { backgroundColor: '#FFFFFF' },
+        contentStyle: { backgroundColor: palette.surfaceCanvas },
       }}
     />
   );

@@ -7,21 +7,24 @@ import { cardShadowStrong } from '../shadows';
 
 export function QuizResultVisual() {
   return (
-    <View className="min-h-[316px] w-full gap-[14px] overflow-hidden rounded-[32px] bg-accent p-[20px]">
-      <View className="absolute bottom-[-42px] right-[-34px] size-[146px] rounded-full bg-coral opacity-95" />
+    <View className="min-h-[316px] w-full gap-[14px] overflow-hidden rounded-[32px] bg-accent50 p-[20px]">
+      <View className="absolute bottom-[-42px] right-[-34px] size-[146px] rounded-full bg-coral opacity-25" />
 
       <View className="flex-row items-center justify-between">
-        <View className="size-[44px] rotate-[3deg] items-center justify-center rounded-[16px] bg-ink">
+        <View className="size-[44px] rotate-[3deg] items-center justify-center rounded-[16px] bg-white/70">
           <Text className="text-[22px]">🧩</Text>
         </View>
 
-        <View className="flex-row items-center gap-[7px] rounded-full bg-white px-[12px] py-[8px]">
+        <View className="flex-row items-center gap-[7px] rounded-full bg-white/80 px-[12px] py-[8px]">
           <ListChecks size={15} strokeWidth={2} color={palette.ink} />
           <Text className="text-[11px] text-ink">15 pertanyaan</Text>
         </View>
       </View>
 
-      <View className="w-full gap-[13px] rounded-[24px] bg-white p-[16px]" style={cardShadowStrong}>
+      <View
+        className="w-full gap-[13px] rounded-[24px] bg-white/90 p-[16px]"
+        style={cardShadowStrong}
+      >
         <View className="flex-row items-center justify-between">
           <View className="flex-1 gap-[3px]">
             <Text className="text-[10px] uppercase tracking-[0.8px] text-titleAccent">

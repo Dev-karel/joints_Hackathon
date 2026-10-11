@@ -14,7 +14,7 @@ const eventField = generateField(5, 5, 3, 300, 176);
 
 export function EventDiscoveryVisual() {
   return (
-    <View className="min-h-[316px] w-full gap-[10px] overflow-hidden rounded-[32px] bg-surfaceSand p-[14px]">
+    <View className="min-h-[316px] w-full gap-[10px] overflow-hidden rounded-[32px] bg-surfaceSand/60 p-[14px]">
       {/* Featured event */}
       <View className="relative h-[176px] w-full overflow-hidden rounded-[24px]" style={cardShadow}>
         <View className="absolute inset-0 bg-primary" accessibilityLabel="Nobar final" />
@@ -43,7 +43,7 @@ export function EventDiscoveryVisual() {
           </Svg>
         </View>
 
-        <View className="absolute left-[12px] top-[12px] flex-row items-center gap-[6px] rounded-full bg-white px-[10px] py-[7px]">
+        <View className="absolute left-[12px] top-[12px] flex-row items-center gap-[6px] rounded-full bg-white/80 px-[10px] py-[7px]">
           <Text className="text-[12px]">🎉</Text>
           <Text className="text-[10px] text-ink">EVENT PILIHAN</Text>
         </View>
@@ -53,7 +53,7 @@ export function EventDiscoveryVisual() {
             <Text className="text-[20px] font-bold tracking-[-0.6px] text-white">Nobar final</Text>
             <Text className="text-[10px] text-inkOnDark">Sabtu · tempat publik</Text>
           </View>
-          <View className="rounded-full bg-limeHighlight px-[12px] py-[8px]">
+          <View className="rounded-full bg-limeHighlight/80 px-[12px] py-[8px]">
             <Text className="text-[11px] font-semibold text-ink">Gratis</Text>
           </View>
         </View>
@@ -61,11 +61,11 @@ export function EventDiscoveryVisual() {
 
       {/* Morning run event */}
       <View
-        className="h-[102px] w-full flex-row items-center gap-[12px] rounded-[24px] bg-white p-[10px]"
+        className="h-[102px] w-full flex-row items-center gap-[12px] rounded-[24px] bg-white/90 p-[10px]"
         style={cardShadow}
       >
         <View
-          className="size-[82px] items-center justify-center rounded-[16px] bg-surfaceMint"
+          className="size-[82px] items-center justify-center rounded-[16px] bg-surfaceMint/70"
           accessibilityLabel="Lari pagi"
         >
           <Text className="text-[34px]">🌅</Text>
