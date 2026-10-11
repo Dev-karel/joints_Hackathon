@@ -28,7 +28,7 @@ export function PrimaryButton({
       accessibilityState={{ disabled: inactive, busy: loading }}
       style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
       className={`w-full items-center justify-center rounded-full py-[16px] ${
-        solid ? 'bg-primary' : 'border-[1.5px] border-primary bg-white'
+        solid ? 'bg-primary' : 'border-[1.5px] border-primary/70 bg-white/60'
       } ${inactive ? 'opacity-50' : ''}`}>
       {loading ? (
         <ActivityIndicator color={solid ? '#FFFFFF' : '#0072B8'} />

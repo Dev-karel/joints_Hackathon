@@ -1,18 +1,19 @@
 import { MapPinOff } from 'lucide-react-native';
-import { Image, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { palette } from '../palette';
 import { cardShadow } from '../shadows';
 
+// Avatar contoh berupa inisial berwarna (menggantikan foto).
 const roomAvatars = [
-  require('../../../../assets/onboarding/room-avatar-1.jpg'),
-  require('../../../../assets/onboarding/room-avatar-2.jpg'),
-  require('../../../../assets/onboarding/room-avatar-3.jpg'),
+  { initial: 'R', className: 'bg-limeHighlight' },
+  { initial: 'D', className: 'bg-surfaceSand' },
+  { initial: 'A', className: 'bg-surfaceLilac' },
 ];
 
 export function PrivateCampusMapVisual() {
   return (
-    <View className="h-[316px] w-full gap-[12px] overflow-hidden rounded-[32px] bg-surfaceMint p-[16px]">
+    <View className="min-h-[316px] w-full gap-[12px] overflow-hidden rounded-[32px] bg-surfaceMint p-[16px]">
       {/* Privacy control */}
       <View
         className="h-[44px] w-full flex-row items-center justify-between rounded-[16px] bg-white px-[12px]"
@@ -50,13 +51,14 @@ export function PrivateCampusMapVisual() {
           <Text className="text-[15px] font-bold text-slateInk">BeeHub</Text>
           <View className="flex-row items-center">
             {roomAvatars.map((avatar, index) => (
-              <Image
-                key={index}
-                source={avatar}
-                resizeMode="cover"
-                className={`size-[28px] rounded-full ${index < roomAvatars.length - 1 ? '-mr-[8px]' : ''}`}
-                accessibilityLabel="Anggota ruangan"
-              />
+              <View
+                key={avatar.initial}
+                className={`size-[28px] items-center justify-center rounded-full border-2 border-white ${avatar.className} ${
+                  index < roomAvatars.length - 1 ? '-mr-[8px]' : ''
+                }`}
+                accessibilityLabel="Anggota ruangan">
+                <Text className="text-[11px] font-bold text-ink">{avatar.initial}</Text>
+              </View>
             ))}
           </View>
           <Text className="text-[20px] font-extrabold text-slateInk">4 online</Text>

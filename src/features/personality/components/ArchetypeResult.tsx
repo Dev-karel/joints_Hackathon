@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import { ArchetypeConstellation } from '@/components/glass/ArchetypeConstellation';
+import { GlassCard } from '@/components/glass/GlassCard';
 import {
   ARCHETYPES,
   ARCHETYPE_IDS,
@@ -22,7 +24,10 @@ export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
 
   return (
     <View className="gap-[18px]">
-      <View className="gap-[6px] rounded-[24px] bg-surfaceSky p-[22px]">
+      <GlassCard strong className="gap-[6px] p-[22px]">
+        <View className="items-center pb-[6px]">
+          <ArchetypeConstellation type={type} size={200} />
+        </View>
         <Text className="text-[12px] font-bold tracking-[1px] text-primary">
           KAMU ADALAH {info.tagline.toUpperCase()}
         </Text>
@@ -30,11 +35,13 @@ export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
         <Text className="text-[16px] font-semibold text-titleAccent">
           {info.name} — {(scores[type] ?? 0).toFixed(1)}%
         </Text>
-        <Text className="pt-[6px] text-[14px] leading-[21px] text-inkMuted">{info.description}</Text>
+        <Text className="pt-[6px] text-[14px] leading-[21px] text-inkMuted">
+          {info.description}
+        </Text>
         <Text className="pt-[6px] text-[14px] font-semibold text-ink">Perananmu: {info.role}</Text>
-      </View>
+      </GlassCard>
 
-      <View className="gap-[8px]">
+      <GlassCard className="gap-[8px] p-[18px]">
         <Text className="text-[14px] font-bold text-ink">Trait sekunder</Text>
         {secondary.map(({ id, value }) => (
           <View key={id} className="gap-[4px]">
@@ -42,14 +49,17 @@ export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
               <Text className="text-[13px] text-ink">{ARCHETYPES[id].name}</Text>
               <Text className="text-[13px] text-inkMuted">{value.toFixed(1)}%</Text>
             </View>
-            <View className="h-[6px] overflow-hidden rounded-full bg-borderSubtle">
-              <View className="h-full rounded-full bg-primary" style={{ width: `${Math.min(value, 100)}%` }} />
+            <View className="h-[6px] overflow-hidden rounded-full bg-white/70">
+              <View
+                className="h-full rounded-full bg-primary"
+                style={{ width: `${Math.min(value, 100)}%` }}
+              />
             </View>
           </View>
         ))}
-      </View>
+      </GlassCard>
 
-      <Text className="text-[12px] leading-[18px] text-slateMuted">{RESULT_DISCLAIMER}</Text>
+      <Text className="text-[12px] leading-[18px] text-inkMuted">{RESULT_DISCLAIMER}</Text>
     </View>
   );
 }

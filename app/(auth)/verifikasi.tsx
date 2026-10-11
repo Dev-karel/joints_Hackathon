@@ -11,7 +11,7 @@ import {
   confirmDeviceCode,
   requestDeviceCode,
 } from '@/features/auth/useAuthActions';
-import { otpSchema } from '@/lib/validation/auth';
+import { OTP_LENGTH, otpSchema } from '@/lib/validation/auth';
 
 const RESEND_SECONDS = 60;
 
@@ -78,18 +78,18 @@ export default function VerifikasiScreen() {
       title={isDevice ? 'Verifikasi HP baru' : 'Verifikasi email'}
       subtitle={
         isDevice
-          ? `Kami tidak mengenali HP ini. Masukkan kode 6 angka yang dikirim ke ${email}.`
-          : `Masukkan kode 6 angka yang dikirim ke ${email}.`
+          ? `Kami tidak mengenali HP ini. Masukkan kode ${OTP_LENGTH} angka yang dikirim ke ${email}.`
+          : `Masukkan kode ${OTP_LENGTH} angka yang dikirim ke ${email}.`
       }
       onBack={back}>
       <View className="gap-[6px]">
         <TextInput
           value={code}
-          onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+          onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, OTP_LENGTH))}
           keyboardType="number-pad"
-          maxLength={6}
+          maxLength={OTP_LENGTH}
           autoFocus
-          placeholder="000000"
+          placeholder={'0'.repeat(OTP_LENGTH)}
           placeholderTextColor={palette.borderSubtle}
           accessibilityLabel="Kode verifikasi"
           textContentType="oneTimeCode"
@@ -99,7 +99,7 @@ export default function VerifikasiScreen() {
         {info ? <Text className="text-[13px] text-inkMuted">{info}</Text> : null}
       </View>
 
-      <PrimaryButton label="Verifikasi" onPress={submit} loading={busy} disabled={code.length !== 6} />
+      <PrimaryButton label="Verifikasi" onPress={submit} loading={busy} disabled={code.length !== OTP_LENGTH} />
 
       <View className="items-center">
         {cooldown > 0 ? (

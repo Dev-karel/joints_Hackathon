@@ -10,11 +10,12 @@ type OnboardingCopyProps = {
   description: string;
 };
 
-// lineHeight React Native harus px, bukan rasio: 31 x 1.04 -> 32, 15 x 1.45 -> 22.
+// lineHeight React Native harus px, bukan rasio. Judul 31 x 1.22 -> 38 (rasio 1.04 sebelumnya
+// memotong huruf bergantung seperti g/y/j di Android), deskripsi 15 x 1.45 -> 22.
 export function OnboardingCopy({ titleSegments, description }: OnboardingCopyProps) {
   return (
     <View className="w-full gap-[9px]">
-      <Text className="text-[31px] font-bold leading-[32px] tracking-[-1.24px] text-ink">
+      <Text className="text-[31px] font-bold leading-[38px] tracking-[-1.24px] text-ink">
         {titleSegments.map((segment, index) => (
           <Text key={index} className={segment.highlight ? 'text-titleAccent' : undefined}>
             {segment.text}

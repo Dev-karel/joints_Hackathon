@@ -27,7 +27,10 @@ export async function fetchQuizDrafts(userId: string): Promise<QuizAnswers> {
 export async function saveQuizAnswer(userId: string, questionId: string, answer: AnswerId) {
   const { error } = await supabase
     .from('personality_answers')
-    .upsert({ profile_id: userId, question_id: questionId, answer }, { onConflict: 'profile_id,question_id' });
+    .upsert(
+      { profile_id: userId, question_id: questionId, answer },
+      { onConflict: 'profile_id,question_id' }
+    );
   if (error) throw error;
 }
 
@@ -44,7 +47,12 @@ export async function submitQuiz() {
 }
 
 export function quizErrorMessage(e: unknown): string {
-  const msg = e instanceof Error ? e.message : typeof e === 'object' && e && 'message' in e ? String((e as { message: unknown }).message) : '';
+  const msg =
+    e instanceof Error
+      ? e.message
+      : typeof e === 'object' && e && 'message' in e
+        ? String((e as { message: unknown }).message)
+        : '';
   if (/terkunci/i.test(msg)) return 'Kuis sudah dikirim dan tidak bisa diubah lagi.';
   if (/Jawab semua/i.test(msg)) return 'Jawab semua 15 pertanyaan dulu.';
   if (/network|fetch/i.test(msg)) return 'Tidak ada koneksi. Periksa internet kamu lalu coba lagi.';

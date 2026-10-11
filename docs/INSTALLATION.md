@@ -85,6 +85,7 @@ Urutan migration (jalankan berurutan; satu file per tahap supaya mudah di-debug)
 3. `20261010000300_rls.sql` — RLS semua tabel + view `public_profiles`
 4. `20261010000400_functions_triggers.sql` — `submit_personality_quiz`, kuota sesi/event, `get_zone_presence`, `recommend_study_partners`, pembersih presence (pg_cron)
 5. `20261010000500_seed.sql` — data awal
+6. `20261011000100_user_courses.sql` — tabel `user_courses`, `set_my_courses`, dan rekomendasi partner belajar v2 (mata kuliah sama)
 
 Pengaturan di **Dashboard → Authentication** (tidak bisa lewat migration):
 

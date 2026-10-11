@@ -75,7 +75,7 @@ Aturan pembagian: operasi CRUD biasa yang cukup dijaga RLS boleh langsung dari a
 8. Masuk ke Beranda.
 
 ### 4.2 Match › Belajar
-1. Rekomendasi partner: fungsi Postgres `recommend_study_partners(user_id)` menghitung skor kecocokan dari mata kuliah yang sama, archetype (`personality_scores`), dan minat.
+1. Rekomendasi partner: fungsi Postgres `recommend_study_partners(user_id)` menghitung skor 0–100 dari mata kuliah yang sama (`user_courses`, persentase irisan: `matkul_sama / matkul_milikku × 60`), archetype **sama** (`personality_type`, 20 bila sama / 10 bila beda), jurusan sama (10), dan sesi yang pernah diikuti bersama (maks. 10). Bobot adalah heuristik awal, belum dikalibrasi.
 2. Buat sesi: judul, mata kuliah, waktu, **zona kampus** (dari `campus_zones`), jenis, kuota, agenda berjam (opsional), yang perlu dibawa (opsional) → `study_sessions`. Pembuat otomatis masuk `study_session_members` sebagai host.
 3. Materi (opsional): host mengunggah file ke bucket Storage privat `session-materials` dengan path `<session_id>/<nama-file>`, lalu metadata-nya masuk `study_session_materials`. Peserta mengunduh lewat signed URL berdurasi pendek.
 4. Gabung sesi: insert ke `study_session_members`. Trigger `before insert` mengunci baris sesi (`select ... from study_sessions where id = ... for update`), menghitung anggota, lalu menolak jika sudah sama dengan `capacity`. Kunci baris ini yang mencegah dua orang merebut tempat terakhir dan membuat sesi melebihi kuota; cek di aplikasi saja tidak cukup.
@@ -93,6 +93,7 @@ Aturan pembagian: operasi CRUD biasa yang cukup dijaga RLS boleh langsung dari a
 7. Setelah gabung, aplikasi menjadwalkan notifikasi lokal 1 jam sebelum `starts_at`, dan membatalkannya saat keluar.
 
 ### 4.3 Match › Lomba
+0. Keputusan produk: rekomendasi anggota tim Lomba memakai archetype **berbeda** (tim yang saling melengkapi), kebalikan dari Belajar. Fungsi rekomendasi Lomba belum dibuat (Should-have); saat dibuat, balik arah pembanding archetype di `recommend_study_partners`.
 1. Buat lowongan → `team_openings`.
 2. Pengguna lain mengirim permintaan → `team_join_requests` (status `requested`).
 3. Pembuat menyetujui/menolak → status `accepted`/`rejected`; RLS hanya mengizinkan pembuat mengubah status.
@@ -132,6 +133,7 @@ Aturan pembagian: operasi CRUD biasa yang cukup dijaga RLS boleh langsung dari a
 | `trusted_devices` | user_id, device_id_hash, verified_at, last_seen_at | HP yang sudah lolos OTP; HP lain wajib OTP saat masuk. RLS: hanya pemilik |
 | `personality_answers` | profile_id, question_id (`q1`–`q15`), answer (`A`/`B`) | Jawaban kuis, isi & pemetaan skor lengkap di [METHODOLOGY.md §4](./METHODOLOGY.md). Bisa di-upsert bebas oleh pemiliknya **selama** `profiles.personality_quiz_completed_at` masih null (fase draft, mendukung tombol "Kembali"); terkunci permanen sesudahnya |
 | `courses` | id, code, name | Seed manual untuk MVP |
+| `user_courses` | user_id, course_id | Mata kuliah yang diambil pengguna; dipilih di layar "Mata kuliah saya". Dipakai `recommend_study_partners` untuk kecocokan mata kuliah. RLS: hanya pemilik |
 | `campus_zones` | id, name, parent_zone_id, level (`building`/`room`), map_x, map_y, map_w, map_h | Posisi untuk peta skematis (bukan koordinat GPS) |
 | `wifi_access_points` | bssid (PK, lowercase), zone_id, label, registered_by, created_at | Data infrastruktur, bukan data pengguna |
 | `presence` | user_id (PK), zone_id, updated_at, expires_at | Satu baris per pengguna; tanpa BSSID/IP/koordinat |

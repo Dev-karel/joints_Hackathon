@@ -38,7 +38,7 @@ function FriendCard({ avatarClassName, initial, name, subtitle }: FriendCardProp
 
 export function FriendMatchVisual() {
   return (
-    <View className="h-[316px] w-full gap-[13px] overflow-hidden rounded-[32px] bg-surfaceLilac px-[20px] pb-[22px] pt-[26px]">
+    <View className="min-h-[316px] w-full gap-[13px] overflow-hidden rounded-[32px] bg-surfaceLilac px-[20px] pb-[22px] pt-[26px]">
       <View className="absolute right-[-16px] top-[-18px] size-[112px] rounded-full bg-limeHighlight opacity-90" />
       <View className="absolute bottom-[-40px] left-[-28px] size-[126px] rounded-full bg-surfaceMint opacity-[0.85]" />
 

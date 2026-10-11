@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
 
+import { GlassBackground } from '@/components/glass/GlassBackground';
+
 import { OnboardingCopy, type TitleSegment } from './OnboardingCopy';
 import { OnboardingHeader } from './OnboardingHeader';
 import {
@@ -33,13 +35,14 @@ export function OnboardingScreenLayout({
   onPrimaryPress,
 }: OnboardingScreenLayoutProps) {
   return (
-    <View className="flex-1 bg-white">
+    <GlassBackground seed={3}>
       <OnboardingHeader step={step} />
 
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <View className="grow gap-[18px] px-[22px] pb-[8px] pt-[10px]">
           {visual}
           <OnboardingCopy titleSegments={titleSegments} description={description} />
@@ -53,6 +56,6 @@ export function OnboardingScreenLayout({
         onSecondaryPress={onSecondaryPress}
         onPrimaryPress={onPrimaryPress}
       />
-    </View>
+    </GlassBackground>
   );
 }

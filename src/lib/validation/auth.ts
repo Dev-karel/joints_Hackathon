@@ -15,7 +15,12 @@ export const campusEmailSchema = (domain: string) =>
 
 export const passwordSchema = z.string().min(8, 'Kata sandi minimal 8 karakter');
 
-export const otpSchema = z.string().regex(/^\d{6}$/, 'Kode terdiri dari 6 angka');
+// Harus sama dengan Dashboard -> Authentication -> Sign In / Providers -> Email -> Email OTP Length.
+export const OTP_LENGTH = 6;
+
+export const otpSchema = z
+  .string()
+  .regex(new RegExp(`^\\d{${OTP_LENGTH}}$`), `Kode terdiri dari ${OTP_LENGTH} angka`);
 
 export const signUpSchema = (domain: string) =>
   z

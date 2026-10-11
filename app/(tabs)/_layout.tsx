@@ -12,6 +12,13 @@ export default function TabsLayout() {
         tabBarActiveTintColor: palette.primary,
         tabBarInactiveTintColor: palette.slateMuted,
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        // Bilah tab putih translusen bertepi tipis (tema kaca; tanpa blur nyata).
+        tabBarStyle: {
+          backgroundColor: 'rgba(255, 255, 255, 0.92)',
+          borderTopColor: 'rgba(255, 255, 255, 1)',
+          borderTopWidth: 1,
+          elevation: 8,
+        },
       }}>
       <Tabs.Screen
         name="index"

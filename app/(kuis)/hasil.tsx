@@ -4,15 +4,13 @@ import { useEffect } from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
 import { profileKey, useProfile } from '@/features/auth/useProfile';
 import { ArchetypeResult } from '@/features/personality/components/ArchetypeResult';
-import {
-  archetypeIdSchema,
-  personalityScoresSchema,
-} from '@/lib/validation/personalityQuiz';
+import { archetypeIdSchema, personalityScoresSchema } from '@/lib/validation/personalityQuiz';
 
 export default function HasilKuisScreen() {
   const router = useRouter();
@@ -29,21 +27,23 @@ export default function HasilKuisScreen() {
   const scores = personalityScoresSchema.safeParse(profile.data?.personality_scores);
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-      {type.success && scores.success ? (
-        <>
-          <ScrollView contentContainerStyle={{ padding: 24 }}>
-            <ArchetypeResult type={type.data} scores={scores.data} />
-          </ScrollView>
-          <View className="px-[24px] pb-[18px] pt-[8px]">
-            <PrimaryButton label="Mulai jelajah" onPress={() => router.replace('/(tabs)')} />
+    <GlassBackground stars={false}>
+      <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
+        {type.success && scores.success ? (
+          <>
+            <ScrollView contentContainerStyle={{ padding: 24 }}>
+              <ArchetypeResult type={type.data} scores={scores.data} />
+            </ScrollView>
+            <View className="px-[24px] pb-[18px] pt-[8px]">
+              <PrimaryButton label="Mulai jelajah" onPress={() => router.replace('/(tabs)')} />
+            </View>
+          </>
+        ) : (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator color={palette.primary} />
           </View>
-        </>
-      ) : (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color={palette.primary} />
-        </View>
-      )}
-    </SafeAreaView>
+        )}
+      </SafeAreaView>
+    </GlassBackground>
   );
 }

@@ -17,8 +17,8 @@ export function TextField({ label, error, secureTextEntry, ...inputProps }: Text
     <View className="w-full gap-[6px]">
       <Text className="text-[13px] font-semibold text-ink">{label}</Text>
       <View
-        className={`h-[52px] flex-row items-center rounded-[14px] border bg-white px-[14px] ${
-          error ? 'border-coral' : 'border-borderSubtle'
+        className={`h-[52px] flex-row items-center rounded-[14px] border bg-white/70 px-[14px] ${
+          error ? 'border-coral' : 'border-white'
         }`}>
         <TextInput
           {...inputProps}

@@ -6,7 +6,7 @@ import { cardShadowStrong } from '../shadows';
 
 export function QuizResultVisual() {
   return (
-    <View className="h-[316px] w-full gap-[14px] overflow-hidden rounded-[32px] bg-accent p-[20px]">
+    <View className="min-h-[316px] w-full gap-[14px] overflow-hidden rounded-[32px] bg-accent p-[20px]">
       <View className="absolute bottom-[-42px] right-[-34px] size-[146px] rounded-full bg-coral opacity-95" />
 
       <View className="flex-row items-center justify-between">
@@ -28,7 +28,7 @@ export function QuizResultVisual() {
             <Text className="text-[10px] uppercase tracking-[0.8px] text-titleAccent">
               Archetype kamu
             </Text>
-            <Text className="text-[22px] font-bold tracking-[-0.66px] text-ink">The Planner</Text>
+            <Text className="text-[22px] font-bold tracking-[-0.66px] text-ink">Mindsmith</Text>
           </View>
 
           <View className="size-[44px] items-center justify-center rounded-[16px] bg-surfaceLilac">

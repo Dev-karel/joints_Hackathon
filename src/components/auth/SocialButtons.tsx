@@ -14,7 +14,7 @@ export function SocialButtons() {
           <View
             key={name}
             accessibilityState={{ disabled: true }}
-            className="h-[46px] flex-1 items-center justify-center rounded-full border border-borderSubtle bg-slateSurface opacity-60">
+            className="h-[46px] flex-1 items-center justify-center rounded-full border border-white bg-white/50 opacity-70">
             <Text className="text-[13px] font-semibold text-inkMuted">{name}</Text>
           </View>
         ))}

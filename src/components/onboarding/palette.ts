@@ -17,6 +17,7 @@ export const palette = {
   onlineGreen: '#72C68B',
   surfaceMint: '#CDEFD8',
   surfaceSky: '#E6F3FB',
+  surfaceCanvas: '#FAFBFD',
   accentSoft: '#FEF3E2',
   slateMuted: '#94A3B8',
   borderSubtle: '#DDE7DF',

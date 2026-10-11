@@ -42,7 +42,7 @@ export default function DaftarScreen() {
   return (
     <AuthScreen
       title="Daftar akun"
-      subtitle={`Pakai email kampus @${env.allowedEmailDomain}. Kami kirim kode 6 angka untuk memverifikasi.`}
+      subtitle={`Pakai email kampus @${env.allowedEmailDomain}. Kami kirim kode verifikasi ke email itu.`}
       onBack={() => router.back()}>
       <View className="gap-[14px]">
         <Controller

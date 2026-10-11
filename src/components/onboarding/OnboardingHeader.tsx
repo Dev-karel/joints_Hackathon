@@ -33,13 +33,12 @@ export function OnboardingHeader({ step, totalSteps = 4 }: OnboardingHeaderProps
       <View
         className="h-[5px] flex-row gap-[6px]"
         accessibilityRole="progressbar"
-        accessibilityValue={{ min: 0, max: totalSteps, now: step }}>
+        accessibilityValue={{ min: 0, max: totalSteps, now: step }}
+      >
         {Array.from({ length: totalSteps }, (_, index) => (
           <View
             key={index}
-            className={`h-[5px] flex-1 rounded-full ${
-              index < step ? 'bg-accent' : 'bg-borderSubtle'
-            }`}
+            className={`h-[5px] flex-1 rounded-full ${index < step ? 'bg-accent' : 'bg-borderSubtle'}`}
           />
         ))}
       </View>

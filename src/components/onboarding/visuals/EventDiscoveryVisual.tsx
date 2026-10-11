@@ -1,26 +1,35 @@
 import { ArrowUpRight } from 'lucide-react-native';
-import { Image, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+
+import { Constellation } from '@/components/glass/Constellation';
+import { generateField } from '@/components/glass/starfield';
 
 import { palette } from '../palette';
 import { cardShadow } from '../shadows';
 
-const featuredEvent = require('../../../../assets/onboarding/featured-event.jpg');
-const morningRun = require('../../../../assets/onboarding/morning-run.jpg');
+// Latar kartu event: rasi bintang buatan kode di atas biru brand (menggantikan foto).
+const eventField = generateField(5, 5, 3, 300, 176);
 
 export function EventDiscoveryVisual() {
   return (
-    <View className="h-[316px] w-full gap-[10px] overflow-hidden rounded-[32px] bg-surfaceSand p-[14px]">
+    <View className="min-h-[316px] w-full gap-[10px] overflow-hidden rounded-[32px] bg-surfaceSand p-[14px]">
       {/* Featured event */}
       <View
         className="relative h-[176px] w-full overflow-hidden rounded-[24px]"
         style={cardShadow}>
-        <Image
-          source={featuredEvent}
-          resizeMode="cover"
-          className="absolute inset-0 h-full w-full"
-          accessibilityLabel="Nobar final"
-        />
+        <View className="absolute inset-0 bg-primary" accessibilityLabel="Nobar final" />
+        <View className="absolute inset-0" pointerEvents="none">
+          <Constellation
+            stars={eventField.stars}
+            edges={eventField.edges}
+            viewWidth={300}
+            viewHeight={176}
+            lineOpacity={0.35}
+            starRadius={2}
+            onDark
+          />
+        </View>
 
         {/* Scrim gradien memakai react-native-svg (expo-linear-gradient belum terpasang). */}
         <View className="absolute bottom-0 left-0 right-0 top-[62px]" pointerEvents="none">
@@ -55,13 +64,10 @@ export function EventDiscoveryVisual() {
       <View
         className="h-[102px] w-full flex-row items-center gap-[12px] rounded-[24px] bg-white p-[10px]"
         style={cardShadow}>
-        <View className="size-[82px] overflow-hidden rounded-[16px]">
-          <Image
-            source={morningRun}
-            resizeMode="cover"
-            className="h-full w-full"
-            accessibilityLabel="Lari pagi"
-          />
+        <View
+          className="size-[82px] items-center justify-center rounded-[16px] bg-surfaceMint"
+          accessibilityLabel="Lari pagi">
+          <Text className="text-[34px]">🌅</Text>
         </View>
 
         <View className="flex-1 gap-[5px]">
