@@ -19,7 +19,7 @@ create table personality_scoring (
 );
 
 grant select on personality_scoring to authenticated;
-alter table personality_scoring enable row level security;
+alter table personality_scoring enable row l  evel security;
 create policy personality_scoring_select on personality_scoring
   for select to authenticated using (true);
 

@@ -167,6 +167,18 @@ Table courses {
   Note: 'Seed manual untuk MVP.'
 }
 
+Table user_courses {
+  user_id uuid [not null]
+  course_id uuid [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, course_id) [pk]
+  }
+
+  Note: 'Mata kuliah yang diambil pengguna. Dipakai recommend_study_partners (kecocokan mata kuliah). RLS: hanya pemilik.'
+}
+
 // ───────────────────────── Zona & Match Map ─────────────────────────
 
 Table campus_zones {
@@ -433,6 +445,8 @@ Table reports {
 
 Ref: profiles.id < trusted_devices.user_id [delete: cascade]
 Ref: profiles.id < personality_answers.profile_id [delete: cascade]
+Ref: profiles.id < user_courses.user_id [delete: cascade]
+Ref: courses.id < user_courses.course_id [delete: cascade]
 Ref: profiles.id - presence.user_id [delete: cascade]
 
 Ref: campus_zones.parent_zone_id > campus_zones.id [delete: set null]
