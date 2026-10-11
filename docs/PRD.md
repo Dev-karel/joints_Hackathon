@@ -136,7 +136,7 @@ Kuis kepribadian menentukan `personality_type` (archetype tim, lihat [METHODOLOG
 2. **Satu sumber: access point Wi-Fi.** Aplikasi membaca BSSID dari Wi-Fi yang **sedang tersambung**. Tidak ada GPS, QR, atau cek IP.
 3. **Tidak tersambung Wi-Fi kampus = tidak tampil.** Pengguna yang memakai data seluler atau Wi-Fi yang tidak terdaftar tidak muncul di Match Map (status "Kamu di luar jaringan kampus").
 4. **Opt-in dan hanya saat aplikasi dibuka.** BSSID hanya dikirim saat toggle "Tampil di peta" aktif dan aplikasi di foreground. Tidak ada pelacakan di background.
-5. **Kedaluwarsa otomatis.** Status kehadiran hilang setelah TTL 10 menit tanpa heartbeat.
+5. **Kedaluwarsa otomatis.** Status kehadiran hilang setelah TTL 15 menit tanpa heartbeat.
 6. **Tanpa riwayat.** Hanya status terkini per pengguna yang disimpan (satu baris, di-overwrite).
 7. **Visibilitas timbal balik.** Pengguna yang tidak tampil juga tidak bisa melihat siapa yang online.
 8. **Zona kosong tetap ditampilkan** dengan label "sepi".
@@ -185,7 +185,7 @@ sequenceDiagram
     loop Tiap 2 menit & setiap Wi-Fi berganti, selama app di foreground
         A->>S: Heartbeat {bssid}
     end
-    Note over D: Tanpa heartbeat > 10 menit → kedaluwarsa, A hilang dari peta
+    Note over D: Tanpa heartbeat > 15 menit → kedaluwarsa, A hilang dari peta
 ```
 
 ### 7.6 Strategi Demo Grand Final (Hotspot)

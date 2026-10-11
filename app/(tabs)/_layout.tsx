@@ -1,0 +1,38 @@
+import { Tabs } from 'expo-router';
+import { CalendarDays, House, Map, User, Users } from 'lucide-react-native';
+
+import { palette } from '@/components/onboarding/palette';
+
+// Navigasi utama: Beranda · Match · Event · Peta · Profil (CLAUDE.md).
+export default function TabsLayout() {
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: palette.primary,
+        tabBarInactiveTintColor: palette.slateMuted,
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+      }}>
+      <Tabs.Screen
+        name="index"
+        options={{ title: 'Beranda', tabBarIcon: ({ color }) => <House size={22} color={color} /> }}
+      />
+      <Tabs.Screen
+        name="match"
+        options={{ title: 'Match', tabBarIcon: ({ color }) => <Users size={22} color={color} /> }}
+      />
+      <Tabs.Screen
+        name="event"
+        options={{ title: 'Event', tabBarIcon: ({ color }) => <CalendarDays size={22} color={color} /> }}
+      />
+      <Tabs.Screen
+        name="peta"
+        options={{ title: 'Peta', tabBarIcon: ({ color }) => <Map size={22} color={color} /> }}
+      />
+      <Tabs.Screen
+        name="profil"
+        options={{ title: 'Profil', tabBarIcon: ({ color }) => <User size={22} color={color} /> }}
+      />
+    </Tabs>
+  );
+}

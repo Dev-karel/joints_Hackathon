@@ -164,7 +164,7 @@ Bentuk huruf akan sedikit berbeda dari mockup.
 **Izin `RECORD_AUDIO` aktif tapi belum terpakai.** Disuntikkan otomatis oleh config plugin
 `expo-image-picker` karena library-nya mendukung rekam video. Dibiarkan aktif atas keputusan tim.
 Karena privasi adalah inti produk ([PRD.md §10](./PRD.md)) dan juri kemungkinan menanyakannya
-([ROADMAP.md](./ROADMAP.md) Fase 6), siapkan jawabannya — atau matikan dengan menambahkan
+([ROADMAP.md](./ROADMAP.md) Fase 4), siapkan jawabannya — atau matikan dengan menambahkan
 `{ microphonePermission: false }` di `app.config.ts`.
 
 **Tombol di Welcome Page masih sementara.** "Daftar Akun" sengaja dibuat non-aktif dan "Masuk"

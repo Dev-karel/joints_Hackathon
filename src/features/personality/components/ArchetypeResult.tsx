@@ -1,0 +1,55 @@
+import { Text, View } from 'react-native';
+
+import {
+  ARCHETYPES,
+  ARCHETYPE_IDS,
+  RESULT_DISCLAIMER,
+  type ArchetypeId,
+} from '@/lib/validation/personalityQuiz';
+
+type ArchetypeResultProps = {
+  type: ArchetypeId;
+  /** Persentase 0–100 per archetype (profiles.personality_scores). */
+  scores: Partial<Record<ArchetypeId, number>>;
+};
+
+// Presentasi hasil sesuai METHODOLOGY §7: identitas utama + trait sekunder terurut.
+export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
+  const info = ARCHETYPES[type];
+  const secondary = ARCHETYPE_IDS.filter((id) => id !== type)
+    .map((id) => ({ id, value: scores[id] ?? 0 }))
+    .sort((a, b) => b.value - a.value || ARCHETYPE_IDS.indexOf(a.id) - ARCHETYPE_IDS.indexOf(b.id));
+
+  return (
+    <View className="gap-[18px]">
+      <View className="gap-[6px] rounded-[24px] bg-surfaceSky p-[22px]">
+        <Text className="text-[12px] font-bold tracking-[1px] text-primary">
+          KAMU ADALAH {info.tagline.toUpperCase()}
+        </Text>
+        <Text className="text-[32px] font-bold text-ink">{info.name}</Text>
+        <Text className="text-[16px] font-semibold text-titleAccent">
+          {info.name} — {(scores[type] ?? 0).toFixed(1)}%
+        </Text>
+        <Text className="pt-[6px] text-[14px] leading-[21px] text-inkMuted">{info.description}</Text>
+        <Text className="pt-[6px] text-[14px] font-semibold text-ink">Perananmu: {info.role}</Text>
+      </View>
+
+      <View className="gap-[8px]">
+        <Text className="text-[14px] font-bold text-ink">Trait sekunder</Text>
+        {secondary.map(({ id, value }) => (
+          <View key={id} className="gap-[4px]">
+            <View className="flex-row justify-between">
+              <Text className="text-[13px] text-ink">{ARCHETYPES[id].name}</Text>
+              <Text className="text-[13px] text-inkMuted">{value.toFixed(1)}%</Text>
+            </View>
+            <View className="h-[6px] overflow-hidden rounded-full bg-borderSubtle">
+              <View className="h-full rounded-full bg-primary" style={{ width: `${Math.min(value, 100)}%` }} />
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <Text className="text-[12px] leading-[18px] text-slateMuted">{RESULT_DISCLAIMER}</Text>
+    </View>
+  );
+}

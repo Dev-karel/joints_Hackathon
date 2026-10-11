@@ -101,7 +101,7 @@ Aturan pembagian: operasi CRUD biasa yang cukup dijaga RLS boleh langsung dari a
 1. Pengguna menyalakan "Tampil di peta" → aplikasi meminta izin lokasi presisi dengan penjelasan "hanya untuk membaca Wi-Fi".
 2. NetInfo membaca `details.bssid` Wi-Fi yang tersambung.
 3. Aplikasi memanggil Edge Function `resolve-zone` dengan `{ bssid }` + JWT.
-4. `resolve-zone`: normalisasi BSSID (huruf kecil) → cari di `wifi_access_points` → jika cocok, upsert `presence {user_id, zone_id, expires_at = now()+10 menit}`; jika tidak, hapus baris `presence` pengguna. BSSID **tidak** disimpan dan tidak masuk log.
+4. `resolve-zone`: normalisasi BSSID (huruf kecil) → cari di `wifi_access_points` → jika cocok, upsert `presence {user_id, zone_id, expires_at = now()+15 menit}`; jika tidak, hapus baris `presence` pengguna. BSSID **tidak** disimpan dan tidak masuk log.
 5. Heartbeat tiap 2 menit dan saat NetInfo mendeteksi Wi-Fi berganti, hanya selama aplikasi di foreground (AppState `active`). Saat toggle dimatikan atau app ke background, aplikasi memanggil `resolve-zone` dengan `{ leave: true }`.
 6. Klien lain berlangganan Realtime pada `presence`; RLS memastikan hanya pengguna yang juga opt-in yang bisa membaca (visibilitas timbal balik).
 7. Job terjadwal (pg_cron) menghapus baris `presence` yang kedaluwarsa tiap menit.
@@ -159,7 +159,7 @@ Skema detail ditulis sebagai SQL migration di `supabase/migrations/`.
 - **Row Level Security** aktif di semua tabel. Contoh:
   - `personality_answers`: policy `UPDATE`/`INSERT` untuk pemilik baris memakai `USING`/`WITH CHECK` yang mengecek `(select personality_quiz_completed_at from profiles where id = auth.uid()) is null` — begitu kuis submit akhir, semua insert/update ditolak di level database, bukan cuma disembunyikan di UI. Ini yang menegakkan aturan "boleh Kembali sebelum submit, terkunci sesudahnya" dari PRD §6.1.
   - `profiles`: kolom `personality_type`, `personality_scores`, `personality_quiz_completed_at` tidak boleh diubah lewat client sama sekali oleh pengguna biasa (hanya ditulis oleh fungsi `submit_personality_quiz`, `security definer`) — gunakan trigger `BEFORE UPDATE` yang menolak perubahan kolom tersebut jika pemanggil bukan role internal, sebagai lapisan kedua selain RLS.
-  - `presence`: pengguna hanya bisa melihat baris milik orang lain jika dirinya sendiri punya baris `presence` aktif (timbal balik) dan `expires_at > now()`.
+  - `presence`: pengguna hanya bisa melihat baris milik orang lain jika dirinya sendiri punya baris `presence` aktif (timbal balik) dan `expires_at > now()`. Zona yang hanya berisi 1 pengguna aktif hanya menampilkan jumlah (1), tanpa identitas; identitas baru terlihat bila zona berisi ≥ 2 pengguna aktif. Dibaca lewat view/fungsi `security definer` agar tabel `presence` tidak dibaca langsung oleh klien.
   - `reconnect_votes`: hanya voter yang bisa membaca suaranya sendiri.
   - `events`: insert/update ditolak untuk role selain `curator`/`admin`.
   - `wifi_access_points`: hanya `admin` yang bisa insert/update; klien biasa tidak perlu membaca tabel ini sama sekali (dipakai Edge Function).

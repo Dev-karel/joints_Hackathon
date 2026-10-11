@@ -1,14 +1,9 @@
-import {
-  BackHandler,
-  Image,
-  Pressable,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Image, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WelcomeBackdrop } from '@/components/onboarding/WelcomeBackdrop';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 
 // Logo di layar Welcome (Figma node 278:370, "Group 10" = mark + wordmark).
 //
@@ -24,6 +19,7 @@ const LOGO_WIDTH_RATIO = 0.6; // ±60% lebar layar, menyamai proporsi render Fig
 const LOGO_MAX_WIDTH = 300; // batas atas supaya tidak berlebihan di tablet
 
 export default function WelcomeScreen() {
+  const router = useRouter();
   // Ukuran dihitung eksplisit dalam piksel, BUKAN lewat `width: '%'` +
   // `aspectRatio` pada <Image>. Kombinasi persentase + aspectRatio pada Image
   // tidak andal di React Native: persentasenya terabaikan dan gambar dirender
@@ -50,24 +46,8 @@ export default function WelcomeScreen() {
           {/* Tanpa bg-white: di Figma latar dekoratif menerus sampai bawah layar,
               tidak ada pita putih di belakang tombol. */}
           <View className="w-full items-center gap-[12px]">
-            {/* TODO: aktifkan setelah rute pendaftaran ada (app/(auth)/daftar). Jangan arahkan ke rute yang belum dibuat. */}
-            <Pressable
-              disabled
-              accessibilityRole="button"
-              accessibilityState={{ disabled: true }}
-              className="w-full items-center justify-center rounded-full bg-primary py-[16px] opacity-50">
-              <Text className="text-center text-[16px] font-bold text-white">Daftar Akun</Text>
-            </Pressable>
-
-            {/* Sementara: menutup aplikasi. Nanti diganti jadi rute masuk/login. */}
-            <Pressable
-              onPress={() => BackHandler.exitApp()}
-              accessibilityRole="button"
-              accessibilityLabel="Exit"
-              style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-              className="w-full items-center justify-center rounded-full border-[1.5px] border-primary bg-white py-[16px]">
-              <Text className="text-center text-[16px] font-bold text-primary">Exit</Text>
-            </Pressable>
+            <PrimaryButton label="Daftar Akun" onPress={() => router.push('/daftar')} />
+            <PrimaryButton label="Masuk" variant="outline" onPress={() => router.push('/masuk')} />
           </View>
         </View>
       </SafeAreaView>
