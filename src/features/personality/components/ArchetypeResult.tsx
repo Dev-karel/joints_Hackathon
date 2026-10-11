@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { ArchetypeArt } from '@/components/archetype/ArchetypeArt';
 import { ArchetypeConstellation } from '@/components/glass/ArchetypeConstellation';
 import { GlassCard } from '@/components/glass/GlassCard';
 import {
@@ -25,8 +26,11 @@ export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
   return (
     <View className="gap-[18px]">
       <GlassCard strong className="gap-[6px] p-[22px]">
-        <View className="items-center pb-[6px]">
-          <ArchetypeConstellation type={type} size={200} />
+        <View className="items-center justify-center pb-[6px]" style={{ height: 230 }}>
+          <View className="absolute opacity-40">
+            <ArchetypeConstellation type={type} size={230} />
+          </View>
+          <ArchetypeArt type={type} size={190} />
         </View>
         <Text className="text-[12px] font-bold tracking-[1px] text-primary">
           KAMU ADALAH {info.tagline.toUpperCase()}
