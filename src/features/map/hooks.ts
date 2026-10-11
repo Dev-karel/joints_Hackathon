@@ -28,7 +28,8 @@ async function beat() {
     return;
   }
   const result = await resolveZone(reading.bssid);
-  if (result.status === 'in_zone') setMapStatus('in_zone', { id: result.zone_id, name: result.zone_name });
+  if (result.status === 'in_zone')
+    setMapStatus('in_zone', { id: result.zone_id, name: result.zone_name });
   else if (result.status === 'outside' || result.status === 'hidden') setMapStatus('outside');
   // 'throttled': biarkan status sebelumnya.
 }
@@ -95,7 +96,9 @@ export function useToggleSharing(userId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (next: boolean): Promise<{ ok: true } | { ok: false; reason: 'no-permission' | 'error' }> => {
+    async (
+      next: boolean
+    ): Promise<{ ok: true } | { ok: false; reason: 'no-permission' | 'error' }> => {
       if (!userId) return { ok: false, reason: 'error' };
       try {
         if (next && !(await ensureWifiPermission())) return { ok: false, reason: 'no-permission' };
@@ -108,6 +111,6 @@ export function useToggleSharing(userId: string | undefined) {
         return { ok: false, reason: 'error' };
       }
     },
-    [userId, queryClient],
+    [userId, queryClient]
   );
 }

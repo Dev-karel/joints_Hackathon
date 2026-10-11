@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,6 +27,13 @@ export default function ProfilScreen() {
         </View>
         <View className="gap-[10px] px-[20px] pb-[24px]">
           <PrimaryButton label="Mata kuliah saya" onPress={() => router.push('/mata-kuliah')} />
+          {profile?.role === 'admin' ? (
+            <PrimaryButton
+              label="Daftarkan Wi-Fi (admin)"
+              variant="outline"
+              onPress={() => router.push('/admin/daftar-wifi' as Href)}
+            />
+          ) : null}
           <PrimaryButton
             label="Keluar"
             variant="outline"

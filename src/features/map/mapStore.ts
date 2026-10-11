@@ -15,7 +15,11 @@ type MapState = {
   zoneName: string | null;
 };
 
-export const useMapStore = create<MapState>(() => ({ status: 'idle', zoneId: null, zoneName: null }));
+export const useMapStore = create<MapState>(() => ({
+  status: 'idle',
+  zoneId: null,
+  zoneName: null,
+}));
 
 export const setMapStatus = (status: MapStatus, zone?: { id?: string; name?: string }) =>
   useMapStore.setState({ status, zoneId: zone?.id ?? null, zoneName: zone?.name ?? null });

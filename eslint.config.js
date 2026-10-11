@@ -3,7 +3,7 @@ const { defineConfig, globalIgnores } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 
 module.exports = defineConfig([
-  globalIgnores(['dist/*', '.expo/*', 'android/*', 'ios/*', 'coverage/*']),
+  globalIgnores(['dist/*', '.expo/*', 'android/*', 'ios/*', 'coverage/*', 'supabase/functions/*']),
   expoConfig,
   {
     // File konfigurasi di root berjalan di Node (module, require, __dirname).

@@ -2,9 +2,14 @@ import { Tabs } from 'expo-router';
 import { CalendarDays, House, Map, User, Users } from 'lucide-react-native';
 
 import { palette } from '@/components/onboarding/palette';
+import { useAuthStore } from '@/features/auth/authStore';
+import { usePresenceHeartbeat } from '@/features/map/hooks';
 
 // Navigasi utama: Beranda · Match · Event · Peta · Profil (CLAUDE.md).
 export default function TabsLayout() {
+  // Heartbeat presence: aktif hanya bila "Tampil di peta" nyala dan app di foreground.
+  usePresenceHeartbeat(useAuthStore((s) => s.session?.user.id));
+
   return (
     <Tabs
       screenOptions={{
@@ -19,7 +24,8 @@ export default function TabsLayout() {
           borderTopWidth: 1,
           elevation: 8,
         },
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{ title: 'Beranda', tabBarIcon: ({ color }) => <House size={22} color={color} /> }}
@@ -30,7 +36,10 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="event"
-        options={{ title: 'Event', tabBarIcon: ({ color }) => <CalendarDays size={22} color={color} /> }}
+        options={{
+          title: 'Event',
+          tabBarIcon: ({ color }) => <CalendarDays size={22} color={color} />,
+        }}
       />
       <Tabs.Screen
         name="peta"
