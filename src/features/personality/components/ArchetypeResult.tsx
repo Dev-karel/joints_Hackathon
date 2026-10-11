@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 
 import { ArchetypeArt } from '@/components/archetype/ArchetypeArt';
 import { ArchetypeConstellation } from '@/components/glass/ArchetypeConstellation';
@@ -35,23 +36,23 @@ export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
         <Text className="text-[12px] font-bold tracking-[1px] text-primary">
           KAMU ADALAH {info.tagline.toUpperCase()}
         </Text>
-        <Text className="text-[32px] font-bold text-ink">{info.name}</Text>
+        <Text className="text-[32px] font-bold text-slateInk">{info.name}</Text>
         <Text className="text-[16px] font-semibold text-titleAccent">
           {info.name} — {(scores[type] ?? 0).toFixed(1)}%
         </Text>
-        <Text className="pt-[6px] text-[14px] leading-[21px] text-inkMuted">
+        <Text className="pt-[6px] text-[14px] leading-[21px] text-slate500">
           {info.description}
         </Text>
-        <Text className="pt-[6px] text-[14px] font-semibold text-ink">Perananmu: {info.role}</Text>
+        <Text className="pt-[6px] text-[14px] font-semibold text-slateInk">Perananmu: {info.role}</Text>
       </GlassCard>
 
       <GlassCard className="gap-[8px] p-[18px]">
-        <Text className="text-[14px] font-bold text-ink">Trait sekunder</Text>
+        <Text className="text-[14px] font-bold text-slateInk">Trait sekunder</Text>
         {secondary.map(({ id, value }) => (
           <View key={id} className="gap-[4px]">
             <View className="flex-row justify-between">
-              <Text className="text-[13px] text-ink">{ARCHETYPES[id].name}</Text>
-              <Text className="text-[13px] text-inkMuted">{value.toFixed(1)}%</Text>
+              <Text className="text-[13px] text-slateInk">{ARCHETYPES[id].name}</Text>
+              <Text className="text-[13px] text-slate500">{value.toFixed(1)}%</Text>
             </View>
             <View className="h-[6px] overflow-hidden rounded-full bg-white/70">
               <View
@@ -63,7 +64,7 @@ export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
         ))}
       </GlassCard>
 
-      <Text className="text-[12px] leading-[18px] text-inkMuted">{RESULT_DISCLAIMER}</Text>
+      <Text className="text-[12px] leading-[18px] text-slate500">{RESULT_DISCLAIMER}</Text>
     </View>
   );
 }

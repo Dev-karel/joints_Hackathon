@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 
 import { glassShadow } from '@/components/glass/tokens';
 import type { AnswerId, QuizQuestion } from '@/lib/validation/personalityQuiz';
@@ -20,7 +21,7 @@ export function QuizQuestionCard({
 }: QuizQuestionCardProps) {
   return (
     <View className="flex-1 gap-[24px]">
-      <Text className="text-[26px] font-bold leading-[34px] text-ink">{question.prompt}</Text>
+      <Text className="text-[26px] font-extrabold leading-[32px] text-slateInk">{question.prompt}</Text>
       <View className="flex-1 flex-row gap-[12px]" style={{ minHeight: 260 }}>
         {question.options.map((option) => {
           const active = selected === option.id;
@@ -43,12 +44,12 @@ export function QuizQuestionCard({
                 }`}
               >
                 <Text
-                  className={`text-[15px] font-bold ${active ? 'text-white' : 'text-inkMuted'}`}
+                  className={`text-[15px] font-bold ${active ? 'text-white' : 'text-slate500'}`}
                 >
                   {option.id}
                 </Text>
               </View>
-              <Text className="text-center text-[18px] font-semibold leading-[26px] text-ink">
+              <Text className="text-center text-[18px] font-semibold leading-[26px] text-slateInk">
                 {option.text}
               </Text>
             </Pressable>

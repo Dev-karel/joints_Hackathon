@@ -22,6 +22,8 @@ export const glass = {
   surfaceStrong: 'rgba(255, 255, 255, 0.82)',
   border: 'rgba(255, 255, 255, 0.85)',
   sheen: 'rgba(255, 255, 255, 0.9)',
+  // Latar redup di belakang modal/dialog (satu nilai untuk semua modal).
+  scrim: 'rgba(15, 23, 42, 0.65)',
   // Rasi bintang.
   line: palette.primary,
   starPrimary: palette.primary,

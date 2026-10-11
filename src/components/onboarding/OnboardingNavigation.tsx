@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { palette } from './palette';
@@ -27,7 +28,10 @@ export function OnboardingNavigation({
   const insets = useSafeAreaInsets();
 
   return (
-    <View className="w-full bg-surfaceSky px-[22px] pt-[12px]" style={{ paddingBottom: 18 + insets.bottom }}>
+    <View
+      className="w-full bg-surfaceSky px-[22px] pt-[12px]"
+      style={{ paddingBottom: 18 + insets.bottom }}
+    >
       <View className="h-[54px] flex-row items-center gap-[10px]">
         <Pressable
           onPress={onSecondaryPress}

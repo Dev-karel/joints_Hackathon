@@ -1,6 +1,7 @@
 import { useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GlassBackground } from '@/components/glass/GlassBackground';
@@ -21,8 +22,8 @@ export default function ProfilScreen() {
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="flex-1 px-[20px] pt-[24px]">
           <GlassCard strong className="gap-[4px] p-[20px]">
-            <Text className="text-[22px] font-bold text-ink">{profile?.full_name ?? '...'}</Text>
-            <Text className="text-[14px] text-inkMuted">{session?.user.email}</Text>
+            <Text className="text-[22px] font-bold text-slateInk">{profile?.full_name ?? '...'}</Text>
+            <Text className="text-[14px] text-slate500">{session?.user.email}</Text>
           </GlassCard>
         </View>
         <View className="gap-[10px] px-[20px] pb-[24px]">

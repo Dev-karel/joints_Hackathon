@@ -21,4 +21,13 @@ export const palette = {
   accentSoft: '#FEF3E2',
   slateMuted: '#94A3B8',
   borderSubtle: '#DDE7DF',
+  accent50: '#FFF8EB',
+  accent200: '#FDE2B3',
+  accent800: '#7C4700',
+  skyBlob: '#CCE8F6',
+  slate500: '#64748B',
+  slate100: '#F1F5F9',
+  successSoft: '#DCF4E5',
+  success: '#16A34A',
+  successText: '#166534',
 } as const;

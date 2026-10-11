@@ -1,5 +1,6 @@
 import { CalendarCheck, ListChecks } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 
 import { palette } from '../palette';
 import { cardShadowStrong } from '../shadows';
@@ -20,9 +21,7 @@ export function QuizResultVisual() {
         </View>
       </View>
 
-      <View
-        className="w-full gap-[13px] rounded-[24px] bg-white p-[16px]"
-        style={cardShadowStrong}>
+      <View className="w-full gap-[13px] rounded-[24px] bg-white p-[16px]" style={cardShadowStrong}>
         <View className="flex-row items-center justify-between">
           <View className="flex-1 gap-[3px]">
             <Text className="text-[10px] uppercase tracking-[0.8px] text-titleAccent">

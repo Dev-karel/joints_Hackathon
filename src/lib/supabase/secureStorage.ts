@@ -33,7 +33,10 @@ export const secureStorage = {
     await removeParts(key);
     const count = Math.ceil(value.length / CHUNK_SIZE);
     for (let i = 0; i < count; i++) {
-      await SecureStore.setItemAsync(partKey(key, i), value.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE));
+      await SecureStore.setItemAsync(
+        partKey(key, i),
+        value.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE)
+      );
     }
     await SecureStore.setItemAsync(countKey(key), String(count));
   },

@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Switch, View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GlassBackground } from '@/components/glass/GlassBackground';
 import { GlassCard } from '@/components/glass/GlassCard';
+import { FormError } from '@/components/ui/FormError';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { palette } from '@/components/onboarding/palette';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useProfile } from '@/features/auth/useProfile';
@@ -77,15 +80,15 @@ export default function PetaScreen() {
     <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
         <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
-          <Text className="px-[4px] pt-[8px] text-[28px] font-bold leading-[34px] text-ink">
+          <Text className="px-[4px] pt-[8px] text-[26px] font-extrabold leading-[32px] text-slateInk">
             Peta kampus
           </Text>
 
           <GlassCard strong className="gap-[8px] p-[16px]">
             <View className="flex-row items-center justify-between gap-[12px]">
               <View className="flex-1 gap-[2px]">
-                <Text className="text-[15px] font-semibold text-ink">Tampil di peta</Text>
-                <Text className="text-[12px] leading-[17px] text-inkMuted">
+                <Text className="text-[15px] font-semibold text-slateInk">Tampil di peta</Text>
+                <Text className="text-[12px] leading-[17px] text-slate500">
                   Hanya saat aplikasi terbuka dan tersambung Wi-Fi kampus. Mati secara default.
                 </Text>
               </View>
@@ -98,19 +101,24 @@ export default function PetaScreen() {
                 accessibilityLabel="Tampil di peta"
               />
             </View>
-            <Text className="text-[13px] leading-[19px] text-inkMuted">
+            <Text className="text-[13px] leading-[19px] text-slate500">
               {sharing ? STATUS_TEXT[status] : STATUS_TEXT.idle}
               {sharing && status === 'in_zone' && zoneName ? ` ${zoneName}.` : ''}
             </Text>
-            {message ? <Text className="text-[13px] text-coral">{message}</Text> : null}
+            {message ? <FormError message={message} /> : null}
           </GlassCard>
 
           {zones.isPending ? (
             <ActivityIndicator color={palette.primary} />
           ) : zones.isError ? (
-            <Text className="text-[14px] text-coral">
-              Gagal memuat peta. Periksa internet kamu.
-            </Text>
+            <View className="gap-[10px]">
+              <FormError message="Gagal memuat peta. Periksa internet kamu." size={14} />
+              <PrimaryButton
+                label="Coba lagi"
+                variant="outline"
+                onPress={() => void zones.refetch()}
+              />
+            </View>
           ) : (
             <>
               <View className="flex-row flex-wrap gap-[8px]">
@@ -130,7 +138,7 @@ export default function PetaScreen() {
                       }`}
                     >
                       <Text
-                        className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-ink'}`}
+                        className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}
                       >
                         {b.name.replace('Kampus ', '')}
                       </Text>
@@ -139,19 +147,61 @@ export default function PetaScreen() {
                 })}
               </View>
 
+              {/* Peta SVG tidak bisa difokuskan screen reader; daftar ruangan di bawah adalah jalur
+                  yang setara, jadi peta disembunyikan dari TalkBack agar tidak ada elemen kosong. */}
               <GlassCard className="p-[10px]">
-                <ZoneMap
-                  rooms={rooms}
-                  counts={counts}
-                  showCounts={canView}
-                  selectedId={selectedId}
-                  currentZoneId={zoneId}
-                  onSelect={setSelectedId}
-                />
+                <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                  <ZoneMap
+                    rooms={rooms}
+                    counts={counts}
+                    showCounts={canView}
+                    selectedId={selectedId}
+                    currentZoneId={zoneId}
+                    onSelect={setSelectedId}
+                  />
+                </View>
               </GlassCard>
 
+              <GlassCard className="p-[6px]">
+                {rooms.map((room) => {
+                  const count = counts.get(room.id) ?? 0;
+                  const active = room.id === selectedId;
+                  const summary = !canView ? '' : count > 0 ? `${count} online` : 'sepi';
+                  return (
+                    <Pressable
+                      key={room.id}
+                      onPress={() => setSelectedId(room.id)}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}
+                      accessibilityLabel={summary ? `${room.name}, ${summary}` : room.name}
+                      className={`min-h-[48px] flex-row items-center justify-between gap-[10px] rounded-[18px] px-[14px] py-[10px] ${
+                        active ? 'bg-surfaceSky' : ''
+                      }`}
+                    >
+                      <Text className="flex-1 text-[14px] font-semibold text-slateInk">
+                        {room.name}
+                      </Text>
+                      {summary ? (
+                        <Text className="text-[13px] text-slate500">{summary}</Text>
+                      ) : null}
+                    </Pressable>
+                  );
+                })}
+              </GlassCard>
+
+              {canView && presence.isError ? (
+                <View className="gap-[10px]">
+                  <FormError message="Gagal memuat daftar yang online. Menampilkan data terakhir." />
+                  <PrimaryButton
+                    label="Coba lagi"
+                    variant="outline"
+                    onPress={() => void presence.refetch()}
+                  />
+                </View>
+              ) : null}
+
               {!canView ? (
-                <Text className="px-[4px] text-[13px] leading-[19px] text-inkMuted">
+                <Text className="px-[4px] text-[13px] leading-[19px] text-slate500">
                   Nyalakan &quot;Tampil di peta&quot; dan sambungkan ke Wi-Fi kampus untuk melihat
                   siapa yang online. Pengguna yang tidak tampil juga tidak bisa melihat orang lain.
                 </Text>
@@ -159,28 +209,31 @@ export default function PetaScreen() {
 
               {selected ? (
                 <GlassCard strong className="gap-[8px] p-[16px]">
-                  <Text className="text-[17px] font-bold text-ink">{selected.name}</Text>
+                  <Text className="text-[17px] font-bold text-slateInk">{selected.name}</Text>
                   {!canView ? (
-                    <Text className="text-[13px] text-inkMuted">Jumlah online disembunyikan.</Text>
+                    <Text className="text-[13px] text-slate500">Jumlah online disembunyikan.</Text>
                   ) : !selectedPresence || selectedPresence.online_count === 0 ? (
-                    <Text className="text-[13px] text-inkMuted">
+                    <Text className="text-[13px] text-slate500">
                       Sepi. Belum ada yang online di sini.
                     </Text>
                   ) : selectedPresence.members.length === 0 ? (
-                    <Text className="text-[13px] leading-[19px] text-inkMuted">
+                    <Text className="text-[13px] leading-[19px] text-slate500">
                       {selectedPresence.online_count} orang online. Identitas disembunyikan karena
                       hanya satu orang di zona ini.
                     </Text>
                   ) : (
                     <View className="gap-[8px]">
-                      <Text className="text-[13px] text-inkMuted">
+                      <Text className="text-[13px] text-slate500">
                         {selectedPresence.online_count} online
                       </Text>
                       {selectedPresence.members.map((m) => {
                         const type = archetypeIdSchema.safeParse(m.personality_type);
                         return (
-                          <View key={m.id} className="flex-row items-center justify-between">
-                            <Text className="text-[14px] font-semibold text-ink">
+                          <View
+                            key={m.id}
+                            className="flex-row items-center justify-between gap-[10px]"
+                          >
+                            <Text className="flex-1 text-[14px] font-semibold text-slateInk">
                               {m.full_name}
                             </Text>
                             {type.success ? (

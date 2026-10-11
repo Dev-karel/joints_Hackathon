@@ -1,5 +1,6 @@
 import { MessageCircle, ShieldCheck } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 
 import { palette } from '../palette';
 import { cardShadow } from '../shadows';
@@ -15,10 +16,12 @@ function FriendCard({ avatarClassName, initial, name, subtitle }: FriendCardProp
   return (
     <View
       className="w-[286px] flex-row items-center gap-[12px] rounded-[24px] bg-white p-[14px]"
-      style={cardShadow}>
+      style={cardShadow}
+    >
       <View className="relative h-[58px] w-[58px]">
         <View
-          className={`size-[58px] items-center justify-center rounded-[24px] border-[3px] border-white ${avatarClassName}`}>
+          className={`size-[58px] items-center justify-center rounded-[24px] border-[3px] border-white ${avatarClassName}`}
+        >
           <Text className="text-[21px] font-bold text-ink">{initial}</Text>
         </View>
         <View className="absolute right-[-4px] top-0 size-[9px] rounded-full border-2 border-white bg-onlineGreen" />

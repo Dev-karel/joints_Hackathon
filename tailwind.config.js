@@ -30,6 +30,19 @@ module.exports = {
         slateBorder: '#E2E8F0',
         slateBorderMuted: '#CBD5E1',
         slateSurface: '#F8FAFC',
+        // Token tambahan yang dipakai frame Figma (Masuk/Daftar/OTP/Kuis): teks sekunder slate-500,
+        // latar slate-100, catatan sukses hijau muda. successText = hijau lebih gelap supaya teks
+        // kecil di atas successSoft tetap terbaca (kontras ≥ 4,5:1); success = hijau asli Figma.
+        // Aksen kuning Figma (AyoMatch/Accent Yellow/50, /200, /800); /100=accentSoft, /500=accent, /700=accentText.
+        accent50: '#FFF8EB',
+        accent200: '#FDE2B3',
+        accent800: '#7C4700',
+        skyBlob: '#CCE8F6',
+        slate500: '#64748B',
+        slate100: '#F1F5F9',
+        successSoft: '#DCF4E5',
+        success: '#16A34A',
+        successText: '#166534',
       },
     },
   },

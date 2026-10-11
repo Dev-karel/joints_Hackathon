@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
-import { Modal, ScrollView, Text, View } from 'react-native';
+import { Modal, ScrollView, View } from 'react-native';
+import { glass } from '@/components/glass/tokens';
+import { Text } from '@/components/ui/AppText';
 
 import { PrimaryButton } from './PrimaryButton';
 
@@ -33,11 +35,14 @@ export function ConfirmModal({
       animationType="fade"
       onRequestClose={cancelLabel ? onCancel : undefined}
     >
-      <View className="flex-1 items-center justify-center bg-black/50 px-[24px]">
+      <View
+        className="flex-1 items-center justify-center px-[24px]"
+        style={{ backgroundColor: glass.scrim }}
+      >
         <View className="max-h-[88%] w-full overflow-hidden rounded-[24px] border border-white bg-white/95">
           <ScrollView contentContainerStyle={{ padding: 22, gap: 14 }}>
-            <Text className="text-[20px] font-bold text-ink">{title}</Text>
-            <Text className="text-[14px] leading-[21px] text-inkMuted">{message}</Text>
+            <Text className="text-[22px] font-extrabold text-slateInk">{title}</Text>
+            <Text className="text-[14px] leading-[21px] text-slate500">{message}</Text>
             {children}
             <View className="gap-[10px] pt-[4px]">
               <PrimaryButton label={confirmLabel} onPress={onConfirm} loading={loading} />

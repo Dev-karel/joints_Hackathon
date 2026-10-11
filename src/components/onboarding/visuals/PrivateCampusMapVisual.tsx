@@ -1,5 +1,6 @@
 import { MapPinOff } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 
 import { palette } from '../palette';
 import { cardShadow } from '../shadows';
@@ -17,7 +18,8 @@ export function PrivateCampusMapVisual() {
       {/* Privacy control */}
       <View
         className="h-[44px] w-full flex-row items-center justify-between rounded-[16px] bg-white px-[12px]"
-        style={cardShadow}>
+        style={cardShadow}
+      >
         <View className="flex-row items-center gap-[8px]">
           <View className="size-[28px] items-center justify-center rounded-[10px] bg-ink">
             <MapPinOff size={15} strokeWidth={2} color={palette.limeHighlight} />
@@ -56,7 +58,8 @@ export function PrivateCampusMapVisual() {
                 className={`size-[28px] items-center justify-center rounded-full border-2 border-white ${avatar.className} ${
                   index < roomAvatars.length - 1 ? '-mr-[8px]' : ''
                 }`}
-                accessibilityLabel="Anggota ruangan">
+                accessibilityLabel="Anggota ruangan"
+              >
                 <Text className="text-[11px] font-bold text-ink">{avatar.initial}</Text>
               </View>
             ))}

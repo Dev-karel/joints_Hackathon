@@ -2,7 +2,8 @@
 //  belum login -> onboarding, perlu OTP HP baru -> verifikasi, kuis belum selesai -> kuis,
 //  selesai -> Beranda.
 import { Redirect } from 'expo-router';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 
 import { palette } from '@/components/onboarding/palette';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -32,7 +33,7 @@ export default function Index() {
     case 'profileError':
       return (
         <View className="flex-1 items-center justify-center gap-[12px] bg-white px-[28px]">
-          <Text className="text-center text-[14px] text-inkMuted">
+          <Text className="text-center text-[14px] text-slate500">
             Gagal memuat profil. Periksa internet kamu.
           </Text>
           <PrimaryButton label="Coba lagi" onPress={retry} />

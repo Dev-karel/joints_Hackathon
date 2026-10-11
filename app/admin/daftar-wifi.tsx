@@ -1,12 +1,14 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 
 import { AuthScreen } from '@/components/auth/AuthScreen';
 import { palette } from '@/components/onboarding/palette';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
+import { FormError } from '@/components/ui/FormError';
 import { useProfile } from '@/features/auth/useProfile';
 import { registerAccessPoint } from '@/features/map/api';
 import { useZones } from '@/features/map/hooks';
@@ -74,16 +76,14 @@ export default function DaftarWifiScreen() {
       onBack={() => router.back()}
     >
       <View className="gap-[6px]">
-        <Text className="text-[13px] font-semibold text-ink">BSSID saat ini</Text>
+        <Text className="text-[13px] font-semibold text-slateInk">BSSID saat ini</Text>
         <View className="rounded-[14px] border border-white bg-white/70 px-[14px] py-[12px]">
-          <Text selectable className="text-[16px] font-bold text-ink">
+          <Text selectable className="text-[16px] font-bold text-slateInk">
             {reading === null ? 'Membaca...' : reading.status === 'ok' ? reading.bssid : '—'}
           </Text>
         </View>
         {reading && reading.status !== 'ok' ? (
-          <Text className="text-[13px] leading-[19px] text-coral">
-            {READING_TEXT[reading.status]}
-          </Text>
+          <FormError message={READING_TEXT[reading.status]} />
         ) : null}
         <Pressable onPress={refresh} accessibilityRole="button" hitSlop={8}>
           <Text className="text-[13px] font-bold text-primary">Baca ulang</Text>
@@ -91,8 +91,8 @@ export default function DaftarWifiScreen() {
       </View>
 
       <View className="gap-[8px]">
-        <Text className="text-[13px] font-semibold text-ink">Zona</Text>
-        {zones.isPending ? <Text className="text-[13px] text-inkMuted">Memuat zona...</Text> : null}
+        <Text className="text-[13px] font-semibold text-slateInk">Zona</Text>
+        {zones.isPending ? <Text className="text-[13px] text-slate500">Memuat zona...</Text> : null}
         {rooms.map((room) => {
           const active = room.id === zoneId;
           return (
@@ -105,8 +105,8 @@ export default function DaftarWifiScreen() {
                 active ? 'border-primary bg-surfaceSky' : 'border-white bg-white/60'
               }`}
             >
-              <Text className="text-[14px] font-semibold text-ink">{room.name}</Text>
-              <Text className="text-[12px] text-inkMuted">
+              <Text className="text-[14px] font-semibold text-slateInk">{room.name}</Text>
+              <Text className="text-[12px] text-slate500">
                 {room.parent_zone_id ? buildings.get(room.parent_zone_id) : ''}
               </Text>
             </Pressable>
@@ -115,21 +115,24 @@ export default function DaftarWifiScreen() {
       </View>
 
       <View className="gap-[6px]">
-        <Text className="text-[13px] font-semibold text-ink">Catatan (opsional)</Text>
+        <Text className="text-[13px] font-semibold text-slateInk">Catatan (opsional)</Text>
         <TextInput
           value={label}
           onChangeText={setLabel}
           placeholder="mis. AP lantai 2, 5 GHz"
-          placeholderTextColor={palette.slateMuted}
+          placeholderTextColor={palette.slate500}
+          accessibilityLabel="Catatan access point"
           maxLength={80}
-          className="h-[52px] rounded-[14px] border border-white bg-white/70 px-[14px] text-[15px] text-ink"
+          className="h-[52px] rounded-[14px] border border-white bg-white/70 px-[14px] text-[15px] text-slateInk"
         />
       </View>
 
       {message ? (
-        <Text className={`text-[13px] ${message.ok ? 'text-inkMuted' : 'text-coral'}`}>
-          {message.text}
-        </Text>
+        message.ok ? (
+          <Text className="text-[13px] text-slate500">{message.text}</Text>
+        ) : (
+          <FormError message={message.text} />
+        )
       ) : null}
 
       <PrimaryButton

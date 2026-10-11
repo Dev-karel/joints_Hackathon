@@ -6,3 +6,6 @@ ios/
 coverage/
 package-lock.json
 *.md
+
+# Berkas hasil generate (konversi SVG archetype); jangan diformat ulang
+src/components/archetype/art/

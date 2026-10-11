@@ -1,7 +1,11 @@
 // Terjemahan error Supabase Auth ke Bahasa Indonesia untuk ditampilkan ke pengguna.
 export class AppAuthError extends Error {}
 
-export function toAuthError(error: { message: string; code?: string; name?: string }): AppAuthError {
+export function toAuthError(error: {
+  message: string;
+  code?: string;
+  name?: string;
+}): AppAuthError {
   const code = error.code;
   const msg = error.message ?? '';
 

@@ -8,12 +8,18 @@ export const campusEmailSchema = (domain: string) =>
     .string()
     .trim()
     .min(1, 'Email wajib diisi')
+    .max(254, 'Email terlalu panjang')
     .pipe(z.email('Format email tidak valid'))
     .refine((value) => value.toLowerCase().endsWith(`@${domain.toLowerCase()}`), {
       message: `Gunakan email kampus @${domain}`,
     });
 
-export const passwordSchema = z.string().min(8, 'Kata sandi minimal 8 karakter');
+// Figma (frame Sign Up): "Minimal 8 karakter, kombinasi huruf & angka".
+export const passwordSchema = z
+  .string()
+  .min(8, 'Kata sandi minimal 8 karakter')
+  .regex(/[A-Za-z]/, 'Kata sandi harus memuat huruf')
+  .regex(/\d/, 'Kata sandi harus memuat angka');
 
 // Harus sama dengan Dashboard -> Authentication -> Sign In / Providers -> Email -> Email OTP Length.
 export const OTP_LENGTH = 6;
@@ -25,10 +31,15 @@ export const otpSchema = z
 export const signUpSchema = (domain: string) =>
   z
     .object({
-      fullName: z.string().trim().min(2, 'Nama lengkap wajib diisi'),
+      fullName: z
+        .string()
+        .trim()
+        .min(2, 'Nama lengkap wajib diisi')
+        .max(100, 'Nama maksimal 100 karakter'),
       email: campusEmailSchema(domain),
       password: passwordSchema,
       confirmPassword: z.string(),
+      agree: z.boolean().refine((v) => v, 'Setujui syarat dan kebijakan privasi untuk melanjutkan'),
     })
     .refine((v) => v.password === v.confirmPassword, {
       path: ['confirmPassword'],

@@ -9,7 +9,10 @@ export async function fetchCourses(): Promise<Course[]> {
 }
 
 export async function fetchMyCourseIds(userId: string): Promise<string[]> {
-  const { data, error } = await supabase.from('user_courses').select('course_id').eq('user_id', userId);
+  const { data, error } = await supabase
+    .from('user_courses')
+    .select('course_id')
+    .eq('user_id', userId);
   if (error) throw error;
   return (data ?? []).map((row: { course_id: string }) => row.course_id);
 }

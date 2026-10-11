@@ -23,10 +23,12 @@ async function isDeviceTrusted(userId: string): Promise<boolean> {
 
 async function trustCurrentDevice(userId: string): Promise<void> {
   const hash = await getDeviceIdHash();
-  const { error } = await supabase.from('trusted_devices').upsert(
-    { user_id: userId, device_id_hash: hash, last_seen_at: new Date().toISOString() },
-    { onConflict: 'user_id,device_id_hash' },
-  );
+  const { error } = await supabase
+    .from('trusted_devices')
+    .upsert(
+      { user_id: userId, device_id_hash: hash, last_seen_at: new Date().toISOString() },
+      { onConflict: 'user_id,device_id_hash' }
+    );
   if (error) throw toAuthError(error);
 }
 

@@ -15,7 +15,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: palette.primary,
-        tabBarInactiveTintColor: palette.slateMuted,
+        tabBarInactiveTintColor: palette.slate500,
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
         // Bilah tab putih translusen bertepi tipis (tema kaca; tanpa blur nyata).
         tabBarStyle: {

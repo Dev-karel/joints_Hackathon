@@ -2,13 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { Redirect, useRouter } from 'expo-router';
 import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { FormError } from '@/components/ui/FormError';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useProfile } from '@/features/auth/useProfile';
 import {
@@ -67,7 +69,7 @@ export default function KuisScreen() {
         <SafeAreaView className="flex-1 items-center justify-center">
           {drafts.isError ? (
             <View className="items-center gap-[12px] px-[24px]">
-              <Text className="text-center text-[14px] text-inkMuted">
+              <Text className="text-center text-[14px] text-slate500">
                 Gagal memuat kuis. Periksa internet kamu.
               </Text>
               <PrimaryButton label="Coba lagi" onPress={() => void drafts.refetch()} />
@@ -142,7 +144,11 @@ export default function KuisScreen() {
             disabled={saving}
             onSelect={select}
           />
-          {error ? <Text className="pt-[14px] text-[13px] text-coral">{error}</Text> : null}
+          {error ? (
+            <View className="pt-[14px]">
+              <FormError message={error} />
+            </View>
+          ) : null}
         </ScrollView>
 
         <View className="flex-row items-center gap-[10px] px-[22px] pb-[18px] pt-[12px]">

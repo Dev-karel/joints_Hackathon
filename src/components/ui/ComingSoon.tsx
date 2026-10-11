@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GlassBackground } from '@/components/glass/GlassBackground';
@@ -11,8 +12,8 @@ export function ComingSoon({ title }: { title: string }) {
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="flex-1 items-center justify-center px-[24px]">
           <GlassCard className="items-center gap-[6px] px-[28px] py-[24px]">
-            <Text className="text-[20px] font-bold text-ink">{title}</Text>
-            <Text className="text-center text-[14px] text-inkMuted">Segera hadir.</Text>
+            <Text className="text-[20px] font-bold text-slateInk">{title}</Text>
+            <Text className="text-center text-[14px] text-slate500">Segera hadir.</Text>
           </GlassCard>
         </View>
       </SafeAreaView>

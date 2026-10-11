@@ -9,12 +9,7 @@ import { useProfile, type ProfileRow } from './useProfile';
 //  needsQuiz      -> kuis kepribadian wajib sebelum Beranda
 //  ready          -> Beranda (tab)
 export type Phase =
-  | 'loading'
-  | 'signedOut'
-  | 'needsDeviceOtp'
-  | 'profileError'
-  | 'needsQuiz'
-  | 'ready';
+  'loading' | 'signedOut' | 'needsDeviceOtp' | 'profileError' | 'needsQuiz' | 'ready';
 
 export function useAuthPhase(): { phase: Phase; profile: ProfileRow | null; retry: () => void } {
   const { ready, session, gate } = useAuthStore();

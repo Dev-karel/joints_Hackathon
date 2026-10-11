@@ -1,11 +1,13 @@
 import { useRouter } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 
 import { AuthScreen } from '@/components/auth/AuthScreen';
 import { palette } from '@/components/onboarding/palette';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { FormError } from '@/components/ui/FormError';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useCourses, useMyCourseIds, useSaveMyCourses } from '@/features/courses/hooks';
 
@@ -56,9 +58,24 @@ export default function MataKuliahScreen() {
           <ActivityIndicator color={palette.primary} />
         </View>
       ) : courses.isError || mine.isError ? (
-        <Text className="text-[14px] text-coral">Gagal memuat daftar mata kuliah.</Text>
+        <View className="gap-[10px]">
+          <FormError message="Gagal memuat daftar mata kuliah. Periksa internet kamu." size={14} />
+          <PrimaryButton
+            label="Coba lagi"
+            variant="outline"
+            onPress={() => {
+              void courses.refetch();
+              void mine.refetch();
+            }}
+          />
+        </View>
       ) : (
         <View className="gap-[10px]">
+          {(courses.data ?? []).length === 0 ? (
+            <Text className="text-[14px] leading-[21px] text-slate500">
+              Belum ada mata kuliah di daftar. Minta admin menambahkannya, lalu buka layar ini lagi.
+            </Text>
+          ) : null}
           {(courses.data ?? []).map((course) => {
             const active = chosen.has(course.id);
             return (
@@ -79,14 +96,14 @@ export default function MataKuliahScreen() {
                 >
                   {active ? <Check size={16} strokeWidth={3} color="#FFFFFF" /> : null}
                 </View>
-                <Text className="flex-1 text-[15px] text-ink">{course.name}</Text>
+                <Text className="flex-1 text-[15px] text-slateInk">{course.name}</Text>
               </Pressable>
             );
           })}
         </View>
       )}
 
-      {error ? <Text className="text-[13px] text-coral">{error}</Text> : null}
+      {error ? <FormError message={error} /> : null}
       <PrimaryButton label="Simpan" onPress={onSave} loading={save.isPending} disabled={loading} />
     </AuthScreen>
   );

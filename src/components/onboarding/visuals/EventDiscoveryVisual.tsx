@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/AppText';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { Constellation } from '@/components/glass/Constellation';
@@ -15,9 +16,7 @@ export function EventDiscoveryVisual() {
   return (
     <View className="min-h-[316px] w-full gap-[10px] overflow-hidden rounded-[32px] bg-surfaceSand p-[14px]">
       {/* Featured event */}
-      <View
-        className="relative h-[176px] w-full overflow-hidden rounded-[24px]"
-        style={cardShadow}>
+      <View className="relative h-[176px] w-full overflow-hidden rounded-[24px]" style={cardShadow}>
         <View className="absolute inset-0 bg-primary" accessibilityLabel="Nobar final" />
         <View className="absolute inset-0" pointerEvents="none">
           <Constellation
@@ -63,10 +62,12 @@ export function EventDiscoveryVisual() {
       {/* Morning run event */}
       <View
         className="h-[102px] w-full flex-row items-center gap-[12px] rounded-[24px] bg-white p-[10px]"
-        style={cardShadow}>
+        style={cardShadow}
+      >
         <View
           className="size-[82px] items-center justify-center rounded-[16px] bg-surfaceMint"
-          accessibilityLabel="Lari pagi">
+          accessibilityLabel="Lari pagi"
+        >
           <Text className="text-[34px]">🌅</Text>
         </View>
 
