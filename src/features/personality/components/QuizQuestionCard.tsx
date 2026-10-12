@@ -11,8 +11,7 @@ type QuizQuestionCardProps = {
   onSelect: (answer: AnswerId) => void;
 };
 
-// Pertanyaan di atas, dua kotak jawaban bersebelahan yang mengisi sisa tinggi layar
-// supaya bagian tengah halaman tidak kosong.
+// Pertanyaan di atas, dua kotak jawaban bertumpuk vertikal (atas-bawah)
 export function QuizQuestionCard({
   question,
   selected,
@@ -21,8 +20,13 @@ export function QuizQuestionCard({
 }: QuizQuestionCardProps) {
   return (
     <View className="flex-1 gap-[24px]">
-      <Text className="text-[26px] font-extrabold leading-[32px] text-slateInk">{question.prompt}</Text>
-      <View className="flex-1 flex-row gap-[12px]" style={{ minHeight: 260 }}>
+      {/* Pertanyaan - ukuran diperbesar */}
+      <Text className="text-[28px] font-extrabold leading-[36px] text-slateInk">
+        {question.prompt}
+      </Text>
+      
+      {/* Pilihan jawaban - layout vertikal (atas-bawah) */}
+      <View className="flex-1 gap-[16px]" style={{ minHeight: 300 }}>
         {question.options.map((option) => {
           const active = selected === option.id;
           return (
@@ -34,22 +38,25 @@ export function QuizQuestionCard({
               accessibilityState={{ selected: active, disabled }}
               accessibilityLabel={option.text}
               style={({ pressed }) => [glassShadow, pressed ? { opacity: 0.9 } : null]}
-              className={`flex-1 items-center justify-center gap-[16px] rounded-[24px] border-2 px-[14px] py-[20px] ${
-                active ? 'border-primary bg-surfaceSky' : 'border-white bg-white/60'
+              className={`flex-1 flex-row items-center gap-[16px] rounded-[20px] border-[1.5px] px-[20px] py-[18px] ${
+                active ? 'border-primary bg-surfaceSky' : 'border-slate300 bg-white/60'
               }`}
             >
+              {/* Badge A/B di kiri */}
               <View
-                className={`h-[36px] w-[36px] items-center justify-center rounded-full ${
+                className={`h-[40px] w-[40px] items-center justify-center rounded-full ${
                   active ? 'bg-primary' : 'bg-slateSurface'
                 }`}
               >
                 <Text
-                  className={`text-[15px] font-bold ${active ? 'text-white' : 'text-slate500'}`}
+                  className={`text-[16px] font-bold ${active ? 'text-white' : 'text-slate500'}`}
                 >
                   {option.id}
                 </Text>
               </View>
-              <Text className="text-center text-[18px] font-semibold leading-[26px] text-slateInk">
+              
+              {/* Text jawaban di kanan */}
+              <Text className="flex-1 text-[18px] font-semibold leading-[26px] text-slateInk">
                 {option.text}
               </Text>
             </Pressable>
