@@ -1,9 +1,9 @@
 import { supabase } from '@/lib/supabase/client';
 
-export type Course = { id: string; code: string; name: string };
+export type Course = { id: string; code: string; name: string; credits: number };
 
 export async function fetchCourses(): Promise<Course[]> {
-  const { data, error } = await supabase.from('courses').select('id, code, name').order('name');
+  const { data, error } = await supabase.from('courses').select('id, code, name, credits').order('name');
   if (error) throw error;
   return (data ?? []) as Course[];
 }

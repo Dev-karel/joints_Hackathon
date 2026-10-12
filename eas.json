@@ -21,12 +21,7 @@
       }
     },
     "demo-local": {
-      "extends": "preview",
-      "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "",
-        "EXPO_PUBLIC_ALLOWED_EMAIL_DOMAIN": ""
-      }
+      "extends": "preview"
     },
     "production": {
       "android": {

@@ -40,6 +40,7 @@ function AppStack() {
       <Stack.Protected guard={phase === 'ready'}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="mata-kuliah" />
+        <Stack.Screen name="buat-sesi" />
         <Stack.Screen name="admin" />
       </Stack.Protected>
     </Stack>

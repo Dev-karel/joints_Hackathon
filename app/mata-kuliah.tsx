@@ -11,7 +11,9 @@ import { FormError } from '@/components/ui/FormError';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useCourses, useMyCourseIds, useSaveMyCourses } from '@/features/courses/hooks';
 
-// Pilih mata kuliah yang sedang diambil; dipakai untuk skor kecocokan partner belajar.
+const MAX_COURSES = 5; // dijaga juga oleh trigger di database
+
+// Pilih mata kuliah yang sedang diambil (maks 5); dipakai untuk skor kecocokan partner belajar.
 export default function MataKuliahScreen() {
   const router = useRouter();
   const userId = useAuthStore((s) => s.session?.user.id);
@@ -32,7 +34,8 @@ export default function MataKuliahScreen() {
     if (!selected) return;
     const next = new Set(selected);
     if (next.has(id)) next.delete(id);
-    else next.add(id);
+    else if (next.size < MAX_COURSES) next.add(id);
+    else return;
     setSelected(next);
   };
 
@@ -50,7 +53,7 @@ export default function MataKuliahScreen() {
   return (
     <AuthScreen
       title="Mata kuliah saya"
-      subtitle="Pilih mata kuliah yang kamu ambil. Kami pakai ini untuk mencarikan partner belajar yang pas."
+      subtitle={`Pilih maksimal ${MAX_COURSES} mata kuliah yang kamu ambil (${chosen.size}/${MAX_COURSES}). Kami pakai ini untuk mencarikan partner belajar yang pas.`}
       onBack={() => router.back()}
     >
       {loading ? (
@@ -78,16 +81,17 @@ export default function MataKuliahScreen() {
           ) : null}
           {(courses.data ?? []).map((course) => {
             const active = chosen.has(course.id);
+            const full = !active && chosen.size >= MAX_COURSES;
             return (
               <Pressable
                 key={course.id}
                 onPress={() => toggle(course.id)}
                 accessibilityRole="checkbox"
-                accessibilityState={{ checked: active }}
+                accessibilityState={{ checked: active, disabled: full }}
                 accessibilityLabel={course.name}
                 className={`flex-row items-center gap-[12px] rounded-[16px] border-[1.5px] px-[14px] py-[14px] ${
                   active ? 'border-primary bg-white/90' : 'border-white bg-white/60'
-                }`}
+                } ${full ? 'opacity-50' : ''}`}
               >
                 <View
                   className={`h-[24px] w-[24px] items-center justify-center rounded-[8px] ${
@@ -97,6 +101,7 @@ export default function MataKuliahScreen() {
                   {active ? <Check size={16} strokeWidth={3} color="#FFFFFF" /> : null}
                 </View>
                 <Text className="flex-1 text-[15px] text-slateInk">{course.name}</Text>
+                <Text className="text-[13px] text-slate500">{course.credits} SKS</Text>
               </Pressable>
             );
           })}
