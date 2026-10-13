@@ -5,6 +5,9 @@ import { supabase } from '@/lib/supabase/client';
 export type ProfileRow = {
   id: string;
   full_name: string;
+  major: string | null;
+  semester: number | null;
+  avatar_url: string | null;
   role: 'student' | 'curator' | 'admin';
   show_on_map: boolean;
   personality_type: string | null;
@@ -22,7 +25,7 @@ export function useProfile(userId: string | undefined) {
       const { data, error } = await supabase
         .from('profiles')
         .select(
-          'id, full_name, role, show_on_map, personality_type, personality_scores, personality_quiz_completed_at'
+          'id, full_name, major, semester, avatar_url, role, show_on_map, personality_type, personality_scores, personality_quiz_completed_at'
         )
         .eq('id', userId!)
         .single();

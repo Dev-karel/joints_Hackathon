@@ -7,8 +7,11 @@ type PrimaryButtonProps = {
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
-  /** solid = tombol pil biru; outline = tombol sekunder bergaris biru (Figma "Pelajari lebih lanjut"). */
-  variant?: 'solid' | 'outline';
+  /**
+   * solid = tombol pil biru; outline = tombol sekunder bergaris biru (Figma "Pelajari lebih lanjut");
+   * outlinePill = pil bergaris biru 1.5 px berlatar putih (Figma Welcome, "Masuk").
+   */
+  variant?: 'solid' | 'outline' | 'outlinePill';
   /** sm = tombol di dalam popup (teks 15). */
   size?: 'md' | 'sm';
 };
@@ -24,11 +27,14 @@ export function PrimaryButton({
 }: PrimaryButtonProps) {
   const inactive = disabled || loading;
   const solid = variant === 'solid';
+  const pill = variant === 'outlinePill';
 
   const shape = solid
     ? `rounded-full bg-primary ${size === 'sm' ? 'py-[14px]' : 'py-[16px]'}`
-    : 'rounded-[14px] border-2 border-primary py-[12px]';
-  const textSize = solid ? (size === 'sm' ? 'text-[15px]' : 'text-[16px]') : 'text-[14px]';
+    : pill
+      ? 'rounded-full border-[1.5px] border-primary bg-white py-[16px]'
+      : 'rounded-[14px] border-2 border-primary py-[12px]';
+  const textSize = solid || pill ? (size === 'sm' ? 'text-[15px]' : 'text-[16px]') : 'text-[14px]';
 
   return (
     <Pressable

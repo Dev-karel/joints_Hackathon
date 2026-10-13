@@ -47,7 +47,7 @@ export default function WelcomeScreen() {
               tidak ada pita putih di belakang tombol. */}
           <View className="w-full items-center gap-[12px]">
             <PrimaryButton label="Daftar Akun" onPress={() => router.push('/daftar')} />
-            <PrimaryButton label="Masuk" variant="outline" onPress={() => router.push('/masuk')} />
+            <PrimaryButton label="Masuk" variant="outlinePill" onPress={() => router.push('/masuk')} />
           </View>
         </View>
       </SafeAreaView>

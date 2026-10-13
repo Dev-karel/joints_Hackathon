@@ -1,250 +1,507 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import {
+  Atom,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Code2,
+  Languages,
+  MapPin,
+  Plus,
+  Search,
+  Sigma,
+  Trophy,
+  User,
+  type LucideIcon,
+} from 'lucide-react-native';
+import { useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { GlassBackground } from '@/components/glass/GlassBackground';
-import { GlassCard } from '@/components/glass/GlassCard';
 import { palette } from '@/components/onboarding/palette';
-import { Text } from '@/components/ui/AppText';
-import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { INTER, Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
-import { useMyCourseIds } from '@/features/courses/hooks';
-import type { Partner, StudySession } from '@/features/match/api';
-import {
-  useJoinSession,
-  useLeaveSession,
-  usePartners,
-  useSessions,
-} from '@/features/match/hooks';
-import { ARCHETYPES, archetypeIdSchema } from '@/lib/validation/personalityQuiz';
+import { formatTime } from '@/features/events/format';
+import { useFriendships } from '@/features/friends/hooks';
+import type { TeamOpening } from '@/features/lomba/api';
+import { useOpenings } from '@/features/lomba/hooks';
+import type { StudySession } from '@/features/match/api';
+import { useProfiles, useSessions } from '@/features/match/hooks';
+import { useNow } from '@/lib/useNow';
+import { COMPETITION_CATEGORIES } from '@/lib/validation/competition';
 import { SESSION_KINDS } from '@/lib/validation/studySession';
 
-const DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-const pad = (n: number) => String(n).padStart(2, '0');
+const DAY_MS = 24 * 3_600_000;
+const DAYS_UPPER = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-function whenLabel(startsAt: string, endsAt: string) {
-  const s = new Date(startsAt);
-  const e = new Date(endsAt);
-  return `${DAYS[s.getDay()]}, ${s.getDate()}/${s.getMonth() + 1} · ${pad(s.getHours())}:${pad(s.getMinutes())}–${pad(e.getHours())}:${pad(e.getMinutes())}`;
+const sameDay = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+
+// Ikon mata kuliah: tebakan dari nama; cadangannya buku.
+function subjectIcon(courseName: string | undefined): LucideIcon {
+  const n = (courseName ?? '').toLowerCase();
+  if (/(kalkulus|matematika|aljabar|statistik|diskrit)/.test(n)) return Sigma;
+  if (/(fisika|kimia)/.test(n)) return Atom;
+  if (/(inggris|bahasa)/.test(n)) return Languages;
+  if (/(algoritma|program|struktur|basis data|oop|web|jaringan|sistem)/.test(n)) return Code2;
+  return BookOpen;
 }
 
 export default function MatchScreen() {
   const router = useRouter();
-  const userId = useAuthStore((s) => s.session?.user.id);
   const [tab, setTab] = useState<'belajar' | 'lomba'>('belajar');
+  const [query, setQuery] = useState('');
 
   return (
-    <GlassBackground>
+    <View className="flex-1 bg-white">
       <SafeAreaView className="flex-1" edges={['top']}>
-        <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
-          <Text className="px-[4px] pt-[8px] text-[26px] font-extrabold leading-[32px] text-slateInk">
-            Match
-          </Text>
-          <View className="flex-row gap-[8px]">
-            {(['belajar', 'lomba'] as const).map((t) => (
+        <View className="px-[20px] pb-[12px] pt-[8px]">
+          <View className="flex-row items-center gap-[10px] rounded-[24px] border border-slateBorder bg-white p-[14px]">
+            <Search size={18} color={palette.primary} />
+            <TextInput
+ maxFontSizeMultiplier={1.1}
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Cari sesi, mata kuliah, atau lomba"
+              placeholderTextColor={palette.slate500}
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Cari sesi, mata kuliah, atau lomba"
+              style={{ fontFamily: INTER.regular, paddingVertical: 0 }}
+              className="flex-1 text-[14px] text-slateInk"
+            />
+          </View>
+        </View>
+
+        <View className="flex-row border-b border-slateBorder">
+          {(['belajar', 'lomba'] as const).map((t) => {
+            const active = tab === t;
+            return (
               <Pressable
                 key={t}
                 onPress={() => setTab(t)}
                 accessibilityRole="tab"
-                accessibilityState={{ selected: tab === t }}
-                className={`min-h-[48px] flex-1 items-center justify-center rounded-full ${
-                  tab === t ? 'bg-primary' : 'border border-slateBorder bg-white'
-                }`}
+                accessibilityState={{ selected: active }}
+                className="flex-1 items-center gap-[10px] pt-[12px]"
               >
-                <Text
-                  className={`text-[15px] font-bold ${tab === t ? 'text-white' : 'text-slateInk'}`}
-                >
+                <Text className={`text-[15px] font-bold ${active ? 'text-primary' : 'text-slate500'}`}>
                   {t === 'belajar' ? 'Belajar' : 'Lomba'}
                 </Text>
+                <View className={`h-[3px] w-full rounded-t-[3px] ${active ? 'bg-primary' : ''}`} />
               </Pressable>
-            ))}
-          </View>
+            );
+          })}
+        </View>
 
-          {tab === 'belajar' ? (
-            <Belajar userId={userId} onCreate={() => router.push('/buat-sesi')} />
-          ) : (
-            <Text className="px-[4px] pt-[6px] text-[14px] leading-[21px] text-slate500">
-              Competition Match menyusul. Untuk saat ini, mulai dari Study Match di tab Belajar.
-            </Text>
-          )}
-        </ScrollView>
-      </SafeAreaView>
-    </GlassBackground>
-  );
-}
+        {tab === 'belajar' ? <BelajarTab query={query} /> : <LombaTab query={query} />}
 
-function Belajar({ userId, onCreate }: { userId: string | undefined; onCreate: () => void }) {
-  const router = useRouter();
-  const myCourses = useMyCourseIds(userId);
-  const partners = usePartners();
-  const sessions = useSessions();
-  const join = useJoinSession(userId);
-  const leave = useLeaveSession(userId);
-  const [error, setError] = useState<string | null>(null);
-  const [leaving, setLeaving] = useState<StudySession | null>(null);
-
-  const onJoin = async (id: string) => {
-    setError(null);
-    try {
-      await join.mutateAsync(id);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Gagal bergabung.');
-    }
-  };
-
-  const onLeave = async () => {
-    if (!leaving) return;
-    setError(null);
-    try {
-      await leave.mutateAsync(leaving.id);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Gagal keluar dari sesi.');
-    }
-    setLeaving(null);
-  };
-
-  return (
-    <View className="gap-[14px]">
-      <Text className="px-[4px] pt-[6px] text-[18px] font-bold text-slateInk">Sesi belajar</Text>
-      <PrimaryButton label="Buat sesi" onPress={onCreate} />
-      {error ? <FormError message={error} /> : null}
-
-      {sessions.isPending ? (
-        <ActivityIndicator color={palette.primary} />
-      ) : sessions.isError ? (
-        <FormError message="Gagal memuat sesi. Periksa internet kamu." />
-      ) : sessions.data.length === 0 ? (
-        <Text className="px-[4px] text-[14px] leading-[21px] text-slate500">
-          Belum ada sesi yang dibuka. Jadilah yang pertama membuat sesi.
-        </Text>
-      ) : (
-        sessions.data.map((s) => (
-          <SessionCard
-            key={s.id}
-            session={s}
-            userId={userId}
-            busy={join.isPending || leave.isPending}
-            onJoin={() => void onJoin(s.id)}
-            onLeave={() => setLeaving(s)}
-          />
-        ))
-      )}
-
-      <Text className="px-[4px] pt-[10px] text-[18px] font-bold text-slateInk">
-        Partner untuk kamu
-      </Text>
-      {myCourses.data?.length === 0 ? (
-        <Pressable onPress={() => router.push('/mata-kuliah')} accessibilityRole="button">
-          <GlassCard className="gap-[2px] p-[16px]">
-            <Text className="text-[14px] font-bold text-accentText">Pilih mata kuliahmu</Text>
-            <Text className="text-[13px] leading-[19px] text-slate500">
-              Tanpa mata kuliah, skor kecocokan hanya dari gaya belajar dan jurusan.
-            </Text>
-          </GlassCard>
+        <Pressable
+          onPress={() => router.push({ pathname: '/buat-sesi', params: { tipe: tab } })}
+          accessibilityRole="button"
+          accessibilityLabel={tab === 'belajar' ? 'Buat sesi' : 'Cari anggota tim'}
+          // Posisi lewat style (bukan kelas): di Android kelas "absolute bottom-/right-" tidak
+          // terbaca dan tombol menempel di pojok kiri atas, menimpa status bar.
+          className="flex-row items-center gap-[6px] rounded-full bg-primary py-[13px] pl-[16px] pr-[18px]"
+          style={{ position: 'absolute', right: 20, bottom: 16, elevation: 6 }}
+        >
+          <Plus size={18} color="#FFFFFF" />
+          <Text className="text-[14px] font-bold text-white">
+            {tab === 'belajar' ? 'Buat sesi' : 'Cari anggota tim'}
+          </Text>
         </Pressable>
-      ) : null}
-      {partners.isPending ? (
-        <ActivityIndicator color={palette.primary} />
-      ) : partners.isError ? (
-        <FormError message="Gagal memuat rekomendasi. Periksa internet kamu." />
-      ) : partners.data.length === 0 ? (
-        <Text className="px-[4px] text-[14px] leading-[21px] text-slate500">
-          Belum ada pengguna lain yang selesai kuis. Rekomendasi muncul saat temanmu ikut bergabung.
-        </Text>
-      ) : (
-        partners.data.map((p) => <PartnerCard key={p.user_id} partner={p} />)
-      )}
-
-      <ConfirmModal
-        visible={!!leaving}
-        title="Keluar dari sesi?"
-        message={`Kamu akan keluar dari "${leaving?.title ?? ''}". Kursimu bisa diambil orang lain.`}
-        confirmLabel="Keluar"
-        cancelLabel="Batal"
-        onConfirm={() => void onLeave()}
-        onCancel={() => setLeaving(null)}
-        loading={leave.isPending}
-      />
+      </SafeAreaView>
     </View>
   );
 }
 
-function SessionCard({
-  session: s,
-  userId,
-  busy,
-  onJoin,
-  onLeave,
+function GroupHeader({
+  title,
+  count,
+  unit,
+  tone = 'plain',
+  collapsed,
+  onToggle,
 }: {
-  session: StudySession;
-  userId: string | undefined;
-  busy: boolean;
-  onJoin: () => void;
-  onLeave: () => void;
+  title: string;
+  count: number;
+  unit: string;
+  tone?: 'plain' | 'warm';
+  collapsed?: boolean;
+  onToggle?: () => void;
 }) {
-  const count = s.study_session_members.length;
-  const joined = s.study_session_members.some((m) => m.user_id === userId);
-  const isHost = s.host_id === userId;
-  const full = count >= s.capacity;
-
+  const Chevron = collapsed ? ChevronUp : ChevronDown;
   return (
-    <GlassCard strong className="gap-[8px] p-[16px]">
-      <Text className="text-[12px] font-bold text-primary">
-        {SESSION_KINDS[s.session_kind].toUpperCase()}
+    <Pressable
+      onPress={onToggle}
+      disabled={!onToggle}
+      accessibilityRole={onToggle ? 'button' : undefined}
+      className={`flex-row items-center gap-[8px] px-[20px] py-[10px] ${
+        tone === 'warm' ? 'bg-accent50' : 'bg-slate100'
+      }`}
+    >
+      <Text className={`text-[16px] font-extrabold ${tone === 'warm' ? 'text-accent800' : 'text-slateInk'}`}>
+        {title}
       </Text>
-      <Text className="text-[17px] font-bold text-slateInk">{s.title}</Text>
-      <Text className="text-[13px] leading-[19px] text-slate500">
-        {s.courses?.name ?? 'Mata kuliah'} · {s.campus_zones?.name ?? 'Zona'}
+      <Text className="flex-1 text-[13px] text-slate500">
+        | {count} {unit}
       </Text>
-      <Text className="text-[13px] text-slate500">{whenLabel(s.starts_at, s.ends_at)}</Text>
-      <Text className="text-[13px] font-semibold text-slateInk">
-        {count}/{s.capacity} peserta
-      </Text>
-      {isHost ? (
-        <Text className="text-[13px] font-bold text-accentText">Kamu host sesi ini</Text>
-      ) : joined ? (
-        <PrimaryButton label="Keluar dari sesi" variant="outline" onPress={onLeave} disabled={busy} />
-      ) : (
-        <PrimaryButton
-          label={full ? 'Sesi penuh' : 'Gabung'}
-          onPress={onJoin}
-          disabled={full || busy}
-          size="sm"
-        />
-      )}
-    </GlassCard>
+      {onToggle ? <Chevron size={20} color={palette.slate500} /> : null}
+    </Pressable>
   );
 }
 
-function PartnerCard({ partner: p }: { partner: Partner }) {
-  const parsed = archetypeIdSchema.safeParse(p.personality_type);
+function CapacityBadge({ current, max }: { current: number; max: number }) {
+  const full = current >= max;
   return (
-    <GlassCard className="flex-row items-center gap-[12px] p-[14px]">
-      <View className="size-[52px] items-center justify-center rounded-full bg-surfaceSky">
-        <Text className="text-[20px] font-extrabold text-primary">
-          {p.full_name.trim().charAt(0).toUpperCase()}
-        </Text>
+    <View
+      className={`rounded-[8px] border px-[8px] py-[3px] ${
+        full ? 'border-[#FECACA] bg-[#FEF2F2]' : 'border-slateBorder bg-slateSurface'
+      }`}
+    >
+      <Text className={`text-[12px] font-bold ${full ? 'text-[#B91C1C]' : 'text-slateInk'}`}>
+        {current}/{max}
+      </Text>
+    </View>
+  );
+}
+
+// ───────────────────────── Belajar ─────────────────────────
+
+function BelajarTab({ query }: { query: string }) {
+  const router = useRouter();
+  const userId = useAuthStore((s) => s.session?.user.id);
+  const sessions = useSessions();
+  const friendships = useFriendships(userId);
+  const now = useNow();
+  const [dayIndex, setDayIndex] = useState(0);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  const days = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => new Date(now + i * DAY_MS)),
+    // Hari berganti tiap tengah malam; now diperbarui tiap menit sudah cukup.
+    [now]
+  );
+
+  const hostIds = (sessions.data ?? []).map((s) => s.host_id).filter((id): id is string => !!id);
+  const hosts = useProfiles(hostIds);
+  const hostName = (id: string | null) =>
+    id ? (hosts.data?.find((h) => h.id === id)?.full_name ?? '...') : null;
+
+  const friendIds = useMemo(
+    () => new Set((friendships.data ?? []).filter((f) => f.status === 'accepted').map((f) => f.other_id)),
+    [friendships.data]
+  );
+
+  const q = query.trim().toLowerCase();
+  const matchesQuery = (s: StudySession) =>
+    q === '' ||
+    s.title.toLowerCase().includes(q) ||
+    (s.courses?.name ?? '').toLowerCase().includes(q) ||
+    (s.campus_zones?.name ?? '').toLowerCase().includes(q) ||
+    (hostName(s.host_id) ?? '').toLowerCase().includes(q);
+
+  const all = sessions.data ?? [];
+  const countOn = (d: Date) => all.filter((s) => sameDay(new Date(s.starts_at), d)).length;
+  // Saat mencari, tampilkan semua hari supaya hasilnya tidak tersembunyi di hari lain.
+  const visible = all.filter((s) => matchesQuery(s) && (q !== '' || sameDay(new Date(s.starts_at), days[dayIndex])));
+
+  const groups = useMemo(() => {
+    const byHour = new Map<string, StudySession[]>();
+    for (const s of visible) {
+      const key = q !== '' ? `${DAYS_UPPER[new Date(s.starts_at).getDay()]} ${formatTime(s.starts_at)}` : formatTime(s.starts_at);
+      byHour.set(key, [...(byHour.get(key) ?? []), s]);
+    }
+    return [...byHour.entries()];
+  }, [visible, q]);
+
+  const toggle = (key: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+
+  return (
+    <View className="flex-1">
+      <View className="bg-slateSurface">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
+        >
+          {days.map((d, i) => {
+            const active = i === dayIndex;
+            const empty = countOn(d) === 0;
+            return (
+              <Pressable
+                key={i}
+                onPress={() => setDayIndex(i)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+                // Ukuran lewat style supaya chip tidak menyusut jadi pil sempit.
+                style={{ width: 50, height: 56, borderRadius: 14, flexShrink: 0 }}
+                className={`items-center justify-center ${
+                  active ? 'bg-primary' : 'border border-slateBorder bg-white'
+                }`}
+              >
+                <Text
+                  className={`text-[10px] font-bold ${
+                    active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
+                  }`}
+                >
+                  {DAYS_UPPER[d.getDay()]}
+                </Text>
+                <Text
+                  className={`text-[17px] font-extrabold ${
+                    active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
+                  }`}
+                >
+                  {d.getDate()}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       </View>
-      <View className="flex-1 gap-[2px]">
-        <Text className="text-[15px] font-bold text-slateInk">{p.full_name}</Text>
-        <Text className="text-[13px] text-slate500">
-          {[parsed.success ? ARCHETYPES[parsed.data].name : null, p.major]
-            .filter(Boolean)
-            .join(' · ')}
-        </Text>
-        <Text className="text-[12px] text-slate500">
-          {p.shared_courses > 0
-            ? `${p.shared_courses} mata kuliah sama`
-            : 'Belum ada mata kuliah yang sama'}
-        </Text>
+
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 96 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={sessions.isRefetching} onRefresh={() => void sessions.refetch()} />
+        }
+      >
+        {sessions.isPending ? (
+          <View className="items-center py-[32px]">
+            <ActivityIndicator color={palette.primary} />
+          </View>
+        ) : sessions.isError ? (
+          <View className="gap-[10px] px-[20px] pt-[16px]">
+            <FormError message="Gagal memuat sesi. Periksa internet kamu." size={14} />
+            <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void sessions.refetch()} />
+          </View>
+        ) : groups.length === 0 ? (
+          <View className="items-center gap-[6px] px-[20px] py-[40px]">
+            <Text className="text-[15px] font-bold text-slateInk">
+              {q !== '' ? 'Tidak ada sesi yang cocok' : 'Belum ada sesi di hari ini'}
+            </Text>
+            <Text className="text-center text-[13px] text-slate500">
+              {q !== '' ? 'Coba kata kunci lain.' : 'Jadilah yang pertama membuat sesi belajar.'}
+            </Text>
+          </View>
+        ) : (
+          groups.map(([key, items]) => (
+            <View key={key}>
+              <GroupHeader
+                title={key}
+                count={items.length}
+                unit="sesi"
+                collapsed={collapsed.has(key)}
+                onToggle={() => toggle(key)}
+              />
+              {collapsed.has(key)
+                ? null
+                : items.map((s) => {
+                    const Icon = subjectIcon(s.courses?.name);
+                    const count = s.study_session_members.length;
+                    const full = count >= s.capacity;
+                    const friendsIn = s.study_session_members.filter((m) => friendIds.has(m.user_id)).length;
+                    const host = hostName(s.host_id);
+                    return (
+                      <Pressable
+                        key={s.id}
+                        onPress={() => router.push({ pathname: '/sesi/[id]', params: { id: s.id } })}
+                        accessibilityRole="button"
+                        accessibilityLabel={s.title}
+                        className="flex-row items-start gap-[12px] border-b border-slateBorder px-[20px] py-[14px]"
+                      >
+                        <View className="h-[36px] w-[36px] items-center justify-center rounded-[18px] bg-surfaceSky">
+                          <Icon size={18} color={palette.primary} />
+                        </View>
+                        <View className="flex-1 gap-[3px]">
+                          <Text className="text-[11px] font-semibold text-slate500" numberOfLines={1}>
+                            {host ? `oleh ${host}` : 'Tanpa host'}
+                          </Text>
+                          <Text className="text-[15px] font-extrabold text-slateInk">{s.title}</Text>
+                          <View className="flex-row items-center gap-[8px] pt-[3px]">
+                            <View className="rounded-[6px] bg-slate100 px-[8px] py-[3px]">
+                              <Text className="text-[11px] font-semibold text-slateInk">
+                                {SESSION_KINDS[s.session_kind]}
+                              </Text>
+                            </View>
+                            <MapPin size={14} color={palette.slate500} />
+                            <Text className="flex-1 text-[12px] text-slate500" numberOfLines={1}>
+                              {s.campus_zones?.name ?? 'Zona'}
+                            </Text>
+                          </View>
+                        </View>
+                        <View className="items-end gap-[4px]">
+                          <CapacityBadge current={count} max={s.capacity} />
+                          {full ? (
+                            <Text className="text-[11px] font-semibold text-[#B91C1C]">Penuh</Text>
+                          ) : friendsIn > 0 ? (
+                            <Text className="text-[11px] font-semibold text-accentText">
+                              {friendsIn} temanmu ikut
+                            </Text>
+                          ) : null}
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+            </View>
+          ))
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+// ───────────────────────── Lomba ─────────────────────────
+
+const WEEK_MS = 7 * DAY_MS;
+
+function LombaTab({ query }: { query: string }) {
+  const openings = useOpenings();
+  const now = useNow();
+  const [category, setCategory] = useState<string>('Semua');
+  const q = query.trim().toLowerCase();
+
+  const ownerIds = (openings.data ?? []).map((o) => o.host_id);
+  const owners = useProfiles(ownerIds);
+  const ownerName = (id: string) => owners.data?.find((o) => o.id === id)?.full_name ?? '...';
+
+  const list = (openings.data ?? []).filter(
+    (o) =>
+      (category === 'Semua' || o.category === category) &&
+      (q === '' ||
+        o.competition_name.toLowerCase().includes(q) ||
+        o.category.toLowerCase().includes(q) ||
+        o.roles_needed.some((r) => r.toLowerCase().includes(q)))
+  );
+  const soon = list.filter((o) => new Date(o.registration_deadline).getTime() - now <= WEEK_MS);
+  const later = list.filter((o) => !soon.includes(o));
+
+  const Row = ({ o }: { o: TeamOpening }) => {
+    const need = o.team_size - o.current_members;
+    const d = new Date(o.registration_deadline);
+    return (
+      <View className="flex-row items-start gap-[12px] border-b border-slateBorder px-[20px] py-[14px]">
+        <View className="h-[36px] w-[36px] items-center justify-center rounded-[18px] bg-accentSoft">
+          <Trophy size={18} color={palette.accentText} />
+        </View>
+        <View className="flex-1 gap-[3px]">
+          <Text className="text-[11px] font-semibold text-slate500" numberOfLines={1}>
+            {ownerName(o.host_id)} · cari anggota
+          </Text>
+          <Text className="text-[15px] font-extrabold text-slateInk">{o.competition_name}</Text>
+          <View className="flex-row flex-wrap items-center gap-[8px] pt-[3px]">
+            <View className="rounded-[6px] bg-accent px-[8px] py-[3px]">
+              <Text className="text-[11px] font-semibold text-slateInk">{o.category}</Text>
+            </View>
+            {o.roles_needed.length > 0 ? (
+              <>
+                <User size={14} color={palette.slate500} />
+                <Text className="flex-1 text-[12px] text-slate500" numberOfLines={1}>
+                  Butuh: {o.roles_needed.join(', ')}
+                </Text>
+              </>
+            ) : (
+              <Text className="text-[12px] text-slate500">
+                Daftar s/d {d.getDate()} {MONTHS[d.getMonth()]}
+              </Text>
+            )}
+          </View>
+          {o.roles_needed.length > 0 ? (
+            <Text className="text-[12px] text-slate500">
+              Daftar s/d {d.getDate()} {MONTHS[d.getMonth()]}
+            </Text>
+          ) : null}
+        </View>
+        <View className="items-end gap-[4px]">
+          <CapacityBadge current={o.current_members} max={o.team_size} />
+          <Text className="text-[11px] text-slate500">butuh {need}</Text>
+        </View>
       </View>
-      <View className="items-center">
-        <Text className="text-[20px] font-extrabold text-primary">{p.score}</Text>
-        <Text className="text-[11px] text-slate500">dari 100</Text>
+    );
+  };
+
+  return (
+    <View className="flex-1">
+      <View className="bg-slateSurface">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
+        >
+          {['Semua', ...COMPETITION_CATEGORIES.filter((c) => c !== 'Lainnya')].map((c) => {
+            const active = c === category;
+            return (
+              <Pressable
+                key={c}
+                onPress={() => setCategory(c)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+                className={`rounded-full px-[14px] py-[7px] ${
+                  active ? 'bg-primary' : 'border border-slateBorder bg-white'
+                }`}
+              >
+                <Text className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}>{c}</Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       </View>
-    </GlassCard>
+
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 96 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={openings.isRefetching} onRefresh={() => void openings.refetch()} />
+        }
+      >
+        {openings.isPending ? (
+          <View className="items-center py-[32px]">
+            <ActivityIndicator color={palette.primary} />
+          </View>
+        ) : openings.isError ? (
+          <View className="gap-[10px] px-[20px] pt-[16px]">
+            <FormError message="Gagal memuat lomba. Periksa internet kamu." size={14} />
+            <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void openings.refetch()} />
+          </View>
+        ) : list.length === 0 ? (
+          <View className="items-center gap-[6px] px-[20px] py-[40px]">
+            <Text className="text-[15px] font-bold text-slateInk">Belum ada lowongan tim</Text>
+            <Text className="text-center text-[13px] text-slate500">
+              Punya tim yang butuh anggota? Tekan tombol Cari anggota tim.
+            </Text>
+          </View>
+        ) : (
+          <>
+            {soon.length > 0 ? (
+              <>
+                <GroupHeader title="Tutup minggu ini" count={soon.length} unit="tim" tone="warm" />
+                {soon.map((o) => (
+                  <Row key={o.id} o={o} />
+                ))}
+              </>
+            ) : null}
+            {later.length > 0 ? (
+              <>
+                <GroupHeader title="Setelahnya" count={later.length} unit="tim" />
+                {later.map((o) => (
+                  <Row key={o.id} o={o} />
+                ))}
+              </>
+            ) : null}
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 }

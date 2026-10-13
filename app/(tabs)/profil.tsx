@@ -1,51 +1,242 @@
 import { useRouter, type Href } from 'expo-router';
-import { useState } from 'react';
-import { View } from 'react-native';
-import { Text } from '@/components/ui/AppText';
+import { BadgeCheck, ChevronRight, MapPin, Share2, ShieldCheck, User } from 'lucide-react-native';
+import { useMemo, useState, type ReactNode } from 'react';
+import { Image, Pressable, ScrollView, Share, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { GlassBackground } from '@/components/glass/GlassBackground';
-import { GlassCard } from '@/components/glass/GlassCard';
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { palette } from '@/components/onboarding/palette';
+import { Text } from '@/components/ui/AppText';
+import { FormError } from '@/components/ui/FormError';
 import { useAuthStore } from '@/features/auth/authStore';
 import { logout } from '@/features/auth/useAuthActions';
 import { useProfile } from '@/features/auth/useProfile';
+import { useCourses, useMyCourseIds } from '@/features/courses/hooks';
+import { useFriendships } from '@/features/friends/hooks';
+import { useToggleSharing } from '@/features/map/hooks';
+import { useMyStats } from '@/features/profile/hooks';
+import { ARCHETYPES, archetypeIdSchema } from '@/lib/validation/personalityQuiz';
+
+function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <View className={`rounded-[20px] border border-slateBorder bg-white px-[16px] py-[14px] ${className}`}>
+      {children}
+    </View>
+  );
+}
+
+function CardHeader({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
+  return (
+    <View className="flex-row items-center justify-between">
+      <Text className="text-[15px] font-extrabold text-slateInk">{title}</Text>
+      {action ? (
+        <Pressable onPress={onAction} accessibilityRole="button" hitSlop={10}>
+          <Text className="text-[12px] font-bold text-primary">{action}</Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+function Stat({ value, label }: { value: number | string; label: string }) {
+  return (
+    <View className="flex-1 items-center gap-[2px] rounded-[16px] border border-slateBorder py-[10px]">
+      <Text className="text-[20px] font-extrabold text-accentText">{value}</Text>
+      <Text className="text-[11px] font-semibold text-slate500">{label}</Text>
+    </View>
+  );
+}
 
 export default function ProfilScreen() {
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
-  const { data: profile } = useProfile(session?.user.id);
+  const userId = session?.user.id;
+  const { data: profile } = useProfile(userId);
+  const friendships = useFriendships(userId);
+  const stats = useMyStats(userId);
+  const courses = useCourses();
+  const myCourseIds = useMyCourseIds(userId);
+  const toggleSharing = useToggleSharing(userId);
+
   const [loggingOut, setLoggingOut] = useState(false);
+  const [mapBusy, setMapBusy] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
+
+  const archetype = archetypeIdSchema.safeParse(profile?.personality_type);
+  const info = archetype.success ? ARCHETYPES[archetype.data] : null;
+  const friendCount = (friendships.data ?? []).filter((f) => f.status === 'accepted').length;
+
+  const myCourses = useMemo(() => {
+    const ids = new Set(myCourseIds.data ?? []);
+    return (courses.data ?? []).filter((c) => ids.has(c.id));
+  }, [courses.data, myCourseIds.data]);
+
+  const subtitle = [profile?.major, profile?.semester ? `Semester ${profile.semester}` : null]
+    .filter(Boolean)
+    .join(' · ');
+
+  const onToggleMap = async (next: boolean) => {
+    setMapError(null);
+    setMapBusy(true);
+    const result = await toggleSharing(next);
+    setMapBusy(false);
+    if (!result.ok) {
+      setMapError(
+        result.reason === 'no-permission'
+          ? 'Izin diperlukan untuk membaca Wi-Fi kampus. Aktifkan izin lokasi di pengaturan, lalu coba lagi.'
+          : 'Gagal mengubah pengaturan. Periksa internet kamu lalu coba lagi.'
+      );
+    }
+  };
+
+  const onShare = () => {
+    void Share.share({
+      message: `${profile?.full_name ?? 'Aku'}${info ? ` (${info.name})` : ''} di AyokMatch. Yuk cari teman belajar bareng!`,
+    });
+  };
 
   return (
-    <GlassBackground>
+    <View className="flex-1 bg-white">
       <SafeAreaView className="flex-1" edges={['top']}>
-        <View className="flex-1 px-[20px] pt-[24px]">
-          <GlassCard strong className="gap-[4px] p-[20px]">
-            <Text className="text-[22px] font-bold text-slateInk">{profile?.full_name ?? '...'}</Text>
-            <Text className="text-[14px] text-slate500">{session?.user.email}</Text>
-          </GlassCard>
+        <View className="px-[20px] pb-[12px] pt-[14px]">
+          <Text className="text-[20px] font-extrabold text-slateInk">Profil saya</Text>
         </View>
-        <View className="gap-[10px] px-[20px] pb-[24px]">
-          <PrimaryButton label="Mata kuliah saya" onPress={() => router.push('/mata-kuliah')} />
-          {profile?.role === 'admin' ? (
-            <PrimaryButton
-              label="Daftarkan Wi-Fi (admin)"
-              variant="outline"
-              onPress={() => router.push('/admin/daftar-wifi' as Href)}
-            />
+
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24, gap: 14 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Kartu identitas */}
+          <Card className="flex-row items-center gap-[14px] p-[16px]">
+            <View className="h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full bg-surfaceSky">
+              {profile?.avatar_url ? (
+                <Image source={{ uri: profile.avatar_url }} className="h-full w-full" resizeMode="cover" />
+              ) : (
+                <User size={34} color={palette.primary} />
+              )}
+            </View>
+            <View className="flex-1 gap-[3px]">
+              <Text className="text-[19px] font-extrabold text-slateInk" numberOfLines={1}>
+                {profile?.full_name ?? '...'}
+              </Text>
+              <Text className="text-[13px] text-slate500" numberOfLines={2}>
+                {subtitle || session?.user.email}
+              </Text>
+              <View className="flex-row items-center gap-[4px] pt-[3px]">
+                <BadgeCheck size={14} color="#15803D" />
+                <Text className="text-[11px] font-bold text-[#15803D]">Terverifikasi</Text>
+              </View>
+            </View>
+          </Card>
+
+          {/* Tombol */}
+          <Pressable
+            onPress={onShare}
+            accessibilityRole="button"
+            accessibilityLabel="Bagikan profil"
+            className="flex-row items-center justify-center gap-[6px] rounded-full border-[1.5px] border-primary py-[11px]"
+          >
+            <Share2 size={16} color={palette.primary} />
+            <Text className="text-[14px] font-bold text-primary">Bagikan profil</Text>
+          </Pressable>
+
+          {/* Statistik */}
+          <View className="flex-row gap-[10px]">
+            <Stat value={friendCount} label="Teman" />
+            <Stat value={stats.data?.sessions ?? 0} label="Sesi diikuti" />
+            <Stat value={stats.data?.events ?? 0} label="Event diikuti" />
+          </View>
+
+          {/* Kepribadian */}
+          {info ? (
+            <View className="gap-[8px] rounded-[20px] border border-accent200 bg-accent50 px-[16px] py-[14px]">
+              <Text className="text-[15px] font-extrabold text-accent800">Kepribadianmu</Text>
+              <Text className="text-[20px] font-extrabold tracking-[-0.2px] text-accent800">{info.name}</Text>
+              <View className="flex-row flex-wrap gap-[6px]">
+                <View className="rounded-full bg-white px-[10px] py-[5px]">
+                  <Text className="text-[12px] font-semibold text-accentText">{info.tagline}</Text>
+                </View>
+              </View>
+              <Text className="text-[12px] leading-[17px] text-accent800">
+                Peranmu di tim: {info.role.charAt(0).toLowerCase() + info.role.slice(1)}
+              </Text>
+            </View>
           ) : null}
-          <PrimaryButton
-            label="Keluar"
-            variant="outline"
-            loading={loggingOut}
+
+          {/* Mata kuliah */}
+          <Card className="gap-[8px]">
+            <CardHeader title="Mata kuliah" action="Ubah" onAction={() => router.push('/mata-kuliah')} />
+            {myCourses.length > 0 ? (
+              <View className="flex-row flex-wrap gap-[6px]">
+                {myCourses.map((c) => (
+                  <View key={c.id} className="rounded-full bg-surfaceSky px-[11px] py-[6px]">
+                    <Text className="text-[12px] font-semibold text-primary">{c.name}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text className="text-[12px] text-slate500">
+                Belum memilih mata kuliah. Pilih supaya partner belajar yang disarankan lebih pas.
+              </Text>
+            )}
+          </Card>
+
+          {/* Privasi */}
+          <Card className="pb-[2px]">
+            <CardHeader title="Privasi" />
+            <View className="flex-row items-center gap-[12px] py-[12px]">
+              <MapPin size={20} color={palette.primary} />
+              <View className="flex-1">
+                <Text className="text-[14px] font-bold text-slateInk">Tampil di peta</Text>
+                <Text className="text-[12px] text-slate500">
+                  Hanya nama ruangan yang terlihat, bukan lokasi pastimu.
+                </Text>
+              </View>
+              <Switch
+                value={profile?.show_on_map === true}
+                disabled={!profile || mapBusy}
+                onValueChange={(v) => void onToggleMap(v)}
+                trackColor={{ false: palette.slateMuted, true: palette.primary }}
+                thumbColor="#FFFFFF"
+                accessibilityLabel="Tampil di peta"
+              />
+            </View>
+            {mapError ? (
+              <View className="pb-[12px]">
+                <FormError message={mapError} size={12} />
+              </View>
+            ) : null}
+          </Card>
+
+          {profile?.role === 'admin' ? (
+            <Card className="py-[2px]">
+              <Pressable
+                onPress={() => router.push('/admin/daftar-wifi' as Href)}
+                accessibilityRole="button"
+                className="flex-row items-center gap-[12px] py-[12px]"
+              >
+                <ShieldCheck size={20} color={palette.primary} />
+                <Text className="flex-1 text-[14px] font-bold text-slateInk">Daftarkan Wi-Fi (admin)</Text>
+                <ChevronRight size={16} color={palette.slate500} />
+              </Pressable>
+            </Card>
+          ) : null}
+
+          {/* Keluar */}
+          <Pressable
             onPress={() => {
               setLoggingOut(true);
               void logout();
             }}
-          />
-        </View>
+            disabled={loggingOut}
+            accessibilityRole="button"
+            accessibilityLabel="Keluar"
+            className={`items-center rounded-full bg-[#FEF2F2] py-[13px] ${loggingOut ? 'opacity-50' : ''}`}
+          >
+            <Text className="text-[14px] font-bold text-[#B91C1C]">Keluar</Text>
+          </Pressable>
+        </ScrollView>
       </SafeAreaView>
-    </GlassBackground>
+    </View>
   );
 }

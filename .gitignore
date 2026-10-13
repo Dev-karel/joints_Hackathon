@@ -40,3 +40,6 @@ expo-env.d.ts
 # @end expo-cli
 # Konfigurasi Claude/Impeccable lokal per mesin
 .claude/
+
+# Konfigurasi MCP personal per mesin (mis. koneksi Figma)
+.mcp.json

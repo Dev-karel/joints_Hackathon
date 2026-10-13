@@ -41,6 +41,7 @@ export function TextField({
         }`}
       >
         <TextInput
+ maxFontSizeMultiplier={1.1}
           {...inputProps}
           secureTextEntry={isPassword && hidden}
           onFocus={(e) => {

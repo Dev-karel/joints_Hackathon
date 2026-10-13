@@ -19,6 +19,7 @@ export const palette = {
   surfaceSky: '#E6F3FB',
   surfaceCanvas: '#FAFBFD',
   accentSoft: '#FEF3E2',
+  slateInk: '#0F172A',
   slateMuted: '#94A3B8',
   borderSubtle: '#DDE7DF',
   accent50: '#FFF8EB',
