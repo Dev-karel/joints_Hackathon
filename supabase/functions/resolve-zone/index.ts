@@ -60,10 +60,11 @@ Deno.serve(async (req: Request) => {
   // Opt-in dicek di server juga, bukan hanya di UI.
   const { data: profile } = await db
     .from('profiles')
-    .select('show_on_map')
+    .select('show_on_map, banned_at')
     .eq('id', userId)
     .maybeSingle();
-  if (!profile?.show_on_map) {
+  // Akun yang diblokir admin tidak pernah tampil di peta.
+  if (!profile?.show_on_map || profile.banned_at) {
     await leave();
     return json({ status: 'hidden' });
   }
