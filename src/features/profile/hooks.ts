@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { profileKey } from '@/features/auth/useProfile';
 
-import { fetchMyStats, uploadAvatar, type PickedAvatar } from './api';
+import { fetchMyActivity, fetchMyStats, uploadAvatar, type PickedAvatar } from './api';
 
 export const useMyStats = (userId: string | undefined) =>
   useQuery({
@@ -10,6 +10,13 @@ export const useMyStats = (userId: string | undefined) =>
     enabled: !!userId,
     queryFn: () => fetchMyStats(userId!),
     staleTime: 60_000,
+  });
+
+export const useMyActivity = (userId: string | undefined) =>
+  useQuery({
+    queryKey: ['my-activity', userId],
+    enabled: !!userId,
+    queryFn: () => fetchMyActivity(userId!),
   });
 
 export function useUploadAvatar(userId: string | undefined) {

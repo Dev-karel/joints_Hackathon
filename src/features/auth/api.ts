@@ -33,12 +33,17 @@ async function trustCurrentDevice(userId: string): Promise<void> {
 }
 
 export async function signUp(input: { fullName: string; email: string; password: string }) {
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: input.email.trim().toLowerCase(),
     password: input.password,
     options: { data: { full_name: input.fullName.trim() } },
   });
   if (error) throw toAuthError(error);
+  // Email yang sudah terdaftar & terverifikasi tidak menghasilkan error dari Supabase
+  // (anti-enumerasi), tapi `identities` kosong dan tidak ada OTP yang dikirim.
+  if (data.user && (data.user.identities?.length ?? 0) === 0) {
+    throw toAuthError({ message: 'User already registered', code: 'user_already_exists' });
+  }
 }
 
 export async function resendSignupCode(email: string) {

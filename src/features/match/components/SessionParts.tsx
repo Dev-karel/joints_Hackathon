@@ -102,6 +102,10 @@ export function ParticipantsCard({
         {Array.from({ length: empty }, (_, i) => (
           <Seat key={`kosong-${i}`} variant="kosong" />
         ))}
+        {/* Pengisi tak terlihat supaya baris terakhir tetap rata kiri (justify-between). */}
+        {Array.from({ length: (4 - ((sorted.length + empty) % 4)) % 4 }, (_, i) => (
+          <View key={`pad-${i}`} className="w-[84px]" />
+        ))}
       </View>
       <Text className="text-[13px] text-slate500">
         {empty > 0 ? `Sisa ${empty} tempat` : 'Sesi sudah penuh'}

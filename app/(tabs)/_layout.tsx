@@ -20,7 +20,7 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: palette.slate500,
         tabBarActiveBackgroundColor: palette.accentSoft,
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
-        tabBarItemStyle: { marginHorizontal: 6, marginVertical: 8, borderRadius: 12 },
+        tabBarItemStyle: { marginHorizontal: 6, marginVertical: 8, borderRadius: 16, overflow: 'hidden' },
         tabBarStyle: {
           height: 72,
           backgroundColor: '#FFFFFF',

@@ -22,7 +22,7 @@ import { ReportSheet } from '@/features/moderation/ReportSheet';
 const ARCHETYPE_LABELS: Record<string, string> = {
   groundbreaker: 'Groundbreaker',
   heartkeeper: 'Heartkeeper',
-  kindledflame: 'Kindled Flame',
+  kindled_flame: 'Kindled Flame',
   mindsmith: 'Mindsmith',
   sagekeeper: 'Sagekeeper',
   wildheart: 'Wildheart',
@@ -31,7 +31,7 @@ const ARCHETYPE_LABELS: Record<string, string> = {
 const ARCHETYPE_COLORS: Record<string, string> = {
   groundbreaker: '#10B981',
   heartkeeper: '#EC4899',
-  kindledflame: '#F59E0B',
+  kindled_flame: '#F59E0B',
   mindsmith: '#8B5CF6',
   sagekeeper: '#3B82F6',
   wildheart: '#EF4444',
@@ -238,7 +238,8 @@ export default function ViewProfileScreen() {
                   .map(([key, value]) => {
                     const label = ARCHETYPE_LABELS[key] ?? key;
                     const color = ARCHETYPE_COLORS[key] ?? palette.slate500;
-                    const percent = Math.round((value as number) * 100);
+                    // Skor dari database sudah dalam persen (6 archetype berjumlah 100), bukan 0–1.
+                    const percent = Math.min(100, Math.max(0, Math.round(value as number)));
                     return (
                       <View key={key} className="gap-[6px]">
                         <View className="flex-row items-center justify-between">

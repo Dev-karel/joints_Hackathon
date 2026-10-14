@@ -50,6 +50,7 @@ function AppStack() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="buat-sesi" />
         <Stack.Screen name="teman" />
+        <Stack.Screen name="aktivitas" />
         <Stack.Screen name="notifikasi" />
         <Stack.Screen name="event" />
         <Stack.Screen name="sesi" />

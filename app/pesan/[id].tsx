@@ -201,11 +201,6 @@ export default function RuangObrolanScreen() {
               </View>
             ) : null
           }
-          ListEmptyComponent={
-            <View className="items-center py-[40px]" style={{ transform: [{ scaleY: -1 }] }}>
-              <Text className="text-[13px] text-slate500">Belum ada pesan. Mulai obrolan!</Text>
-            </View>
-          }
           renderItem={({ item }) => {
             if (item.type === 'day') {
               return (
@@ -262,6 +257,17 @@ export default function RuangObrolanScreen() {
             );
           }}
         />
+
+        {/* Di luar FlatList inverted: ListEmptyComponent ikut terbalik di sana. */}
+        {rows.length === 0 ? (
+          <View
+            pointerEvents="none"
+            className="items-center py-[40px]"
+            style={{ position: 'absolute', top: 0, left: 0, right: 0 }}
+          >
+            <Text className="text-[13px] text-slate500">Belum ada pesan. Mulai obrolan!</Text>
+          </View>
+        ) : null}
 
         {list.length === 0 && outbox.length === 0 ? (
           <View>

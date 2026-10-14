@@ -133,7 +133,7 @@ export async function fetchProfileDetail(userId: string): Promise<ProfileDetail 
   // Fetch profile basic info
   const { data: profile, error: profileError } = await supabase
     .from('public_profiles')
-    .select('id, full_name, major, semester, avatar_url, personality_type, personality_scores, bio')
+    .select('id, full_name, major, semester, avatar_url, personality_type, personality_scores')
     .eq('id', userId)
     .maybeSingle();
   
@@ -165,6 +165,7 @@ export async function fetchProfileDetail(userId: string): Promise<ProfileDetail 
 
   return {
     ...profile,
+    bio: null, // belum ada kolom bio di profiles/public_profiles
     courses: userCourses,
     stats: {
       sessions_attended: sessionsCount ?? 0,

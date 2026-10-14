@@ -96,10 +96,16 @@ function ActionButton({
 }
 
 function PersonCard({ person, actions }: { person: Person; actions: ReactNode }) {
+  const router = useRouter();
   const pill = archetypePill(person.personality_type);
   const name = archetypeName(person.personality_type);
   return (
-    <View className="flex-row items-center gap-[12px] rounded-[18px] border border-slateBorder bg-white p-[14px]">
+    <Pressable
+      onPress={() => router.push({ pathname: '/profil/[id]', params: { id: person.id } })}
+      accessibilityRole="button"
+      accessibilityLabel={`Lihat profil ${person.full_name}`}
+      className="flex-row items-center gap-[12px] rounded-[18px] border border-slateBorder bg-white p-[14px]"
+    >
       <Avatar name={person.full_name} uri={person.avatar_url} />
       <View className="flex-1 gap-[4px]">
         <View className="flex-row flex-wrap items-center gap-[6px]">
@@ -121,7 +127,7 @@ function PersonCard({ person, actions }: { person: Person; actions: ReactNode })
         ) : null}
       </View>
       <View className="items-center gap-[8px]">{actions}</View>
-    </View>
+    </Pressable>
   );
 }
 

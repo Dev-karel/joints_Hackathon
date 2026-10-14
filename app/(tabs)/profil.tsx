@@ -38,12 +38,17 @@ function CardHeader({ title, action, onAction }: { title: string; action?: strin
   );
 }
 
-function Stat({ value, label }: { value: number | string; label: string }) {
+function Stat({ value, label, onPress }: { value: number | string; label: string; onPress: () => void }) {
   return (
-    <View className="flex-1 items-center gap-[2px] rounded-[16px] border border-slateBorder py-[10px]">
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${label}: ${value}. Lihat daftar`}
+      className="flex-1 items-center gap-[2px] rounded-[16px] border border-slateBorder py-[10px]"
+    >
       <Text className="text-[20px] font-extrabold text-accentText">{value}</Text>
       <Text className="text-[11px] font-semibold text-slate500">{label}</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -85,10 +90,15 @@ export default function ProfilScreen() {
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.6,
+        base64: true,
       });
       if (result.canceled || !result.assets[0]) return;
       const asset = result.assets[0];
-      await uploadAvatar.mutateAsync({ uri: asset.uri, mimeType: asset.mimeType ?? 'image/jpeg' });
+      await uploadAvatar.mutateAsync({
+        uri: asset.uri,
+        mimeType: asset.mimeType ?? 'image/jpeg',
+        base64: asset.base64,
+      });
     } catch (e) {
       setAvatarError(e instanceof Error ? e.message : 'Gagal mengganti foto. Coba lagi.');
     }
@@ -169,9 +179,9 @@ export default function ProfilScreen() {
 
           {/* Statistik */}
           <View className="flex-row gap-[10px]">
-            <Stat value={friendCount} label="Teman" />
-            <Stat value={stats.data?.sessions ?? 0} label="Sesi diikuti" />
-            <Stat value={stats.data?.events ?? 0} label="Event diikuti" />
+            <Stat value={friendCount} label="Teman" onPress={() => router.push('/aktivitas?tab=teman' as Href)} />
+            <Stat value={stats.data?.sessions ?? 0} label="Sesi diikuti" onPress={() => router.push('/aktivitas?tab=sesi' as Href)} />
+            <Stat value={stats.data?.events ?? 0} label="Event diikuti" onPress={() => router.push('/aktivitas?tab=event' as Href)} />
           </View>
 
           {/* Kepribadian */}
