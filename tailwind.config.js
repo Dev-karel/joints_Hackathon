@@ -38,6 +38,7 @@ module.exports = {
         accent200: '#FDE2B3',
         accent800: '#7C4700',
         skyBlob: '#CCE8F6',
+        primaryDeep: '#0C447C', // teks di atas skyBlob (kartu ruangan "Ramai", Figma Peta)
         slate500: '#64748B',
         slate100: '#F1F5F9',
         successSoft: '#DCF4E5',

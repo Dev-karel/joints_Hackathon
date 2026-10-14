@@ -16,6 +16,7 @@ import { Text } from '@/components/ui/AppText';
 import { useAuthBootstrap } from '@/features/auth/useAuthBootstrap';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useAuthPhase } from '@/features/auth/useAuthPhase';
+import { useReminderActions } from '@/features/events/useReminderActions';
 import { MessageBanner } from '@/features/notifications/MessageBanner';
 import { useRealtimeSync } from '@/features/notifications/useRealtimeSync';
 import { envProblem } from '@/lib/env';
@@ -31,36 +32,37 @@ function AppStack() {
   const { phase } = useAuthPhase();
   const userId = useAuthStore((s) => s.session?.user.id);
   useRealtimeSync(userId, phase === 'ready');
+  useReminderActions(phase === 'ready');
 
   return (
     <>
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Protected guard={phase === 'signedOut' || phase === 'needsDeviceOtp'}>
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(auth)" />
-      </Stack.Protected>
-      <Stack.Protected guard={phase === 'needsQuiz' || phase === 'ready'}>
-        <Stack.Screen name="(kuis)" />
-      </Stack.Protected>
-      <Stack.Protected guard={phase === 'needsCourses' || phase === 'ready'}>
-        <Stack.Screen name="mata-kuliah" />
-      </Stack.Protected>
-      <Stack.Protected guard={phase === 'ready'}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="buat-sesi" />
-        <Stack.Screen name="teman" />
-        <Stack.Screen name="aktivitas" />
-        <Stack.Screen name="notifikasi" />
-        <Stack.Screen name="event" />
-        <Stack.Screen name="sesi" />
-        <Stack.Screen name="pesan" />
-        <Stack.Screen name="lomba" />
-        <Stack.Screen name="profil" />
-        <Stack.Screen name="admin" />
-      </Stack.Protected>
-    </Stack>
-    {phase === 'ready' ? <MessageBanner /> : null}
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Protected guard={phase === 'signedOut' || phase === 'needsDeviceOtp'}>
+          <Stack.Screen name="(onboarding)" />
+          <Stack.Screen name="(auth)" />
+        </Stack.Protected>
+        <Stack.Protected guard={phase === 'needsQuiz' || phase === 'ready'}>
+          <Stack.Screen name="(kuis)" />
+        </Stack.Protected>
+        <Stack.Protected guard={phase === 'needsCourses' || phase === 'ready'}>
+          <Stack.Screen name="mata-kuliah" />
+        </Stack.Protected>
+        <Stack.Protected guard={phase === 'ready'}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="buat-sesi" />
+          <Stack.Screen name="teman" />
+          <Stack.Screen name="aktivitas" />
+          <Stack.Screen name="notifikasi" />
+          <Stack.Screen name="event" />
+          <Stack.Screen name="sesi" />
+          <Stack.Screen name="pesan" />
+          <Stack.Screen name="lomba" />
+          <Stack.Screen name="profil" />
+          <Stack.Screen name="admin" />
+        </Stack.Protected>
+      </Stack>
+      {phase === 'ready' ? <MessageBanner /> : null}
     </>
   );
 }

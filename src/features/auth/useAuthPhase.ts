@@ -7,11 +7,19 @@ import { useMyCourseIds } from '../courses/hooks';
 //  signedOut      -> onboarding + daftar/masuk
 //  needsDeviceOtp -> sudah masuk tapi HP baru wajib OTP
 //  profileError   -> gagal memuat profil (mis. offline); tampilkan tombol coba lagi
+//  banned         -> akun diblokir admin (moderasi); hanya bisa keluar
 //  needsQuiz      -> kuis kepribadian wajib sebelum Beranda
 //  needsCourses   -> pilih mata kuliah setelah quiz selesai
 //  ready          -> Beranda (tab)
 export type Phase =
-  'loading' | 'signedOut' | 'needsDeviceOtp' | 'profileError' | 'needsQuiz' | 'needsCourses' | 'ready';
+  | 'loading'
+  | 'signedOut'
+  | 'needsDeviceOtp'
+  | 'profileError'
+  | 'banned'
+  | 'needsQuiz'
+  | 'needsCourses'
+  | 'ready';
 
 export function useAuthPhase(): { phase: Phase; profile: ProfileRow | null; retry: () => void } {
   const { ready, session, gate } = useAuthStore();
@@ -31,6 +39,7 @@ export function useAuthPhase(): { phase: Phase; profile: ProfileRow | null; retr
   else if (gate.kind === 'otp') phase = 'needsDeviceOtp';
   else if (query.isError) phase = 'profileError';
   else if (!profile) phase = 'loading';
+  else if (profile.banned_at) phase = 'banned';
   else if (!profile.personality_quiz_completed_at) phase = 'needsQuiz';
   else if (!hasCourses && !courseIds.isLoading) phase = 'needsCourses';
   else phase = 'ready';

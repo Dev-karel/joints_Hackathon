@@ -13,6 +13,8 @@ export type ProfileRow = {
   personality_type: string | null;
   personality_scores: Record<string, number> | null;
   personality_quiz_completed_at: string | null;
+  /** Diisi admin saat akun diblokir (moderasi). undefined bila migration moderasi belum jalan. */
+  banned_at?: string | null;
 };
 
 export const profileKey = (userId: string | undefined) => ['profile', userId] as const;
@@ -24,9 +26,8 @@ export function useProfile(userId: string | undefined) {
     queryFn: async (): Promise<ProfileRow> => {
       const { data, error } = await supabase
         .from('profiles')
-        .select(
-          'id, full_name, major, semester, avatar_url, role, show_on_map, personality_type, personality_scores, personality_quiz_completed_at'
-        )
+        // '*' (bukan daftar kolom) supaya profil tetap termuat walau migration terbaru belum dijalankan.
+        .select('*')
         .eq('id', userId!)
         .single();
       if (error) throw error;

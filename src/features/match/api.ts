@@ -24,6 +24,7 @@ export type StudySession = {
   status: 'open' | 'cancelled' | 'done';
   agenda: AgendaItem[] | null;
   bring_note: string | null;
+  zone_id: string;
   courses: { name: string } | null;
   campus_zones: { name: string } | null;
   study_session_members: SessionMember[];
@@ -85,7 +86,7 @@ export type HostExitState = {
 };
 
 const SESSION_LIST_COLUMNS =
-  'id, title, starts_at, ends_at, capacity, session_kind, host_id, status, agenda, bring_note, courses(name), campus_zones(name), study_session_members(user_id, joined_at)';
+  'id, title, starts_at, ends_at, capacity, session_kind, host_id, status, agenda, bring_note, zone_id, courses(name), campus_zones(name), study_session_members(user_id, joined_at)';
 
 export async function fetchPartners(): Promise<Partner[]> {
   const { data, error } = await supabase.rpc('recommend_study_partners');
@@ -136,7 +137,7 @@ export async function fetchProfileDetail(userId: string): Promise<ProfileDetail 
     .select('id, full_name, major, semester, avatar_url, personality_type, personality_scores')
     .eq('id', userId)
     .maybeSingle();
-  
+
   if (profileError) throw new Error(profileError.message);
   if (!profile) return null;
 
@@ -148,7 +149,9 @@ export async function fetchProfileDetail(userId: string): Promise<ProfileDetail 
 
   // Relasi many-to-one dikembalikan sebagai objek, tapi tipe generik Supabase menyebutnya array.
   type CourseRef = { id: string; name: string };
-  const userCourses: CourseRef[] = ((courses ?? []) as unknown as { courses: CourseRef | CourseRef[] | null }[])
+  const userCourses: CourseRef[] = (
+    (courses ?? []) as unknown as { courses: CourseRef | CourseRef[] | null }[]
+  )
     .map((c) => (Array.isArray(c.courses) ? c.courses[0] : c.courses))
     .filter((c): c is CourseRef => !!c)
     .map((c) => ({ id: c.id, name: c.name }));
@@ -186,7 +189,9 @@ export async function fetchMaterials(sessionId: string): Promise<SessionMaterial
 
 // Isi file hanya bisa dibuka anggota sesi (policy Storage). Tautan berlaku 5 menit.
 export async function signedMaterialUrl(path: string): Promise<string> {
-  const { data, error } = await supabase.storage.from('session-materials').createSignedUrl(path, 300);
+  const { data, error } = await supabase.storage
+    .from('session-materials')
+    .createSignedUrl(path, 300);
   if (error || !data) throw new Error(error?.message ?? 'Gagal membuka file.');
   return data.signedUrl;
 }

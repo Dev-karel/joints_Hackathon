@@ -81,7 +81,7 @@ export default function BerandaScreen() {
   const partners = usePartners();
   const sessions = useSessions();
   const zones = useZones();
-  const presence = useZonePresence();
+  const presence = useZonePresence(profile?.show_on_map === true);
   const { status: mapStatus, zoneName } = useMapStore();
 
   const [error, setError] = useState<string | null>(null);

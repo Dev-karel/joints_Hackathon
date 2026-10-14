@@ -3,6 +3,9 @@ import { Platform } from 'react-native';
 import type { EventItem } from './api';
 
 const HOUR = 3_600_000;
+export const REMINDER_CATEGORY = 'event-reminder';
+export const ACTION_STILL_GOING = 'still-going';
+export const ACTION_CANCEL = 'cancel-rsvp';
 
 type NotificationsModule = typeof import('expo-notifications');
 
@@ -10,7 +13,7 @@ type NotificationsModule = typeof import('expo-notifications');
 // modulnya melempar error begitu dimuat dan menjatuhkan semua layar yang mengimpor file ini.
 // Notifikasi lokal saja (tanpa server push). Semua gagal-diam: izin ditolak atau perangkat tidak
 // mendukung tidak boleh membatalkan RSVP.
-async function loadNotifications(): Promise<NotificationsModule | null> {
+export async function loadNotifications(): Promise<NotificationsModule | null> {
   try {
     return await import('expo-notifications');
   } catch {
@@ -52,6 +55,16 @@ export async function scheduleEventReminders(event: EventItem): Promise<void> {
         importance: Notifications.AndroidImportance.DEFAULT,
       });
     }
+    // Tombol di notifikasi (PRD §9.3): "Masih ikut" cukup menutup; "Batal" membuka detail event
+    // dengan dialog batal ikut. Ditangani useReminderActions di layout root.
+    await Notifications.setNotificationCategoryAsync(REMINDER_CATEGORY, [
+      {
+        identifier: ACTION_STILL_GOING,
+        buttonTitle: 'Masih ikut',
+        options: { opensAppToForeground: false },
+      },
+      { identifier: ACTION_CANCEL, buttonTitle: 'Batal', options: { opensAppToForeground: true } },
+    ]);
     await cancelEventReminders(event.id);
 
     const start = new Date(event.starts_at).getTime();
@@ -62,7 +75,12 @@ export async function scheduleEventReminders(event: EventItem): Promise<void> {
     for (const r of reminders) {
       if (r.at <= Date.now()) continue;
       await Notifications.scheduleNotificationAsync({
-        content: { title: 'Pengingat event', body: r.body, data: { eventId: event.id } },
+        content: {
+          title: 'Pengingat event',
+          body: r.body,
+          data: { eventId: event.id },
+          categoryIdentifier: REMINDER_CATEGORY,
+        },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
           date: new Date(r.at),

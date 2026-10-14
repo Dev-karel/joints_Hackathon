@@ -29,6 +29,7 @@ import {
   kindLabel,
 } from '@/features/events/format';
 import { useRecentlyAttended, useUpcomingEvents } from '@/features/events/hooks';
+import { useFriendships } from '@/features/friends/hooks';
 import { useNow } from '@/lib/useNow';
 import type { EventKind } from '@/lib/validation/event';
 
@@ -58,7 +59,17 @@ function matches(event: EventItem, filter: Filter, now: number) {
   return event.event_kind === filter;
 }
 
-function EventCard({ event, joined, onPress }: { event: EventItem; joined: boolean; onPress: () => void }) {
+function EventCard({
+  event,
+  joined,
+  friendsGoing,
+  onPress,
+}: {
+  event: EventItem;
+  joined: boolean;
+  friendsGoing: number;
+  onPress: () => void;
+}) {
   const Icon = KIND_ICON[event.event_kind];
   const going = goingCount(event);
   const full = going >= event.capacity;
@@ -86,7 +97,14 @@ function EventCard({ event, joined, onPress }: { event: EventItem; joined: boole
         <Text className="text-[12px] text-slate500">
           {formatDayTime(event.starts_at)} · {venue}
         </Text>
-        <Text className="text-[12px] font-semibold text-accentText">{costLabel(event.cost_note)}</Text>
+        <Text className="text-[12px] font-semibold text-accentText">
+          {costLabel(event.cost_note)}
+        </Text>
+        {friendsGoing > 0 ? (
+          <Text className="text-[12px] font-semibold text-primary">
+            {friendsGoing} temanmu ikut
+          </Text>
+        ) : null}
       </View>
 
       <View className="items-end gap-[4px]">
@@ -100,7 +118,9 @@ function EventCard({ event, joined, onPress }: { event: EventItem; joined: boole
           </Text>
         </View>
         {full ? <Text className="text-[11px] font-semibold text-[#B91C1C]">Penuh</Text> : null}
-        {joined && !full ? <Text className="text-[11px] font-semibold text-primary">Terdaftar</Text> : null}
+        {joined && !full ? (
+          <Text className="text-[11px] font-semibold text-primary">Terdaftar</Text>
+        ) : null}
       </View>
     </Pressable>
   );
@@ -134,6 +154,13 @@ export default function EventScreen() {
       .map((e) => e.id)
   );
   const open = (id: string) => router.push({ pathname: '/event/[id]', params: { id } });
+  // PRD §9.3: kartu event menampilkan jumlah teman yang ikut.
+  const friendships = useFriendships(userId);
+  const friendIds = new Set(
+    (friendships.data ?? []).filter((f) => f.status === 'accepted').map((f) => f.other_id)
+  );
+  const friendsGoing = (e: EventItem) =>
+    e.event_rsvps.filter((r) => r.status === 'going' && friendIds.has(r.user_id)).length;
 
   return (
     <View className="flex-1 bg-white">
@@ -171,7 +198,9 @@ export default function EventScreen() {
                     active ? 'bg-primary' : 'border border-slateBorder bg-white'
                   }`}
                 >
-                  <Text className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}>
+                  <Text
+                    className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}
+                  >
                     {f.label}
                   </Text>
                 </Pressable>
@@ -185,13 +214,18 @@ export default function EventScreen() {
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24, gap: 14 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={events.isRefetching} onRefresh={() => void events.refetch()} />
+            <RefreshControl
+              refreshing={events.isRefetching}
+              onRefresh={() => void events.refetch()}
+            />
           }
         >
           {(recent.data ?? []).map((e) => (
             <Pressable
               key={e.id}
-              onPress={() => router.push({ pathname: '/event/ketemu-lagi/[id]', params: { id: e.id } })}
+              onPress={() =>
+                router.push({ pathname: '/event/ketemu-lagi/[id]', params: { id: e.id } })
+              }
               accessibilityRole="button"
               accessibilityLabel={`Mau ketemu lagi? ${e.title}`}
               className="gap-[2px] rounded-[18px] border border-[#FAC96E] bg-accentSoft px-[16px] py-[12px]"
@@ -210,7 +244,11 @@ export default function EventScreen() {
           ) : events.isError ? (
             <View className="gap-[10px]">
               <FormError message="Gagal memuat event. Periksa internet kamu." size={14} />
-              <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void events.refetch()} />
+              <PrimaryButton
+                label="Coba lagi"
+                variant="outline"
+                onPress={() => void events.refetch()}
+              />
             </View>
           ) : list.length === 0 ? (
             <View className="items-center gap-[8px] py-[40px]">
@@ -264,7 +302,13 @@ export default function EventScreen() {
                     <Text className="text-[13px] text-slate500">{thisWeek.length} acara</Text>
                   </View>
                   {thisWeek.map((e) => (
-                    <EventCard key={e.id} event={e} joined={joinedIds.has(e.id)} onPress={() => open(e.id)} />
+                    <EventCard
+                      key={e.id}
+                      event={e}
+                      joined={joinedIds.has(e.id)}
+                      friendsGoing={friendsGoing(e)}
+                      onPress={() => open(e.id)}
+                    />
                   ))}
                 </>
               ) : null}
@@ -276,7 +320,13 @@ export default function EventScreen() {
                     <Text className="text-[13px] text-slate500">{later.length} acara</Text>
                   </View>
                   {later.map((e) => (
-                    <EventCard key={e.id} event={e} joined={joinedIds.has(e.id)} onPress={() => open(e.id)} />
+                    <EventCard
+                      key={e.id}
+                      event={e}
+                      joined={joinedIds.has(e.id)}
+                      friendsGoing={friendsGoing(e)}
+                      onPress={() => open(e.id)}
+                    />
                   ))}
                 </>
               ) : null}

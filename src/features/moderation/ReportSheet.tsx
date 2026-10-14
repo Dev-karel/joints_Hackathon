@@ -15,14 +15,22 @@ import { submitReport } from './api';
 type Props = {
   visible: boolean;
   onClose: () => void;
-  targetUserId: string;
+  targetUserId?: string;
+  targetEventId?: string;
   targetName: string;
   /** Cuplikan pesan bila laporan berasal dari chat. */
   context?: string;
 };
 
 // Lembar lapor pengguna/pesan. Laporan tidak langsung memblokir siapa pun; admin yang meninjau.
-export function ReportSheet({ visible, onClose, targetUserId, targetName, context }: Props) {
+export function ReportSheet({
+  visible,
+  onClose,
+  targetUserId,
+  targetEventId,
+  targetName,
+  context,
+}: Props) {
   const userId = useAuthStore((s) => s.session?.user.id);
   const [reason, setReason] = useState<ReportInput['reason'] | null>(null);
   const [note, setNote] = useState('');
@@ -43,7 +51,13 @@ export function ReportSheet({ visible, onClose, targetUserId, targetName, contex
     setBusy(true);
     setError(null);
     try {
-      await submitReport(userId, { targetUserId, reason, note: note || undefined, context });
+      await submitReport(userId, {
+        targetUserId,
+        targetEventId,
+        reason,
+        note: note || undefined,
+        context,
+      });
       setDone(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Gagal mengirim laporan. Coba lagi.');
@@ -67,7 +81,9 @@ export function ReportSheet({ visible, onClose, targetUserId, targetName, contex
         </>
       ) : (
         <>
-          <Text className="w-full text-[20px] font-extrabold text-slateInk">Laporkan {targetName}</Text>
+          <Text className="w-full text-[20px] font-extrabold text-slateInk">
+            Laporkan {targetName}
+          </Text>
           {context ? (
             <View className="w-full rounded-[12px] bg-slate100 px-[12px] py-[8px]">
               <Text className="text-[12px] text-slate500" numberOfLines={3}>
@@ -112,7 +128,12 @@ export function ReportSheet({ visible, onClose, targetUserId, targetName, contex
           />
           {error ? <FormError message={error} size={12} /> : null}
           <View className="w-full gap-[8px]">
-            <PrimaryButton label="Kirim laporan" onPress={submit} loading={busy} disabled={!reason} />
+            <PrimaryButton
+              label="Kirim laporan"
+              onPress={submit}
+              loading={busy}
+              disabled={!reason}
+            />
             <PrimaryButton label="Batal" variant="outline" onPress={close} />
           </View>
         </>

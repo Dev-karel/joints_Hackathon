@@ -26,6 +26,7 @@ import { useAuthStore } from '@/features/auth/authStore';
 import { goingCount } from '@/features/events/api';
 import { costLabel, formatDateTime, formatRange, kindLabel } from '@/features/events/format';
 import { useEvent, useRsvp } from '@/features/events/hooks';
+import { ReportSheet } from '@/features/moderation/ReportSheet';
 import { useFriendships } from '@/features/friends/hooks';
 import { useNow } from '@/lib/useNow';
 import type { EventKind } from '@/lib/validation/event';
@@ -38,7 +39,15 @@ const KIND_ICON: Record<EventKind, LucideIcon> = {
 };
 const HOURS_3 = 3 * 3_600_000;
 
-function InfoRow({ icon: Icon, title, subtitle }: { icon: LucideIcon; title: string; subtitle: ReactNode }) {
+function InfoRow({
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  icon: LucideIcon;
+  title: string;
+  subtitle: ReactNode;
+}) {
   return (
     <View className="flex-row items-center gap-[12px]">
       <View className="h-[40px] w-[40px] items-center justify-center rounded-[12px] bg-surfaceSky">
@@ -54,13 +63,15 @@ function InfoRow({ icon: Icon, title, subtitle }: { icon: LucideIcon; title: str
 
 export default function EventDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // batal=1: dibuka dari tombol "Batal" di notifikasi pengingat -> langsung tampilkan dialog.
+  const { id, batal } = useLocalSearchParams<{ id: string; batal?: string }>();
   const userId = useAuthStore((s) => s.session?.user.id);
   const event = useEvent(id);
   const friendships = useFriendships(userId);
   const rsvp = useRsvp(userId);
   const [error, setError] = useState<string | null>(null);
-  const [confirmLeave, setConfirmLeave] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(batal === '1');
+  const [reportOpen, setReportOpen] = useState(false);
   const now = useNow();
 
   if (event.isPending) {
@@ -98,7 +109,9 @@ export default function EventDetailScreen() {
   const finished = now >= endMs;
   const venueName = item.venues?.name ?? 'Tempat belum diumumkan';
 
-  const goingIds = new Set(item.event_rsvps.filter((r) => r.status === 'going').map((r) => r.user_id));
+  const goingIds = new Set(
+    item.event_rsvps.filter((r) => r.status === 'going').map((r) => r.user_id)
+  );
   const friendsGoing = (friendships.data ?? [])
     .filter((f) => f.status === 'accepted' && goingIds.has(f.other_id))
     .map((f) => f.full_name.split(' ')[0]);
@@ -140,14 +153,18 @@ export default function EventDetailScreen() {
             <Icon size={64} color={palette.accentText} strokeWidth={1.6} />
           </View>
           <View className="self-start rounded-full bg-white px-[10px] py-[4px]">
-            <Text className="text-[12px] font-bold text-accent800">{kindLabel(item.event_kind)}</Text>
+            <Text className="text-[12px] font-bold text-accent800">
+              {kindLabel(item.event_kind)}
+            </Text>
           </View>
           <Text className="pt-[10px] text-[24px] font-extrabold leading-[28px] tracking-[-0.36px] text-slateInk">
             {item.title}
           </Text>
           <View className="flex-row items-center gap-[6px] pt-[8px]">
             <ShieldCheck size={14} color={palette.primary} />
-            <Text className="text-[13px] font-semibold text-primary">Dikurasi oleh tim AyoMatch</Text>
+            <Text className="text-[13px] font-semibold text-primary">
+              Dikurasi oleh tim AyoMatch
+            </Text>
           </View>
         </View>
 
@@ -189,6 +206,13 @@ export default function EventDetailScreen() {
               kalau ada yang bikin tidak nyaman.
             </Text>
           </View>
+          <Pressable
+            onPress={() => setReportOpen(true)}
+            accessibilityRole="button"
+            className="min-h-[44px] justify-center self-start"
+          >
+            <Text className="text-[14px] font-semibold text-primary">Laporkan acara ini</Text>
+          </Pressable>
 
           {error ? <FormError message={error} size={13} /> : null}
         </View>
@@ -237,7 +261,7 @@ export default function EventDetailScreen() {
       </SafeAreaView>
 
       <ConfirmModal
-        visible={confirmLeave}
+        visible={confirmLeave && joined}
         title="Batal ikut acara?"
         message="Tempatmu akan dibuka untuk peserta lain. Kamu bisa daftar lagi selama kuota masih ada."
         confirmLabel="Ya, batal ikut"
@@ -245,6 +269,12 @@ export default function EventDetailScreen() {
         loading={rsvp.isPending}
         onConfirm={() => void run(false)}
         onCancel={() => setConfirmLeave(false)}
+      />
+      <ReportSheet
+        visible={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetEventId={item.id}
+        targetName={item.title}
       />
     </View>
   );

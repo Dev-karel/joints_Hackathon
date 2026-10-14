@@ -1,6 +1,14 @@
 import { useRouter, type Href } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { BadgeCheck, Camera, ChevronRight, MapPin, Share2, ShieldCheck, User } from 'lucide-react-native';
+import {
+  BadgeCheck,
+  Camera,
+  ChevronRight,
+  MapPin,
+  Share2,
+  ShieldCheck,
+  User,
+} from 'lucide-react-native';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Share, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,13 +27,23 @@ import { ARCHETYPES, archetypeIdSchema } from '@/lib/validation/personalityQuiz'
 
 function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <View className={`rounded-[20px] border border-slateBorder bg-white px-[16px] py-[14px] ${className}`}>
+    <View
+      className={`rounded-[20px] border border-slateBorder bg-white px-[16px] py-[14px] ${className}`}
+    >
       {children}
     </View>
   );
 }
 
-function CardHeader({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
+function CardHeader({
+  title,
+  action,
+  onAction,
+}: {
+  title: string;
+  action?: string;
+  onAction?: () => void;
+}) {
   return (
     <View className="flex-row items-center justify-between">
       <Text className="text-[15px] font-extrabold text-slateInk">{title}</Text>
@@ -38,7 +56,15 @@ function CardHeader({ title, action, onAction }: { title: string; action?: strin
   );
 }
 
-function Stat({ value, label, onPress }: { value: number | string; label: string; onPress: () => void }) {
+function Stat({
+  value,
+  label,
+  onPress,
+}: {
+  value: number | string;
+  label: string;
+  onPress: () => void;
+}) {
   return (
     <Pressable
       onPress={onPress}
@@ -133,7 +159,11 @@ export default function ProfilScreen() {
             >
               <View className="h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full bg-surfaceSky">
                 {profile?.avatar_url ? (
-                  <Image source={{ uri: profile.avatar_url }} className="h-full w-full" resizeMode="cover" />
+                  <Image
+                    source={{ uri: profile.avatar_url }}
+                    className="h-full w-full"
+                    resizeMode="cover"
+                  />
                 ) : (
                   <User size={34} color={palette.primary} />
                 )}
@@ -179,16 +209,30 @@ export default function ProfilScreen() {
 
           {/* Statistik */}
           <View className="flex-row gap-[10px]">
-            <Stat value={friendCount} label="Teman" onPress={() => router.push('/aktivitas?tab=teman' as Href)} />
-            <Stat value={stats.data?.sessions ?? 0} label="Sesi diikuti" onPress={() => router.push('/aktivitas?tab=sesi' as Href)} />
-            <Stat value={stats.data?.events ?? 0} label="Event diikuti" onPress={() => router.push('/aktivitas?tab=event' as Href)} />
+            <Stat
+              value={friendCount}
+              label="Teman"
+              onPress={() => router.push('/aktivitas?tab=teman' as Href)}
+            />
+            <Stat
+              value={stats.data?.sessions ?? 0}
+              label="Sesi diikuti"
+              onPress={() => router.push('/aktivitas?tab=sesi' as Href)}
+            />
+            <Stat
+              value={stats.data?.events ?? 0}
+              label="Event diikuti"
+              onPress={() => router.push('/aktivitas?tab=event' as Href)}
+            />
           </View>
 
           {/* Kepribadian */}
           {info ? (
             <View className="gap-[8px] rounded-[20px] border border-accent200 bg-accent50 px-[16px] py-[14px]">
               <Text className="text-[15px] font-extrabold text-accent800">Kepribadianmu</Text>
-              <Text className="text-[20px] font-extrabold tracking-[-0.2px] text-accent800">{info.name}</Text>
+              <Text className="text-[20px] font-extrabold tracking-[-0.2px] text-accent800">
+                {info.name}
+              </Text>
               <View className="flex-row flex-wrap gap-[6px]">
                 <View className="rounded-full bg-white px-[10px] py-[5px]">
                   <Text className="text-[12px] font-semibold text-accentText">{info.tagline}</Text>
@@ -202,7 +246,11 @@ export default function ProfilScreen() {
 
           {/* Mata kuliah */}
           <Card className="gap-[8px]">
-            <CardHeader title="Mata kuliah" action="Ubah" onAction={() => router.push('/mata-kuliah')} />
+            <CardHeader
+              title="Mata kuliah"
+              action="Ubah"
+              onAction={() => router.push('/mata-kuliah')}
+            />
             {myCourses.length > 0 ? (
               <View className="flex-row flex-wrap gap-[6px]">
                 {myCourses.map((c) => (
@@ -226,7 +274,10 @@ export default function ProfilScreen() {
               onPress={() => void sharingSwitch.toggle()}
               disabled={!profile || sharingSwitch.busy}
               accessibilityRole="switch"
-              accessibilityState={{ checked: sharingSwitch.value, disabled: !profile || sharingSwitch.busy }}
+              accessibilityState={{
+                checked: sharingSwitch.value,
+                disabled: !profile || sharingSwitch.busy,
+              }}
               accessibilityLabel="Tampil di peta"
               className="min-h-[64px] flex-row items-center gap-[12px] py-[12px]"
             >
@@ -261,9 +312,28 @@ export default function ProfilScreen() {
                 className="flex-row items-center gap-[12px] py-[12px]"
               >
                 <ShieldCheck size={20} color={palette.primary} />
-                <Text className="flex-1 text-[14px] font-bold text-slateInk">Daftarkan Wi-Fi (admin)</Text>
+                <Text className="flex-1 text-[14px] font-bold text-slateInk">
+                  Daftarkan Wi-Fi (admin)
+                </Text>
                 <ChevronRight size={16} color={palette.slate500} />
               </Pressable>
+              {(
+                [
+                  ['/admin/laporan', 'Tinjau laporan (admin)'],
+                  ['/admin/role', 'Atur role pengguna (admin)'],
+                ] as const
+              ).map(([href, label]) => (
+                <Pressable
+                  key={href}
+                  onPress={() => router.push(href as Href)}
+                  accessibilityRole="button"
+                  className="flex-row items-center gap-[12px] border-t border-slateBorder py-[12px]"
+                >
+                  <ShieldCheck size={20} color={palette.primary} />
+                  <Text className="flex-1 text-[14px] font-bold text-slateInk">{label}</Text>
+                  <ChevronRight size={16} color={palette.slate500} />
+                </Pressable>
+              ))}
             </Card>
           ) : null}
 

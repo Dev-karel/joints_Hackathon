@@ -8,6 +8,7 @@ import { Text } from '@/components/ui/AppText';
 import { palette } from '@/components/onboarding/palette';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
+import { logout } from '@/features/auth/useAuthActions';
 import { useAuthPhase } from '@/features/auth/useAuthPhase';
 
 export default function Index() {
@@ -32,6 +33,17 @@ export default function Index() {
       return <Redirect href="/mata-kuliah" />;
     case 'ready':
       return <Redirect href="/(tabs)" />;
+    case 'banned':
+      return (
+        <View className="flex-1 items-center justify-center gap-[12px] bg-white px-[28px]">
+          <Text className="text-center text-[20px] font-bold text-slateInk">Akun diblokir</Text>
+          <Text className="text-center text-[14px] leading-[21px] text-slate500">
+            Akunmu diblokir admin setelah laporan pengguna lain ditinjau. Hubungi admin AyokMatch
+            kalau menurutmu ini keliru.
+          </Text>
+          <PrimaryButton label="Keluar" variant="outline" onPress={() => void logout()} />
+        </View>
+      );
     case 'profileError':
       return (
         <View className="flex-1 items-center justify-center gap-[12px] bg-white px-[28px]">

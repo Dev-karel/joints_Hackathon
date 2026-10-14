@@ -10,12 +10,14 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
 import { FormError } from '@/components/ui/FormError';
 import { useProfile } from '@/features/auth/useProfile';
-import { registerAccessPoint } from '@/features/map/api';
+import { createRoom, registerAccessPoint } from '@/features/map/api';
 import { useZones } from '@/features/map/hooks';
 import { readBssid, type BssidReading } from '@/lib/wifi/readBssid';
 
 const READING_TEXT: Record<Exclude<BssidReading['status'], 'ok'>, string> = {
   'no-permission': 'Izin lokasi presisi ditolak. Izin ini hanya dipakai untuk membaca nama Wi-Fi.',
+  'location-off':
+    'Layanan lokasi HP mati, jadi Android menyembunyikan BSSID. Nyalakan lokasi lalu baca ulang.',
   'no-wifi': 'Tidak tersambung Wi-Fi. Sambungkan HP ke Wi-Fi kampus dulu.',
   unavailable:
     'Wi-Fi tersambung tapi BSSID tidak terbaca. Aktifkan layanan lokasi HP dan pakai dev build (bukan Expo Go).',
@@ -46,6 +48,9 @@ export default function DaftarWifiScreen() {
   const [label, setLabel] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
+  const [newRoom, setNewRoom] = useState('');
+  const [newBuilding, setNewBuilding] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
 
   if (profile.data && profile.data.role !== 'admin') return <Redirect href="/(tabs)" />;
 
@@ -53,6 +58,24 @@ export default function DaftarWifiScreen() {
   const buildings = new Map(
     (zones.data ?? []).filter((z) => z.level === 'building').map((b) => [b.id, b.name])
   );
+
+  const addRoom = async () => {
+    const name = newRoom.trim();
+    if (name.length < 2 || !newBuilding) return;
+    setAdding(true);
+    setMessage(null);
+    try {
+      const id = await createRoom(name, newBuilding);
+      await queryClient.invalidateQueries({ queryKey: ['zones'] });
+      setZoneId(id);
+      setNewRoom('');
+      setMessage({ text: `Ruangan "${name}" ditambahkan dan dipilih.`, ok: true });
+    } catch (e) {
+      setMessage({ text: e instanceof Error ? e.message : 'Gagal menambah ruangan.', ok: false });
+    } finally {
+      setAdding(false);
+    }
+  };
 
   const save = async () => {
     if (reading?.status !== 'ok' || !zoneId) return;
@@ -114,10 +137,54 @@ export default function DaftarWifiScreen() {
         })}
       </View>
 
+      {/* PRD §7.3: "pilih zona atau buat zona baru" (mis. "Ruang Pitching" untuk demo hotspot). */}
+      <View className="gap-[8px]">
+        <Text className="text-[13px] font-semibold text-slateInk">Atau tambah ruangan baru</Text>
+        <TextInput
+          maxFontSizeMultiplier={1.1}
+          value={newRoom}
+          onChangeText={setNewRoom}
+          placeholder="mis. Ruang Pitching"
+          placeholderTextColor={palette.slate500}
+          accessibilityLabel="Nama ruangan baru"
+          maxLength={60}
+          className="h-[52px] rounded-[14px] border border-white bg-white/70 px-[14px] text-[15px] text-slateInk"
+        />
+        <View className="flex-row flex-wrap gap-[8px]">
+          {[...buildings.entries()].map(([id, name]) => {
+            const active = id === newBuilding;
+            return (
+              <Pressable
+                key={id}
+                onPress={() => setNewBuilding(id)}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: active }}
+                className={`min-h-[44px] justify-center rounded-full border px-[14px] ${
+                  active ? 'border-primary bg-primary' : 'border-slateBorder bg-white'
+                }`}
+              >
+                <Text
+                  className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}
+                >
+                  {name}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <PrimaryButton
+          label="Tambah ruangan"
+          variant="outline"
+          onPress={addRoom}
+          loading={adding}
+          disabled={newRoom.trim().length < 2 || !newBuilding}
+        />
+      </View>
+
       <View className="gap-[6px]">
         <Text className="text-[13px] font-semibold text-slateInk">Catatan (opsional)</Text>
         <TextInput
- maxFontSizeMultiplier={1.1}
+          maxFontSizeMultiplier={1.1}
           value={label}
           onChangeText={setLabel}
           placeholder="mis. AP lantai 2, 5 GHz"

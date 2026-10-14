@@ -18,6 +18,9 @@ export type PresenceMember = {
   full_name: string;
   avatar_url: string | null;
   personality_type: string | null;
+  major: string | null;
+  /** Hanya mata kuliah yang juga kamu ambil (irisan, dihitung di database). */
+  shared_course_ids: string[];
 };
 
 export type ZonePresence = {
@@ -37,6 +40,17 @@ export async function fetchZones(): Promise<Zone[]> {
     .order('name');
   if (error) throw error;
   return (data ?? []) as Zone[];
+}
+
+/** Admin: tambah ruangan baru di sebuah gedung (RLS: hanya admin, level room). */
+export async function createRoom(name: string, buildingId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from('campus_zones')
+    .insert({ name, parent_zone_id: buildingId, level: 'room' })
+    .select('id')
+    .single();
+  if (error) throw new Error('Gagal menambah ruangan. Pastikan akunmu admin.');
+  return (data as { id: string }).id;
 }
 
 /** Hanya terisi bila pemanggil sendiri tampil di peta (visibilitas timbal balik, di database). */
