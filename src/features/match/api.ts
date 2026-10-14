@@ -47,6 +47,22 @@ export type PublicProfile = {
   personality_type: string | null;
 };
 
+export type ProfileDetail = {
+  id: string;
+  full_name: string;
+  major: string | null;
+  semester: number | null;
+  avatar_url: string | null;
+  personality_type: string | null;
+  personality_scores: Record<string, number> | null;
+  bio: string | null;
+  courses: Array<{ id: string; name: string }>;
+  stats: {
+    sessions_attended: number;
+    friends_count: number;
+  };
+};
+
 export type HostExit = {
   id: string;
   session_id: string;
@@ -110,6 +126,50 @@ export async function fetchProfiles(ids: string[]): Promise<PublicProfile[]> {
     .in('id', unique);
   if (error) throw new Error(error.message);
   return (data ?? []) as PublicProfile[];
+}
+
+// Profile detail lengkap untuk view profile user lain
+export async function fetchProfileDetail(userId: string): Promise<ProfileDetail | null> {
+  // Fetch profile basic info
+  const { data: profile, error: profileError } = await supabase
+    .from('public_profiles')
+    .select('id, full_name, major, semester, avatar_url, personality_type, personality_scores, bio')
+    .eq('id', userId)
+    .maybeSingle();
+  
+  if (profileError) throw new Error(profileError.message);
+  if (!profile) return null;
+
+  // Fetch courses
+  const { data: courses } = await supabase
+    .from('user_courses')
+    .select('course_id, courses(id, name)')
+    .eq('user_id', userId);
+
+  const userCourses = (courses ?? [])
+    .filter((c) => c.courses)
+    .map((c) => ({ id: c.courses!.id, name: c.courses!.name }));
+
+  // Fetch stats
+  const { count: sessionsCount } = await supabase
+    .from('study_session_members')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+
+  const { count: friendsCount } = await supabase
+    .from('friendships')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('status', 'accepted');
+
+  return {
+    ...profile,
+    courses: userCourses,
+    stats: {
+      sessions_attended: sessionsCount ?? 0,
+      friends_count: friendsCount ?? 0,
+    },
+  } as ProfileDetail;
 }
 
 export async function fetchMaterials(sessionId: string): Promise<SessionMaterial[]> {

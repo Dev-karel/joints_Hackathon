@@ -7,6 +7,7 @@ import {
   fetchHostExitState,
   fetchMaterials,
   fetchPartners,
+  fetchProfileDetail,
   fetchProfiles,
   fetchSession,
   fetchSessions,
@@ -50,6 +51,14 @@ export const useProfiles = (ids: string[]) => {
     staleTime: 5 * 60_000,
   });
 };
+
+export const useProfileDetail = (userId: string | undefined) =>
+  useQuery({
+    queryKey: ['profile-detail', userId],
+    enabled: !!userId,
+    queryFn: () => fetchProfileDetail(userId!),
+    staleTime: 2 * 60_000,
+  });
 
 export const useMaterials = (sessionId: string | undefined) =>
   useQuery({

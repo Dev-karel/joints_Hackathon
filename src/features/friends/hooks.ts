@@ -38,7 +38,7 @@ function useFriendMutation<T>(userId: string | undefined, fn: (v: T) => Promise<
 }
 
 export const useSendFriendRequest = (userId: string | undefined) =>
-  useFriendMutation(userId, (addresseeId: string) => sendFriendRequest(userId!, addresseeId));
+  useFriendMutation(userId, (v: { addresseeId: string }) => sendFriendRequest(userId!, v.addresseeId));
 
 export const useAcceptFriendRequest = (userId: string | undefined) =>
   useFriendMutation(userId, (requesterId: string) => acceptFriendRequest(requesterId, userId!));

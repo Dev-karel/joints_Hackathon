@@ -27,8 +27,8 @@ import { formatTime } from '@/features/events/format';
 import { useFriendships } from '@/features/friends/hooks';
 import type { TeamOpening } from '@/features/lomba/api';
 import { useOpenings } from '@/features/lomba/hooks';
-import type { StudySession } from '@/features/match/api';
-import { useProfiles, useSessions } from '@/features/match/hooks';
+import type { Partner, StudySession } from '@/features/match/api';
+import { usePartners, useProfiles, useSessions } from '@/features/match/hooks';
 import { useNow } from '@/lib/useNow';
 import { COMPETITION_CATEGORIES } from '@/lib/validation/competition';
 import { SESSION_KINDS } from '@/lib/validation/studySession';
@@ -168,16 +168,111 @@ function CapacityBadge({ current, max }: { current: number; max: number }) {
   );
 }
 
+// ───────────────────────── Partner Card ─────────────────────────
+
+function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => void }) {
+  const archetypeLabel: Record<string, string> = {
+    groundbreaker: 'Groundbreaker',
+    heartkeeper: 'Heartkeeper',
+    kindledflame: 'Kindled Flame',
+    mindsmith: 'Mindsmith',
+    sagekeeper: 'Sagekeeper',
+    wildheart: 'Wildheart',
+  };
+
+  const getArchetypeColor = (type: string | null): string => {
+    const colors: Record<string, string> = {
+      groundbreaker: '#10B981',
+      heartkeeper: '#EC4899',
+      kindledflame: '#F59E0B',
+      mindsmith: '#8B5CF6',
+      sagekeeper: '#3B82F6',
+      wildheart: '#EF4444',
+    };
+    return colors[type ?? ''] ?? palette.slate500;
+  };
+
+  const scorePercent = Math.round(partner.score * 100);
+  const scoreColor = scorePercent >= 80 ? '#10B981' : scorePercent >= 60 ? '#F59E0B' : palette.slate500;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Partner ${partner.full_name}`}
+      className="w-[160px] rounded-[16px] border border-slateBorder bg-white p-[12px]"
+    >
+      <View className="items-center gap-[8px]">
+        {/* Avatar */}
+        <View className="h-[56px] w-[56px] items-center justify-center rounded-full bg-surfaceSky">
+          {partner.avatar_url ? (
+            <View className="h-full w-full overflow-hidden rounded-full">
+              {/* TODO: Image component jika ada avatar */}
+              <View className="h-full w-full items-center justify-center bg-surfaceSky">
+                <User size={28} color={palette.primary} />
+              </View>
+            </View>
+          ) : (
+            <User size={28} color={palette.primary} />
+          )}
+        </View>
+
+        {/* Nama */}
+        <Text className="text-center text-[14px] font-bold text-slateInk" numberOfLines={1}>
+          {partner.full_name}
+        </Text>
+
+        {/* Major */}
+        {partner.major && (
+          <Text className="text-center text-[11px] text-slate500" numberOfLines={1}>
+            {partner.major}
+          </Text>
+        )}
+
+        {/* Archetype Badge */}
+        {partner.personality_type && (
+          <View
+            className="rounded-[6px] px-[8px] py-[3px]"
+            style={{ backgroundColor: `${getArchetypeColor(partner.personality_type)}15` } as any}
+          >
+            <Text className="text-[10px] font-semibold" style={{ color: getArchetypeColor(partner.personality_type) } as any}>
+              {archetypeLabel[partner.personality_type] ?? partner.personality_type}
+            </Text>
+          </View>
+        )}
+
+        {/* Shared Courses */}
+        <View className="flex-row items-center gap-[4px]">
+          <BookOpen size={12} color={palette.slate500} />
+          <Text className="text-[11px] text-slate500">
+            {partner.shared_courses} mata kuliah sama
+          </Text>
+        </View>
+
+        {/* Match Score */}
+        <View className="mt-[4px] w-full items-center rounded-[8px] bg-slate100 py-[6px]">
+          <Text className="text-[10px] font-semibold text-slate500">Kecocokan</Text>
+          <Text className="text-[18px] font-extrabold" style={{ color: scoreColor } as any}>
+            {scorePercent}%
+          </Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
 // ───────────────────────── Belajar ─────────────────────────
 
 function BelajarTab({ query }: { query: string }) {
   const router = useRouter();
   const userId = useAuthStore((s) => s.session?.user.id);
   const sessions = useSessions();
+  const partners = usePartners();
   const friendships = useFriendships(userId);
   const now = useNow();
   const [dayIndex, setDayIndex] = useState(0);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [courseFilter, setCourseFilter] = useState<string>('Semua');
 
   const days = useMemo(
     () => Array.from({ length: 7 }, (_, i) => new Date(now + i * DAY_MS)),
@@ -203,10 +298,22 @@ function BelajarTab({ query }: { query: string }) {
     (s.campus_zones?.name ?? '').toLowerCase().includes(q) ||
     (hostName(s.host_id) ?? '').toLowerCase().includes(q);
 
+  const matchesCourseFilter = (s: StudySession) =>
+    courseFilter === 'Semua' || s.courses?.name === courseFilter;
+
   const all = sessions.data ?? [];
-  const countOn = (d: Date) => all.filter((s) => sameDay(new Date(s.starts_at), d)).length;
+  const countOn = (d: Date) => all.filter((s) => sameDay(new Date(s.starts_at), d) && matchesCourseFilter(s)).length;
   // Saat mencari, tampilkan semua hari supaya hasilnya tidak tersembunyi di hari lain.
-  const visible = all.filter((s) => matchesQuery(s) && (q !== '' || sameDay(new Date(s.starts_at), days[dayIndex])));
+  const visible = all.filter((s) => matchesQuery(s) && matchesCourseFilter(s) && (q !== '' || sameDay(new Date(s.starts_at), days[dayIndex])));
+
+  // Get unique courses for filter
+  const uniqueCourses = useMemo(() => {
+    const courses = new Set<string>();
+    all.forEach((s) => {
+      if (s.courses?.name) courses.add(s.courses.name);
+    });
+    return ['Semua', ...Array.from(courses).sort()];
+  }, [all]);
 
   const groups = useMemo(() => {
     const byHour = new Map<string, StudySession[]>();
@@ -227,6 +334,38 @@ function BelajarTab({ query }: { query: string }) {
 
   return (
     <View className="flex-1">
+      {/* Rekomendasi Partner Belajar */}
+      {!query && (
+        <View className="border-b border-slateBorder bg-white">
+          <View className="px-[20px] pb-[8px] pt-[12px]">
+            <Text className="text-[13px] font-extrabold text-slateInk">Partner yang cocok denganmu</Text>
+          </View>
+          {partners.isPending ? (
+            <View className="items-center py-[16px]">
+              <ActivityIndicator size="small" color={palette.primary} />
+            </View>
+          ) : partners.isError ? (
+            <View className="px-[20px] pb-[12px]">
+              <Text className="text-[12px] text-slate500">Gagal memuat rekomendasi.</Text>
+            </View>
+          ) : (partners.data ?? []).length === 0 ? (
+            <View className="px-[20px] pb-[12px]">
+              <Text className="text-[12px] text-slate500">Belum ada rekomendasi. Lengkapi mata kuliahmu dulu.</Text>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12, gap: 12 }}
+            >
+              {partners.data?.slice(0, 10).map((p) => (
+                <PartnerCard key={p.user_id} partner={p} onPress={() => router.push(`/profil/${p.user_id}`)} />
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      )}
+
       <View className="bg-slateSurface">
         <ScrollView
           horizontal
@@ -267,6 +406,36 @@ function BelajarTab({ query }: { query: string }) {
           })}
         </ScrollView>
       </View>
+
+      {/* Filter Mata Kuliah */}
+      {uniqueCourses.length > 1 && !query && (
+        <View className="border-b border-slateBorder bg-white">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
+          >
+            {uniqueCourses.map((course) => {
+              const active = course === courseFilter;
+              return (
+                <Pressable
+                  key={course}
+                  onPress={() => setCourseFilter(course)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  className={`rounded-full px-[14px] py-[7px] ${
+                    active ? 'bg-primary' : 'border border-slateBorder bg-white'
+                  }`}
+                >
+                  <Text className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}>
+                    {course}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
 
       <ScrollView
         className="flex-1"
