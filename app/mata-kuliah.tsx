@@ -44,7 +44,8 @@ export default function MataKuliahScreen() {
     setError(null);
     try {
       await save.mutateAsync([...selected]);
-      router.back();
+      // Redirect ke root untuk automatic routing ke fase selanjutnya
+      router.replace('/');
     } catch {
       setError('Gagal menyimpan. Periksa internet kamu lalu coba lagi.');
     }
@@ -52,9 +53,9 @@ export default function MataKuliahScreen() {
 
   return (
     <AuthScreen
-      title="Mata kuliah saya"
-      subtitle={`Pilih maksimal ${MAX_COURSES} mata kuliah yang kamu ambil (${chosen.size}/${MAX_COURSES}). Kami pakai ini untuk mencarikan partner belajar yang pas.`}
-      onBack={() => router.back()}
+      title="Pilih mata kuliah"
+      subtitle={`Pilih maksimal ${MAX_COURSES} mata kuliah yang kamu ambil semester ini (${chosen.size}/${MAX_COURSES}). Ini akan membantu kami mencarikan teman belajar yang cocok untukmu.`}
+      // Tidak ada tombol back di onboarding flow - ini step wajib
     >
       {loading ? (
         <View className="items-center py-[24px]">
@@ -75,10 +76,18 @@ export default function MataKuliahScreen() {
       ) : (
         <View className="gap-[10px]">
           {(courses.data ?? []).length === 0 ? (
-            <Text className="text-[14px] leading-[21px] text-slate500">
-              Belum ada mata kuliah di daftar. Minta admin menambahkannya, lalu buka layar ini lagi.
-            </Text>
-          ) : null}
+            <View className="items-center gap-[12px] py-[20px]">
+              <Text className="text-center text-[14px] leading-[21px] text-slate500">
+                Belum ada mata kuliah di sistem. Silakan hubungi admin untuk menambahkan daftar mata kuliah.
+              </Text>
+            </View>
+          ) : (
+            <View className="mb-[8px] rounded-[12px] bg-accent50 px-[14px] py-[10px]">
+              <Text className="text-[13px] text-accentText">
+                💡 Pilih mata kuliah yang kamu ambil semester ini. Minimal 1, maksimal 5. Ini akan membantu sistem mencarikan teman belajar yang pas untukmu.
+              </Text>
+            </View>
+          )}
           {(courses.data ?? []).map((course) => {
             const active = chosen.has(course.id);
             const full = !active && chosen.size >= MAX_COURSES;
@@ -109,7 +118,21 @@ export default function MataKuliahScreen() {
       )}
 
       {error ? <FormError message={error} /> : null}
-      <PrimaryButton label="Simpan" onPress={onSave} loading={save.isPending} disabled={loading} />
+      
+      {chosen.size === 0 && !loading ? (
+        <View className="rounded-[12px] bg-amber-50 px-[14px] py-[10px]">
+          <Text className="text-[13px] text-amber-700">
+            Pilih minimal 1 mata kuliah untuk melanjutkan
+          </Text>
+        </View>
+      ) : null}
+      
+      <PrimaryButton 
+        label="Lanjutkan" 
+        onPress={onSave} 
+        loading={save.isPending} 
+        disabled={loading || chosen.size === 0} 
+      />
     </AuthScreen>
   );
 }

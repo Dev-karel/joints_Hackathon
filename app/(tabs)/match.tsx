@@ -105,7 +105,7 @@ export default function MatchScreen() {
           // Posisi lewat style (bukan kelas): di Android kelas "absolute bottom-/right-" tidak
           // terbaca dan tombol menempel di pojok kiri atas, menimpa status bar.
           className="flex-row items-center gap-[6px] rounded-full bg-primary py-[13px] pl-[16px] pr-[18px]"
-          style={{ position: 'absolute', right: 20, bottom: 16, elevation: 6 }}
+          style={{ position: 'absolute', right: 20, bottom: 16, elevation: 6 } as any}
         >
           <Plus size={18} color="#FFFFFF" />
           <Text className="text-[14px] font-bold text-white">
@@ -359,7 +359,7 @@ function BelajarTab({ query }: { query: string }) {
               contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12, gap: 12 }}
             >
               {partners.data?.slice(0, 10).map((p) => (
-                <PartnerCard key={p.user_id} partner={p} onPress={() => router.push(`/profil/${p.user_id}`)} />
+                <PartnerCard key={p.user_id} partner={p} onPress={() => router.push('/profil/' + p.user_id as any)} />
               ))}
             </ScrollView>
           )}
@@ -535,6 +535,7 @@ function BelajarTab({ query }: { query: string }) {
 const WEEK_MS = 7 * DAY_MS;
 
 function LombaTab({ query }: { query: string }) {
+  const router = useRouter();
   const openings = useOpenings();
   const now = useNow();
   const [category, setCategory] = useState<string>('Semua');
@@ -559,7 +560,12 @@ function LombaTab({ query }: { query: string }) {
     const need = o.team_size - o.current_members;
     const d = new Date(o.registration_deadline);
     return (
-      <View className="flex-row items-start gap-[12px] border-b border-slateBorder px-[20px] py-[14px]">
+      <Pressable
+        onPress={() => router.push(`/lomba/${o.id}` as any)}
+        accessibilityRole="button"
+        accessibilityLabel={o.competition_name}
+        className="flex-row items-start gap-[12px] border-b border-slateBorder px-[20px] py-[14px]"
+      >
         <View className="h-[36px] w-[36px] items-center justify-center rounded-[18px] bg-accentSoft">
           <Trophy size={18} color={palette.accentText} />
         </View>
@@ -595,7 +601,7 @@ function LombaTab({ query }: { query: string }) {
           <CapacityBadge current={o.current_members} max={o.team_size} />
           <Text className="text-[11px] text-slate500">butuh {need}</Text>
         </View>
-      </View>
+      </Pressable>
     );
   };
 

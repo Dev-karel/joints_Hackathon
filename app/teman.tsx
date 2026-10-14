@@ -193,7 +193,7 @@ export default function TemanScreen() {
         <ActionButton
           label="Tambah"
           disabled={send.isPending}
-          onPress={() => void run(() => send.mutateAsync(p.id))}
+          onPress={() => void run(() => send.mutateAsync({ addresseeId: p.id }))}
         />
       );
     }

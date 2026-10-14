@@ -35,7 +35,7 @@ export default function HasilKuisScreen() {
               <ArchetypeResult type={type.data} scores={scores.data} />
             </ScrollView>
             <View className="px-[24px] pb-[18px] pt-[8px]">
-              <PrimaryButton label="Mulai jelajah" onPress={() => router.replace('/(tabs)')} />
+              <PrimaryButton label="Lanjutkan" onPress={() => router.replace('/')} />
             </View>
           </>
         ) : (

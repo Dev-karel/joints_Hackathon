@@ -102,7 +102,7 @@ export default function BerandaScreen() {
     if (rel?.status === 'accepted') return openChat(partnerId);
     if (rel) return router.push('/teman');
     try {
-      await sendRequest.mutateAsync(partnerId);
+      await sendRequest.mutateAsync({ addresseeId: partnerId });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Gagal mengirim ajakan.');
     }

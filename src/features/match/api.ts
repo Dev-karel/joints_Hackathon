@@ -147,8 +147,8 @@ export async function fetchProfileDetail(userId: string): Promise<ProfileDetail 
     .eq('user_id', userId);
 
   const userCourses = (courses ?? [])
-    .filter((c) => c.courses)
-    .map((c) => ({ id: c.courses!.id, name: c.courses!.name }));
+    .filter((c): c is { courses: { id: string; name: string } } => !!c.courses && typeof c.courses === 'object' && !Array.isArray(c.courses))
+    .map((c) => ({ id: c.courses.id, name: c.courses.name }));
 
   // Fetch stats
   const { count: sessionsCount } = await supabase

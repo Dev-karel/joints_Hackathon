@@ -28,6 +28,8 @@ export default function Index() {
       );
     case 'needsQuiz':
       return <Redirect href="/(kuis)" />;
+    case 'needsCourses':
+      return <Redirect href="/mata-kuliah" />;
     case 'ready':
       return <Redirect href="/(tabs)" />;
     case 'profileError':

@@ -175,7 +175,6 @@ export default function ViewProfileScreen() {
                   <>
                     <PrimaryButton
                       label="Kirim Pesan"
-                      icon={<MessageCircle size={18} color="#FFFFFF" />}
                       onPress={() => router.push(`/pesan/${id}`)}
                     />
                     <PrimaryButton
@@ -188,14 +187,13 @@ export default function ViewProfileScreen() {
                 ) : isPending ? (
                   <PrimaryButton
                     label={isIncoming ? 'Terima Permintaan' : 'Permintaan Terkirim'}
-                    variant={isIncoming ? 'primary' : 'outline'}
+                    variant={isIncoming ? 'solid' : 'outline'}
                     disabled={!isIncoming}
-                    onPress={isIncoming ? handleAddFriend : undefined}
+                    onPress={isIncoming ? handleAddFriend : () => {}}
                   />
                 ) : (
                   <PrimaryButton
                     label="Tambah Teman"
-                    icon={<UserPlus size={18} color="#FFFFFF" />}
                     onPress={handleAddFriend}
                     loading={sendRequest.isPending}
                   />
@@ -204,7 +202,6 @@ export default function ViewProfileScreen() {
                 <PrimaryButton
                   label="Laporkan Pengguna"
                   variant="outline"
-                  icon={<ShieldAlert size={18} color={palette.slateInk} />}
                   onPress={() => {
                     // TODO: Implement report user
                     console.log('Report user:', id);
