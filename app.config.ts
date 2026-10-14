@@ -8,6 +8,7 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'AyokMatch',
   slug: 'ayokmatch',
+  owner: 'dannyehh1s-team',
   version: '0.2.0',
   scheme: 'ayokmatch',
   orientation: 'portrait',
@@ -50,6 +51,9 @@ const config: ExpoConfig = {
   ],
   experiments: {
     typedRoutes: true,
+  },
+  extra: {
+    eas: { projectId: '7b4fcde5-081b-4fee-a36a-40fabe913128' },
   },
 };
 
