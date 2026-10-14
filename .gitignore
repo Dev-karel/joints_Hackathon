@@ -43,3 +43,6 @@ expo-env.d.ts
 
 # Konfigurasi MCP personal per mesin (mis. koneksi Figma)
 .mcp.json
+
+# Sumber logo resolusi tinggi (tidak dipakai langsung di aplikasi)
+assets/logo_jernih/
