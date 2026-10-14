@@ -1,6 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { fetchMyStats } from './api';
+import { profileKey } from '@/features/auth/useProfile';
+
+import { fetchMyStats, uploadAvatar, type PickedAvatar } from './api';
 
 export const useMyStats = (userId: string | undefined) =>
   useQuery({
@@ -9,3 +11,11 @@ export const useMyStats = (userId: string | undefined) =>
     queryFn: () => fetchMyStats(userId!),
     staleTime: 60_000,
   });
+
+export function useUploadAvatar(userId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (picked: PickedAvatar) => uploadAvatar(userId!, picked),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey(userId) }),
+  });
+}

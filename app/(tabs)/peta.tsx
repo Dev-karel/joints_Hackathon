@@ -11,7 +11,8 @@ import { palette } from '@/components/onboarding/palette';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useProfile } from '@/features/auth/useProfile';
 import { ZoneMap } from '@/features/map/components/ZoneMap';
-import { useZonePresence, useZones, useToggleSharing } from '@/features/map/hooks';
+import { useZonePresence, useZones } from '@/features/map/hooks';
+import { useSharingSwitch } from '@/features/map/useSharingSwitch';
 import { useMapStore, type MapStatus } from '@/features/map/mapStore';
 import { ARCHETYPES, archetypeIdSchema } from '@/lib/validation/personalityQuiz';
 
@@ -30,15 +31,13 @@ export default function PetaScreen() {
   const { data: profile } = useProfile(userId);
   const zones = useZones();
   const presence = useZonePresence();
-  const toggleSharing = useToggleSharing(userId);
   const { status, zoneId, zoneName } = useMapStore();
 
   const [buildingId, setBuildingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const sharingSwitch = useSharingSwitch(userId, profile?.show_on_map === true);
 
-  const sharing = profile?.show_on_map === true;
+  const sharing = sharingSwitch.value;
   // Visibilitas timbal balik ditegakkan di database; di sini hanya menyesuaikan tampilan.
   const canView = sharing && status === 'in_zone';
 
@@ -62,20 +61,6 @@ export default function PetaScreen() {
   const selected = rooms.find((r) => r.id === selectedId) ?? null;
   const selectedPresence = selected ? byZone.get(selected.id) : undefined;
 
-  const onToggle = async (next: boolean) => {
-    setMessage(null);
-    setBusy(true);
-    const result = await toggleSharing(next);
-    setBusy(false);
-    if (!result.ok) {
-      setMessage(
-        result.reason === 'no-permission'
-          ? 'Izin lokasi presisi ditolak. Izin ini hanya dipakai untuk membaca nama Wi-Fi, bukan untuk GPS.'
-          : 'Gagal mengubah pengaturan. Periksa internet kamu.'
-      );
-    }
-  };
-
   return (
     <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
@@ -85,27 +70,35 @@ export default function PetaScreen() {
           </Text>
 
           <GlassCard strong className="gap-[8px] p-[16px]">
-            <View className="flex-row items-center justify-between gap-[12px]">
+            {/* Seluruh baris bisa diketuk (bukan hanya saklar kecil di kanan). */}
+            <Pressable
+              onPress={() => void sharingSwitch.toggle()}
+              disabled={!profile || sharingSwitch.busy}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: sharing, disabled: !profile || sharingSwitch.busy }}
+              accessibilityLabel="Tampil di peta"
+              className="min-h-[64px] flex-row items-center justify-between gap-[12px] py-[6px]"
+            >
               <View className="flex-1 gap-[2px]">
                 <Text className="text-[15px] font-semibold text-slateInk">Tampil di peta</Text>
                 <Text className="text-[12px] leading-[17px] text-slate500">
                   Hanya saat aplikasi terbuka dan tersambung Wi-Fi kampus. Mati secara default.
                 </Text>
               </View>
-              <Switch
-                value={sharing}
-                disabled={busy || !profile}
-                onValueChange={onToggle}
-                trackColor={{ false: palette.borderSubtle, true: palette.primary }}
-                thumbColor="#FFFFFF"
-                accessibilityLabel="Tampil di peta"
-              />
-            </View>
+              <View pointerEvents="none" className={sharingSwitch.busy ? 'opacity-60' : ''}>
+                <Switch
+                  value={sharing}
+                  trackColor={{ false: palette.borderSubtle, true: palette.primary }}
+                  thumbColor="#FFFFFF"
+                  style={{ transform: [{ scale: 1.15 }] }}
+                />
+              </View>
+            </Pressable>
             <Text className="text-[13px] leading-[19px] text-slate500">
               {sharing ? STATUS_TEXT[status] : STATUS_TEXT.idle}
               {sharing && status === 'in_zone' && zoneName ? ` ${zoneName}.` : ''}
             </Text>
-            {message ? <FormError message={message} /> : null}
+            {sharingSwitch.message ? <FormError message={sharingSwitch.message} /> : null}
           </GlassCard>
 
           {zones.isPending ? (

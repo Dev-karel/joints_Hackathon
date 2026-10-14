@@ -31,15 +31,10 @@ const config: ExpoConfig = {
     'expo-location',
     'expo-notifications',
     'expo-secure-store',
-    // expo-image-picker menyuntikkan izin RECORD_AUDIO (mikrofon) karena
-    // library-nya juga mendukung perekaman video. Dibiarkan aktif atas keputusan
-    // tim (4 Okt 2026).
-    //
-    // PERHATIAN saat pitching: MVP tidak punya fitur rekam video/audio, jadi izin
-    // ini belum terpakai. Karena privasi adalah inti produk (PRD.md §10) dan juri
-    // diperkirakan menanyakan soal itu (ROADMAP.md Fase 6), siapkan jawabannya —
-    // atau matikan dengan menambahkan { microphonePermission: false } di sini.
-    'expo-image-picker',
+    // expo-image-picker menyuntikkan izin RECORD_AUDIO (mikrofon) karena library-nya juga mendukung
+    // perekaman video. MVP tidak merekam audio/video dan privasi adalah inti produk (PRD.md §10),
+    // jadi izin mikrofon dimatikan (14 Okt 2026). Perlu build ulang agar manifest berubah.
+    ['expo-image-picker', { microphonePermission: false }],
     'expo-document-picker',
     // Splash screen: logo lengkap (mark + wordmark) di tengah, latar putih.
     // imageWidth = lebar tampil logo dalam dp, bukan ukuran berkasnya.

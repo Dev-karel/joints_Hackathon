@@ -170,12 +170,14 @@ export default function BerandaScreen() {
               className="h-[40px] w-[40px] items-center justify-center rounded-[20px] bg-surfaceSky"
               accessibilityRole="button"
               accessibilityLabel={
-                incoming.length > 0 ? `Notifikasi, ${incoming.length} permintaan pertemanan` : 'Notifikasi'
+                incoming.length > 0 || unreadTotal > 0
+                  ? `Notifikasi, ${incoming.length} permintaan pertemanan, ${unreadTotal} pesan belum dibaca`
+                  : 'Notifikasi'
               }
-              onPress={() => router.push('/teman')}
+              onPress={() => router.push('/notifikasi' as Href)}
             >
               <Bell size={20} color={palette.primary} />
-              {incoming.length > 0 ? (
+              {incoming.length > 0 || unreadTotal > 0 ? (
                 <View className="rounded-full border-2 border-white bg-[#DC2626]" style={{ position: "absolute", right: 6, top: 6, width: 10, height: 10 }} />
               ) : null}
             </Pressable>

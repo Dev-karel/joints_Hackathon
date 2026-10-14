@@ -15,7 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
@@ -192,7 +192,8 @@ function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => vo
     return colors[type ?? ''] ?? palette.slate500;
   };
 
-  const scorePercent = Math.round(partner.score * 100);
+  // Skor dari database sudah 0–100 (recommend_study_partners).
+  const scorePercent = Math.max(0, Math.min(100, Math.round(partner.score)));
   const scoreColor = scorePercent >= 80 ? '#10B981' : scorePercent >= 60 ? '#F59E0B' : palette.slate500;
 
   return (
@@ -206,12 +207,12 @@ function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => vo
         {/* Avatar */}
         <View className="h-[56px] w-[56px] items-center justify-center rounded-full bg-surfaceSky">
           {partner.avatar_url ? (
-            <View className="h-full w-full overflow-hidden rounded-full">
-              {/* TODO: Image component jika ada avatar */}
-              <View className="h-full w-full items-center justify-center bg-surfaceSky">
-                <User size={28} color={palette.primary} />
-              </View>
-            </View>
+            <Image
+              source={{ uri: partner.avatar_url }}
+              className="h-full w-full rounded-full"
+              resizeMode="cover"
+              accessibilityIgnoresInvertColors
+            />
           ) : (
             <User size={28} color={palette.primary} />
           )}
@@ -301,7 +302,7 @@ function BelajarTab({ query }: { query: string }) {
   const matchesCourseFilter = (s: StudySession) =>
     courseFilter === 'Semua' || s.courses?.name === courseFilter;
 
-  const all = sessions.data ?? [];
+  const all = useMemo(() => sessions.data ?? [], [sessions.data]);
   const countOn = (d: Date) => all.filter((s) => sameDay(new Date(s.starts_at), d) && matchesCourseFilter(s)).length;
   // Saat mencari, tampilkan semua hari supaya hasilnya tidak tersembunyi di hari lain.
   const visible = all.filter((s) => matchesQuery(s) && matchesCourseFilter(s) && (q !== '' || sameDay(new Date(s.starts_at), days[dayIndex])));
@@ -334,6 +335,16 @@ function BelajarTab({ query }: { query: string }) {
 
   return (
     <View className="flex-1">
+      <ScrollView
+        className="flex-1"
+        // Partner ikut menggulir; hanya strip hari dan filter yang menempel di atas.
+        stickyHeaderIndices={query ? [0] : [1]}
+        contentContainerStyle={{ paddingBottom: 96 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={sessions.isRefetching} onRefresh={() => void sessions.refetch()} />
+        }
+      >
       {/* Rekomendasi Partner Belajar */}
       {!query && (
         <View className="border-b border-slateBorder bg-white">
@@ -365,86 +376,77 @@ function BelajarTab({ query }: { query: string }) {
           )}
         </View>
       )}
-
-      <View className="bg-slateSurface">
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
-        >
-          {days.map((d, i) => {
-            const active = i === dayIndex;
-            const empty = countOn(d) === 0;
-            return (
-              <Pressable
-                key={i}
-                onPress={() => setDayIndex(i)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                // Ukuran lewat style supaya chip tidak menyusut jadi pil sempit.
-                style={{ width: 50, height: 56, borderRadius: 14, flexShrink: 0 }}
-                className={`items-center justify-center ${
-                  active ? 'bg-primary' : 'border border-slateBorder bg-white'
-                }`}
-              >
-                <Text
-                  className={`text-[10px] font-bold ${
-                    active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
-                  }`}
-                >
-                  {DAYS_UPPER[d.getDay()]}
-                </Text>
-                <Text
-                  className={`text-[17px] font-extrabold ${
-                    active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
-                  }`}
-                >
-                  {d.getDate()}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-      </View>
-
-      {/* Filter Mata Kuliah */}
-      {uniqueCourses.length > 1 && !query && (
-        <View className="border-b border-slateBorder bg-white">
+        <View className="bg-white">
+        <View className="bg-slateSurface">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
           >
-            {uniqueCourses.map((course) => {
-              const active = course === courseFilter;
+            {days.map((d, i) => {
+              const active = i === dayIndex;
+              const empty = countOn(d) === 0;
               return (
                 <Pressable
-                  key={course}
-                  onPress={() => setCourseFilter(course)}
+                  key={i}
+                  onPress={() => setDayIndex(i)}
                   accessibilityRole="button"
                   accessibilityState={{ selected: active }}
-                  className={`rounded-full px-[14px] py-[7px] ${
+                  // Ukuran lewat style supaya chip tidak menyusut jadi pil sempit.
+                  style={{ width: 50, height: 56, borderRadius: 14, flexShrink: 0 }}
+                  className={`items-center justify-center ${
                     active ? 'bg-primary' : 'border border-slateBorder bg-white'
                   }`}
                 >
-                  <Text className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}>
-                    {course}
+                  <Text
+                    className={`text-[10px] font-bold ${
+                      active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
+                    }`}
+                  >
+                    {DAYS_UPPER[d.getDay()]}
+                  </Text>
+                  <Text
+                    className={`text-[17px] font-extrabold ${
+                      active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
+                    }`}
+                  >
+                    {d.getDate()}
                   </Text>
                 </Pressable>
               );
             })}
           </ScrollView>
         </View>
-      )}
-
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 96 }}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={sessions.isRefetching} onRefresh={() => void sessions.refetch()} />
-        }
-      >
+        {/* Filter Mata Kuliah */}
+        {uniqueCourses.length > 1 && !query && (
+          <View className="border-b border-slateBorder bg-white">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
+            >
+              {uniqueCourses.map((course) => {
+                const active = course === courseFilter;
+                return (
+                  <Pressable
+                    key={course}
+                    onPress={() => setCourseFilter(course)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    className={`rounded-full px-[14px] py-[7px] ${
+                      active ? 'bg-primary' : 'border border-slateBorder bg-white'
+                    }`}
+                  >
+                    <Text className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}>
+                      {course}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
+        </View>
         {sessions.isPending ? (
           <View className="items-center py-[32px]">
             <ActivityIndicator color={palette.primary} />

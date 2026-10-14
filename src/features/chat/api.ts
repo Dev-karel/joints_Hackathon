@@ -29,24 +29,50 @@ export async function fetchConversations(): Promise<Conversation[]> {
   return (data ?? []) as Conversation[];
 }
 
-// Pesan terbaru dulu (maks. 200); layar membaliknya untuk daftar terbalik.
-export async function fetchMessages(conversationId: string): Promise<Message[]> {
-  const { data, error } = await supabase
+export const MESSAGE_PAGE_SIZE = 30;
+
+// Satu halaman pesan, terbaru dulu. `before` = created_at pesan tertua yang sudah dimuat.
+export async function fetchMessages(conversationId: string, before?: string): Promise<Message[]> {
+  let q = supabase
     .from('messages')
     .select('id, conversation_id, sender_id, content, created_at')
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: false })
-    .limit(200);
+    .limit(MESSAGE_PAGE_SIZE);
+  if (before) q = q.lt('created_at', before);
+  const { data, error } = await q;
   if (error) throw new Error(error.message);
   return (data ?? []) as Message[];
 }
 
-// Panjang, rate limit, dan keanggotaan dijaga database (constraint, trigger, RLS).
-export async function sendMessage(conversationId: string, senderId: string, content: string): Promise<void> {
+// Panjang, rate limit, keanggotaan, dan status berteman dijaga database (constraint, trigger, RLS).
+// `id` dibuat klien supaya kirim ulang tidak menggandakan pesan (unique violation = sudah terkirim).
+export async function sendMessage(
+  conversationId: string,
+  senderId: string,
+  content: string,
+  id: string
+): Promise<void> {
   const { error } = await supabase
     .from('messages')
-    .insert({ conversation_id: conversationId, sender_id: senderId, content: content.trim() });
+    .insert({ id, conversation_id: conversationId, sender_id: senderId, content: content.trim() });
+  if (error) {
+    if (error.code === '23505') return;
+    if (error.code === '42501') throw new Error('Pesan tidak bisa dikirim. Kalian mungkin sudah tidak berteman.');
+    throw new Error(error.message);
+  }
+}
+
+export type MemberRead = { user_id: string; last_read_at: string };
+
+// Kapan tiap anggota terakhir membuka percakapan (untuk "Dibaca"). RLS mengizinkan sesama anggota.
+export async function fetchMemberReads(conversationId: string): Promise<MemberRead[]> {
+  const { data, error } = await supabase
+    .from('conversation_members')
+    .select('user_id, last_read_at')
+    .eq('conversation_id', conversationId);
   if (error) throw new Error(error.message);
+  return (data ?? []) as MemberRead[];
 }
 
 export async function markConversationRead(conversationId: string): Promise<void> {

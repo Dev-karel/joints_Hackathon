@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { 
-  createOpening, 
-  fetchOpenings, 
-  fetchOpeningDetail, 
-  sendJoinRequest, 
+import {
+  cancelJoinRequest,
+  createOpening,
+  fetchOpeningDetail,
+  fetchOpenings,
+  leaveTeam,
   respondToJoinRequest,
-  removeMember
+  sendJoinRequest,
 } from './api';
 
 export const openingsKey = ['team-openings'] as const;
@@ -25,12 +26,11 @@ export const useOpeningDetail = (id: string | undefined) =>
 
 function useInvalidateOpening() {
   const queryClient = useQueryClient();
-  return (openingId?: string) => {
-    void queryClient.invalidateQueries({ queryKey: openingsKey });
-    if (openingId) {
-      void queryClient.invalidateQueries({ queryKey: openingKey(openingId) });
-    }
-  };
+  return (openingId?: string) =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: openingsKey }),
+      openingId ? queryClient.invalidateQueries({ queryKey: openingKey(openingId) }) : Promise.resolve(),
+    ]);
 }
 
 export function useCreateOpening() {
@@ -45,23 +45,31 @@ export function useSendJoinRequest() {
   const invalidate = useInvalidateOpening();
   return useMutation({
     mutationFn: sendJoinRequest,
-    onSuccess: (_, variables) => invalidate(variables.opening_id),
+    onSuccess: (_, v) => invalidate(v.opening_id),
+  });
+}
+
+export function useCancelJoinRequest(openingId: string | undefined) {
+  const invalidate = useInvalidateOpening();
+  return useMutation({
+    mutationFn: (userId: string) => cancelJoinRequest(openingId!, userId),
+    onSuccess: () => invalidate(openingId),
   });
 }
 
 export function useRespondToJoinRequest(openingId: string | undefined) {
   const invalidate = useInvalidateOpening();
   return useMutation({
-    mutationFn: (data: { requestId: string; status: 'accepted' | 'rejected' }) =>
-      respondToJoinRequest(data.requestId, data.status),
+    mutationFn: (v: { userId: string; accept: boolean }) => respondToJoinRequest(openingId!, v.userId, v.accept),
     onSuccess: () => invalidate(openingId),
   });
 }
 
-export function useRemoveMember(openingId: string | undefined) {
+/** Anggota keluar sendiri, atau host mengeluarkan anggota. */
+export function useLeaveTeam(openingId: string | undefined) {
   const invalidate = useInvalidateOpening();
   return useMutation({
-    mutationFn: removeMember,
+    mutationFn: (userId: string) => leaveTeam(openingId!, userId),
     onSuccess: () => invalidate(openingId),
   });
 }

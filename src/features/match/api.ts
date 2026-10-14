@@ -56,7 +56,7 @@ export type ProfileDetail = {
   personality_type: string | null;
   personality_scores: Record<string, number> | null;
   bio: string | null;
-  courses: Array<{ id: string; name: string }>;
+  courses: { id: string; name: string }[];
   stats: {
     sessions_attended: number;
     friends_count: number;
@@ -146,9 +146,12 @@ export async function fetchProfileDetail(userId: string): Promise<ProfileDetail 
     .select('course_id, courses(id, name)')
     .eq('user_id', userId);
 
-  const userCourses = (courses ?? [])
-    .filter((c): c is { courses: { id: string; name: string } } => !!c.courses && typeof c.courses === 'object' && !Array.isArray(c.courses))
-    .map((c) => ({ id: c.courses.id, name: c.courses.name }));
+  // Relasi many-to-one dikembalikan sebagai objek, tapi tipe generik Supabase menyebutnya array.
+  type CourseRef = { id: string; name: string };
+  const userCourses: CourseRef[] = ((courses ?? []) as unknown as { courses: CourseRef | CourseRef[] | null }[])
+    .map((c) => (Array.isArray(c.courses) ? c.courses[0] : c.courses))
+    .filter((c): c is CourseRef => !!c)
+    .map((c) => ({ id: c.id, name: c.name }));
 
   // Fetch stats
   const { count: sessionsCount } = await supabase
@@ -156,18 +159,16 @@ export async function fetchProfileDetail(userId: string): Promise<ProfileDetail 
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId);
 
-  const { count: friendsCount } = await supabase
-    .from('friendships')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'accepted');
+  // RLS friendships hanya memperlihatkan baris milik pemanggil, jadi jumlah teman orang lain
+  // dihitung lewat fungsi database (hanya angka).
+  const { data: friendsCount } = await supabase.rpc('friend_count', { p_user: userId });
 
   return {
     ...profile,
     courses: userCourses,
     stats: {
       sessions_attended: sessionsCount ?? 0,
-      friends_count: friendsCount ?? 0,
+      friends_count: (friendsCount as number | null) ?? 0,
     },
   } as ProfileDetail;
 }

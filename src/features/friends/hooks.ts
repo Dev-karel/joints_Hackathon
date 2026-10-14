@@ -16,6 +16,8 @@ export function useFriendships(userId: string | undefined) {
     enabled: !!userId,
     queryFn: fetchFriendships,
     staleTime: 30_000,
+    // Cadangan bila Realtime putus (permintaan masuk / diterima tetap muncul).
+    refetchInterval: 20_000,
   });
 }
 

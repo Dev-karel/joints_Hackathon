@@ -1,7 +1,8 @@
 import { useRouter, type Href } from 'expo-router';
-import { BadgeCheck, ChevronRight, MapPin, Share2, ShieldCheck, User } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { BadgeCheck, Camera, ChevronRight, MapPin, Share2, ShieldCheck, User } from 'lucide-react-native';
 import { useMemo, useState, type ReactNode } from 'react';
-import { Image, Pressable, ScrollView, Share, Switch, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Share, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
@@ -12,8 +13,8 @@ import { logout } from '@/features/auth/useAuthActions';
 import { useProfile } from '@/features/auth/useProfile';
 import { useCourses, useMyCourseIds } from '@/features/courses/hooks';
 import { useFriendships } from '@/features/friends/hooks';
-import { useToggleSharing } from '@/features/map/hooks';
-import { useMyStats } from '@/features/profile/hooks';
+import { useSharingSwitch } from '@/features/map/useSharingSwitch';
+import { useMyStats, useUploadAvatar } from '@/features/profile/hooks';
 import { ARCHETYPES, archetypeIdSchema } from '@/lib/validation/personalityQuiz';
 
 function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
@@ -55,11 +56,11 @@ export default function ProfilScreen() {
   const stats = useMyStats(userId);
   const courses = useCourses();
   const myCourseIds = useMyCourseIds(userId);
-  const toggleSharing = useToggleSharing(userId);
+  const sharingSwitch = useSharingSwitch(userId, profile?.show_on_map === true);
+  const uploadAvatar = useUploadAvatar(userId);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
 
   const [loggingOut, setLoggingOut] = useState(false);
-  const [mapBusy, setMapBusy] = useState(false);
-  const [mapError, setMapError] = useState<string | null>(null);
 
   const archetype = archetypeIdSchema.safeParse(profile?.personality_type);
   const info = archetype.success ? ARCHETYPES[archetype.data] : null;
@@ -74,17 +75,22 @@ export default function ProfilScreen() {
     .filter(Boolean)
     .join(' · ');
 
-  const onToggleMap = async (next: boolean) => {
-    setMapError(null);
-    setMapBusy(true);
-    const result = await toggleSharing(next);
-    setMapBusy(false);
-    if (!result.ok) {
-      setMapError(
-        result.reason === 'no-permission'
-          ? 'Izin diperlukan untuk membaca Wi-Fi kampus. Aktifkan izin lokasi di pengaturan, lalu coba lagi.'
-          : 'Gagal mengubah pengaturan. Periksa internet kamu lalu coba lagi.'
-      );
+  // Ganti foto: pilih dari galeri (pemilih foto sistem Android, tanpa izin tambahan), potong persegi.
+  const onChangeAvatar = async () => {
+    if (uploadAvatar.isPending) return;
+    setAvatarError(null);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.6,
+      });
+      if (result.canceled || !result.assets[0]) return;
+      const asset = result.assets[0];
+      await uploadAvatar.mutateAsync({ uri: asset.uri, mimeType: asset.mimeType ?? 'image/jpeg' });
+    } catch (e) {
+      setAvatarError(e instanceof Error ? e.message : 'Gagal mengganti foto. Coba lagi.');
     }
   };
 
@@ -108,13 +114,32 @@ export default function ProfilScreen() {
         >
           {/* Kartu identitas */}
           <Card className="flex-row items-center gap-[14px] p-[16px]">
-            <View className="h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full bg-surfaceSky">
-              {profile?.avatar_url ? (
-                <Image source={{ uri: profile.avatar_url }} className="h-full w-full" resizeMode="cover" />
-              ) : (
-                <User size={34} color={palette.primary} />
-              )}
-            </View>
+            <Pressable
+              onPress={() => void onChangeAvatar()}
+              disabled={!profile || uploadAvatar.isPending}
+              accessibilityRole="button"
+              accessibilityLabel="Ganti foto profil"
+              hitSlop={8}
+            >
+              <View className="h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full bg-surfaceSky">
+                {profile?.avatar_url ? (
+                  <Image source={{ uri: profile.avatar_url }} className="h-full w-full" resizeMode="cover" />
+                ) : (
+                  <User size={34} color={palette.primary} />
+                )}
+                {uploadAvatar.isPending ? (
+                  <View className="absolute inset-0 items-center justify-center bg-white/70">
+                    <ActivityIndicator color={palette.primary} />
+                  </View>
+                ) : null}
+              </View>
+              <View
+                className="absolute h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-white bg-primary"
+                style={{ right: -2, bottom: -2 }}
+              >
+                <Camera size={13} color="#FFFFFF" />
+              </View>
+            </Pressable>
             <View className="flex-1 gap-[3px]">
               <Text className="text-[19px] font-extrabold text-slateInk" numberOfLines={1}>
                 {profile?.full_name ?? '...'}
@@ -128,6 +153,8 @@ export default function ProfilScreen() {
               </View>
             </View>
           </Card>
+
+          {avatarError ? <FormError message={avatarError} size={13} /> : null}
 
           {/* Tombol */}
           <Pressable
@@ -184,7 +211,15 @@ export default function ProfilScreen() {
           {/* Privasi */}
           <Card className="pb-[2px]">
             <CardHeader title="Privasi" />
-            <View className="flex-row items-center gap-[12px] py-[12px]">
+            {/* Seluruh baris bisa diketuk (bukan hanya saklar kecil di kanan). */}
+            <Pressable
+              onPress={() => void sharingSwitch.toggle()}
+              disabled={!profile || sharingSwitch.busy}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: sharingSwitch.value, disabled: !profile || sharingSwitch.busy }}
+              accessibilityLabel="Tampil di peta"
+              className="min-h-[64px] flex-row items-center gap-[12px] py-[12px]"
+            >
               <MapPin size={20} color={palette.primary} />
               <View className="flex-1">
                 <Text className="text-[14px] font-bold text-slateInk">Tampil di peta</Text>
@@ -192,18 +227,18 @@ export default function ProfilScreen() {
                   Hanya nama ruangan yang terlihat, bukan lokasi pastimu.
                 </Text>
               </View>
-              <Switch
-                value={profile?.show_on_map === true}
-                disabled={!profile || mapBusy}
-                onValueChange={(v) => void onToggleMap(v)}
-                trackColor={{ false: palette.slateMuted, true: palette.primary }}
-                thumbColor="#FFFFFF"
-                accessibilityLabel="Tampil di peta"
-              />
-            </View>
-            {mapError ? (
+              <View pointerEvents="none" className={sharingSwitch.busy ? 'opacity-60' : ''}>
+                <Switch
+                  value={sharingSwitch.value}
+                  trackColor={{ false: palette.slateMuted, true: palette.primary }}
+                  thumbColor="#FFFFFF"
+                  style={{ transform: [{ scale: 1.15 }] }}
+                />
+              </View>
+            </Pressable>
+            {sharingSwitch.message ? (
               <View className="pb-[12px]">
-                <FormError message={mapError} size={12} />
+                <FormError message={sharingSwitch.message} size={12} />
               </View>
             ) : null}
           </Card>

@@ -33,3 +33,5 @@ export const teamDescriptionSchema = z
   .string()
   .trim()
   .max(300, 'Deskripsi maksimal 300 karakter');
+
+export const joinMessageSchema = z.string().trim().max(200, "Pesan maksimal 200 karakter");

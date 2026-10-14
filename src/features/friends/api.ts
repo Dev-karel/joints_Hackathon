@@ -10,6 +10,8 @@ export type FriendRow = {
   /** true bila pemanggil adalah penerima permintaan. */
   incoming: boolean;
   created_at: string;
+  /** Kapan permintaan diterima (null bila masih pending). */
+  accepted_at: string | null;
 };
 
 export type StudentResult = {

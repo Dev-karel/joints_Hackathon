@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { ArrowLeft, BookOpen, Mail, MapPin, MessageCircle, ShieldAlert, User, UserPlus } from 'lucide-react-native';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ArrowLeft, BookOpen, User } from 'lucide-react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
@@ -8,8 +9,15 @@ import { Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
-import { useFriendships, useSendFriendRequest, useRemoveFriendship } from '@/features/friends/hooks';
+import { useStartDirect } from '@/features/chat/hooks';
+import {
+  useAcceptFriendRequest,
+  useFriendships,
+  useRemoveFriendship,
+  useSendFriendRequest,
+} from '@/features/friends/hooks';
 import { useProfileDetail } from '@/features/match/hooks';
+import { ReportSheet } from '@/features/moderation/ReportSheet';
 
 const ARCHETYPE_LABELS: Record<string, string> = {
   groundbreaker: 'Groundbreaker',
@@ -38,6 +46,10 @@ export default function ViewProfileScreen() {
   const friendships = useFriendships(currentUserId);
   const sendRequest = useSendFriendRequest(currentUserId);
   const removeFriend = useRemoveFriendship(currentUserId);
+  const acceptRequest = useAcceptFriendRequest(currentUserId);
+  const startDirect = useStartDirect();
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   if (!id || !currentUserId) {
     return null;
@@ -51,20 +63,30 @@ export default function ViewProfileScreen() {
   const isPending = friendship?.status === 'pending';
   const isIncoming = isPending && friendship?.incoming;
 
-  const handleAddFriend = async () => {
+  const run = async (action: () => Promise<unknown>) => {
+    setActionError(null);
     try {
-      await sendRequest.mutateAsync({ addresseeId: id });
-    } catch (error) {
-      console.error('Failed to send friend request:', error);
+      await action();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : 'Terjadi kesalahan. Coba lagi.');
     }
   };
 
-  const handleRemoveFriend = async () => {
-    try {
-      await removeFriend.mutateAsync(id);
-    } catch (error) {
-      console.error('Failed to remove friend:', error);
-    }
+  const handleAddFriend = () => run(() => sendRequest.mutateAsync({ addresseeId: id }));
+  const handleAccept = () => run(() => acceptRequest.mutateAsync(id));
+  // Dipakai untuk menolak permintaan masuk dan membatalkan permintaan terkirim.
+  const handleDropRequest = () => run(() => removeFriend.mutateAsync(id));
+  const handleMessage = () =>
+    run(async () => {
+      const conversationId = await startDirect.mutateAsync(id);
+      router.push({ pathname: '/pesan/[id]', params: { id: conversationId } });
+    });
+  const handleRemoveFriend = () => {
+    const name = profile.data?.full_name ?? 'orang ini';
+    Alert.alert('Hapus teman?', `${name} akan dihapus dari daftar temanmu dan kalian tidak bisa saling kirim pesan lagi.`, [
+      { text: 'Batal', style: 'cancel' },
+      { text: 'Hapus', style: 'destructive', onPress: () => void run(() => removeFriend.mutateAsync(id)) },
+    ]);
   };
 
   const getArchetypeColor = (type: string | null) => ARCHETYPE_COLORS[type ?? ''] ?? palette.slate500;
@@ -105,12 +127,12 @@ export default function ViewProfileScreen() {
             <View className="items-center gap-[12px] px-[20px] py-[24px]">
               <View className="h-[96px] w-[96px] items-center justify-center rounded-full bg-surfaceSky">
                 {profile.data.avatar_url ? (
-                  <View className="h-full w-full overflow-hidden rounded-full">
-                    {/* TODO: Image component */}
-                    <View className="h-full w-full items-center justify-center bg-surfaceSky">
-                      <User size={48} color={palette.primary} />
-                    </View>
-                  </View>
+                  <Image
+                    source={{ uri: profile.data.avatar_url }}
+                    className="h-full w-full rounded-full"
+                    resizeMode="cover"
+                    accessibilityIgnoresInvertColors
+                  />
                 ) : (
                   <User size={48} color={palette.primary} />
                 )}
@@ -171,12 +193,10 @@ export default function ViewProfileScreen() {
             {/* Action Buttons */}
             {!isOwnProfile && (
               <View className="gap-[12px] px-[20px] pt-[20px]">
+                {actionError ? <FormError message={actionError} size={13} /> : null}
                 {isFriend ? (
                   <>
-                    <PrimaryButton
-                      label="Kirim Pesan"
-                      onPress={() => router.push(`/pesan/${id}`)}
-                    />
+                    <PrimaryButton label="Kirim Pesan" onPress={handleMessage} loading={startDirect.isPending} />
                     <PrimaryButton
                       label="Hapus Teman"
                       variant="outline"
@@ -184,29 +204,28 @@ export default function ViewProfileScreen() {
                       loading={removeFriend.isPending}
                     />
                   </>
+                ) : isIncoming ? (
+                  <>
+                    <PrimaryButton label="Terima Permintaan" onPress={handleAccept} loading={acceptRequest.isPending} />
+                    <PrimaryButton
+                      label="Tolak"
+                      variant="outline"
+                      onPress={handleDropRequest}
+                      loading={removeFriend.isPending}
+                    />
+                  </>
                 ) : isPending ? (
                   <PrimaryButton
-                    label={isIncoming ? 'Terima Permintaan' : 'Permintaan Terkirim'}
-                    variant={isIncoming ? 'solid' : 'outline'}
-                    disabled={!isIncoming}
-                    onPress={isIncoming ? handleAddFriend : () => {}}
+                    label="Batalkan Permintaan"
+                    variant="outline"
+                    onPress={handleDropRequest}
+                    loading={removeFriend.isPending}
                   />
                 ) : (
-                  <PrimaryButton
-                    label="Tambah Teman"
-                    onPress={handleAddFriend}
-                    loading={sendRequest.isPending}
-                  />
+                  <PrimaryButton label="Tambah Teman" onPress={handleAddFriend} loading={sendRequest.isPending} />
                 )}
 
-                <PrimaryButton
-                  label="Laporkan Pengguna"
-                  variant="outline"
-                  onPress={() => {
-                    // TODO: Implement report user
-                    console.log('Report user:', id);
-                  }}
-                />
+                <PrimaryButton label="Laporkan Pengguna" variant="outline" onPress={() => setReportOpen(true)} />
               </View>
             )}
 
@@ -256,6 +275,15 @@ export default function ViewProfileScreen() {
           </ScrollView>
         )}
       </SafeAreaView>
+
+      {profile.data && !isOwnProfile ? (
+        <ReportSheet
+          visible={reportOpen}
+          onClose={() => setReportOpen(false)}
+          targetUserId={id}
+          targetName={profile.data.full_name}
+        />
+      ) : null}
     </View>
   );
 }

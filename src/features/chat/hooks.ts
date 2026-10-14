@@ -1,19 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-
-import { supabase } from '@/lib/supabase/client';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   fetchConversations,
+  fetchMemberReads,
   fetchMessages,
   getOrCreateDirect,
   markConversationRead,
+  MESSAGE_PAGE_SIZE,
   sendMessage,
 } from './api';
 
 export const conversationsKey = ['conversations'] as const;
 export const messagesKey = (id: string | undefined) => ['messages', id] as const;
+export const memberReadsKey = (id: string | undefined) => ['member-reads', id] as const;
 
+// Realtime (useRealtimeSync) memicu muat ulang saat ada pesan; polling jadi cadangan
+// bila koneksi Realtime putus.
 export const useConversations = () =>
   useQuery({ queryKey: conversationsKey, queryFn: fetchConversations, refetchInterval: 15_000 });
 
@@ -23,45 +25,38 @@ export function useUnreadTotal() {
   return (data ?? []).reduce((sum, c) => sum + c.unread, 0);
 }
 
-// Pesan satu percakapan. Realtime memicu muat ulang saat ada pesan baru; polling 10 detik
-// sebagai cadangan bila koneksi Realtime putus. RLS tetap membatasi ke anggota percakapan.
+// Pesan satu percakapan, dimuat bertahap (terbaru dulu); halaman lama dimuat saat menggulir ke atas.
 export function useMessages(conversationId: string | undefined) {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!conversationId) return;
-    const channel = supabase
-      .channel(`messages-${conversationId}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
-        () => {
-          void queryClient.invalidateQueries({ queryKey: messagesKey(conversationId) });
-          void queryClient.invalidateQueries({ queryKey: conversationsKey });
-        }
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
-    };
-  }, [conversationId, queryClient]);
-
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: messagesKey(conversationId),
     enabled: !!conversationId,
-    queryFn: () => fetchMessages(conversationId!),
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) => fetchMessages(conversationId!, pageParam),
+    getNextPageParam: (lastPage) =>
+      lastPage.length >= MESSAGE_PAGE_SIZE ? lastPage[lastPage.length - 1]?.created_at : undefined,
     refetchInterval: 10_000,
   });
 }
 
+/** Penanda baca anggota percakapan (indikator "Dibaca" di chat langsung). */
+export const useMemberReads = (conversationId: string | undefined, enabled: boolean) =>
+  useQuery({
+    queryKey: memberReadsKey(conversationId),
+    enabled: !!conversationId && enabled,
+    queryFn: () => fetchMemberReads(conversationId!),
+    refetchInterval: 10_000,
+  });
+
 export function useSendMessage(conversationId: string | undefined, userId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (content: string) => sendMessage(conversationId!, userId!, content),
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: messagesKey(conversationId) });
-      void queryClient.invalidateQueries({ queryKey: conversationsKey });
-    },
+    mutationFn: (v: { id: string; content: string }) => sendMessage(conversationId!, userId!, v.content, v.id),
+    // Dikembalikan agar mutateAsync baru selesai setelah daftar pesan segar (tanpa kedipan ganda).
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: messagesKey(conversationId) }),
+        queryClient.invalidateQueries({ queryKey: conversationsKey }),
+      ]),
   });
 }
 

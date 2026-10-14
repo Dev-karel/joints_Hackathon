@@ -14,7 +14,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/AppText';
 import { useAuthBootstrap } from '@/features/auth/useAuthBootstrap';
+import { useAuthStore } from '@/features/auth/authStore';
 import { useAuthPhase } from '@/features/auth/useAuthPhase';
+import { MessageBanner } from '@/features/notifications/MessageBanner';
+import { useRealtimeSync } from '@/features/notifications/useRealtimeSync';
 import { envProblem } from '@/lib/env';
 import { queryClient } from '@/lib/queryClient';
 
@@ -26,8 +29,11 @@ void SplashScreen.preventAutoHideAsync();
 function AppStack() {
   useAuthBootstrap();
   const { phase } = useAuthPhase();
+  const userId = useAuthStore((s) => s.session?.user.id);
+  useRealtimeSync(userId, phase === 'ready');
 
   return (
+    <>
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Protected guard={phase === 'signedOut' || phase === 'needsDeviceOtp'}>
@@ -37,17 +43,24 @@ function AppStack() {
       <Stack.Protected guard={phase === 'needsQuiz' || phase === 'ready'}>
         <Stack.Screen name="(kuis)" />
       </Stack.Protected>
+      <Stack.Protected guard={phase === 'needsCourses' || phase === 'ready'}>
+        <Stack.Screen name="mata-kuliah" />
+      </Stack.Protected>
       <Stack.Protected guard={phase === 'ready'}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="mata-kuliah" />
         <Stack.Screen name="buat-sesi" />
         <Stack.Screen name="teman" />
+        <Stack.Screen name="notifikasi" />
         <Stack.Screen name="event" />
         <Stack.Screen name="sesi" />
         <Stack.Screen name="pesan" />
+        <Stack.Screen name="lomba" />
+        <Stack.Screen name="profil" />
         <Stack.Screen name="admin" />
       </Stack.Protected>
     </Stack>
+    {phase === 'ready' ? <MessageBanner /> : null}
+    </>
   );
 }
 
