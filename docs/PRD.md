@@ -16,6 +16,7 @@ Dokumen pelengkap: [README.md](../README.md) (latar belakang & fitur), [ARCHITEC
 | 1.4 | 29 Sep 2026 | Tambah §6.1: kuis kepribadian **tidak boleh diulang** setelah submit akhir (hasil jadi label permanen akun), tapi pengguna **boleh menekan "Kembali"** untuk mengubah jawaban sebelum submit akhir. Tambah wajib modal peringatan jumlah pertanyaan & anjuran isi jujur. |
 | 1.5 | 29 Sep 2026 | Kuis kepribadian resmi jadi **15 pertanyaan** (bukan 6) dengan metodologi archetype tim 6 kategori (skoring berbobot 70/30) — lihat [METHODOLOGY.md](./METHODOLOGY.md). Menjawab Open Question #1 di §14. |
 | 1.6 | 30 Sep 2026 | **Kampus pilot BINUS @Kemanggisan** (`@binus.ac.id`); zona contoh BeeHub, LKC, Lab Komputer, Creative Space, Gazebo. **`learning_style` keluar dari MVP** — kartu pengguna menampilkan archetype. Login: OTP hanya saat Daftar dan dari HP baru; tombol Google/Facebook/Apple hanya tampilan. Sesi belajar: **tanpa daftar tunggu dan tanpa ganti sesi**, keluar lewat konfirmasi, kuota dijaga di database, agenda berjam, **materi dari host**. Aturan **host keluar** (§8.1). **Daftar tunggu Event dihapus.** METHODOLOGY naik ke v1.1 (pemetaan archetype diseimbangkan). |
+| 1.8 | 15 Okt 2026 | **Login diperluas**: selain `@binus.ac.id`, kini `@gmail.com` boleh daftar/masuk, dan **login Google** (OAuth) aktif. Facebook/Apple tetap tampilan. Lihat §15.7 untuk alasan dan batasannya. |
 | 1.7 (draft) | 11 Okt 2026 | Tambah **§15 Rencana (Draft)**: pencocokan partner belajar, mata kuliah pengguna, tampilan Peta berupa daftar kartu, penyelarasan UI dengan Figma. Seluruh isinya **belum divalidasi tim**. |
 
 ---
@@ -82,7 +83,7 @@ Semua fitur di tabel ini **masuk scope hackathon**. Prioritas menentukan urutan 
 
 | # | Fitur | Deskripsi | Prioritas |
 |---|---|---|---|
-| 1 | Login kampus | Email `@binus.ac.id` + kata sandi. **Kode OTP 6 digit** ke email kampus hanya diminta saat **Daftar** dan saat masuk dari **HP yang belum dikenali**. Tombol Google/Facebook/Apple hanya tampilan di MVP | Must-have |
+| 1 | Login kampus | Email `@binus.ac.id` atau `@gmail.com` + kata sandi, atau **login Google**. **Kode OTP 6 digit** ke email hanya diminta saat **Daftar** dan saat masuk dari **HP yang belum dikenali**. Tombol Facebook/Apple hanya tampilan di MVP. Detail §15.7 | Must-have |
 | 2 | Kuis kepribadian | Onboarding quiz 15 pertanyaan, wajib sebelum masuk Beranda → klasifikasi archetype tim rule-based (lihat [METHODOLOGY.md](./METHODOLOGY.md)). Sekali submit, terkunci permanen (boleh "Kembali" sebelum submit akhir) — detail §6.1 | Must-have |
 | 3 | Match › Belajar (Study Match) | Rekomendasi partner belajar (skor kecocokan) + buat/gabung sesi belajar di zona kampus | Must-have |
 | 4 | Match Map via Wi-Fi | Zona ditentukan dari BSSID access point yang tersambung; peta skematis per gedung/ruangan; visibilitas timbal balik. Detail §7 | Must-have (inti inovasi) |
@@ -273,7 +274,7 @@ Match = akademik, di dalam kampus, bisa hari ini juga. **Event = sosial, di luar
 - **Privasi lokasi**: BSSID yang dikirim HP pengguna **tidak disimpan** dan **tidak di-log**; server hanya menyimpan `zone_id` terkini dengan TTL. Pengguna lain hanya menerima nama zona dan jumlah/daftar yang opt-in. Non-negotiable, lihat [ARCHITECTURE.md §6](./ARCHITECTURE.md).
 - **Persetujuan eksplisit**: fitur lokasi default **off**, izin lokasi presisi diminta dengan penjelasan bahwa izin itu hanya untuk membaca Wi-Fi. Pengguna bisa mematikan kapan saja dan status langsung dihapus. Sejalan dengan UU No. 27/2022 tentang Pelindungan Data Pribadi.
 - **Keamanan data**: RLS aktif di semua tabel data personal (presence, hasil kepribadian, kontak, KTM, RSVP). Service role key Supabase hanya ada di Edge Function, tidak pernah di dalam aplikasi.
-- **Autentikasi terbatas domain**: hanya email kampus (`@binus.ac.id`) yang di-allowlist. Kode OTP ke email kampus diminta saat **Daftar** (verifikasi email) dan saat masuk dari **HP yang belum dikenali**; di HP yang sudah terverifikasi cukup email + kata sandi. Akun tanpa email kampus terverifikasi tidak bisa masuk. **Tombol Google/Facebook/Apple hanya tampilan di MVP** (belum ada OAuth).
+- **Autentikasi terbatas domain**: hanya `@binus.ac.id` dan `@gmail.com` yang di-allowlist (ditegakkan trigger database, bukan hanya di aplikasi). Kode OTP ke email diminta saat **Daftar** (verifikasi email) dan saat masuk dari **HP yang belum dikenali**; di HP yang sudah terverifikasi cukup email + kata sandi. **Login Google** memakai verifikasi email dari Google dan langsung mencatat HP sebagai terverifikasi. **Tombol Facebook/Apple hanya tampilan di MVP**.
 - **Integritas hasil kuis kepribadian**: setelah submit akhir, `personality_answers` dan hasil di `profiles` tidak bisa di-update/insert ulang oleh pengguna (ditegakkan RLS + trigger, lihat ARCHITECTURE §4.1 & §6). Navigasi ulang ("Kembali") hanya diperbolehkan sebelum submit akhir terjadi.
 - **Role**: `student` (default), `curator` (buat event), `admin` (daftarkan Wi-Fi, beri role kurator, moderasi). Pengecekan role di RLS dan Edge Function, bukan hanya di UI.
 - **Moderasi bertahap**: `pending_review` sebelum `banned`, tidak ada auto-ban dari satu laporan.
@@ -301,7 +302,7 @@ Untuk validasi produk (indikatif):
 - **Risiko terbesar**: pivot dari Next.js ke React Native di tengah jalan. Anggota tim yang belum pernah memakai React Native butuh waktu adaptasi (navigasi, build Android, izin). Must-have harus dikunci dulu sebelum menyentuh Should-have.
 - Tech stack: Expo (React Native) + TypeScript, Supabase. Lihat [CLAUDE.md](../CLAUDE.md).
 - Android saja; iOS pasca-hackathon.
-- **Kampus pilot: BINUS @Kemanggisan** (Kampus Anggrek, Syahdan, Kijang). Email yang diizinkan: `@binus.ac.id`. Mockup memakai zona BeeHub, LKC, Lab Komputer, Auditorium (Anggrek), Creative Space, Drawing Studio (Syahdan), Gazebo, Moot Court (Kijang).
+- **Kampus pilot: BINUS @Kemanggisan** (Kampus Anggrek, Syahdan, Kijang). Email yang diizinkan: `@binus.ac.id` dan `@gmail.com` (sejak 15 Okt 2026, §15.7). Mockup memakai zona BeeHub, LKC, Lab Komputer, Auditorium (Anggrek), Creative Space, Drawing Studio (Syahdan), Gazebo, Moot Court (Kijang).
 - Daftar access point didapat dari survei manual; presisi zona sama dengan jangkauan access point.
 - Klasifikasi kepribadian berbasis rule/skor sederhana, bukan ML.
 - Supabase free tier — perhatikan batas koneksi Realtime saat Grand Final.
@@ -357,6 +358,13 @@ Lihat [ROADMAP.md](./ROADMAP.md). Milestone kunci:
 
 ### 15.5 Ditunda (di luar Must-have sebelum 16 Okt)
 Event (form kurator dan RSVP), Lomba, Chat, Teman, Laporan, `host_leave_session` (polling/voting host), dan bucket Storage materi sesi.
+
+### 15.7 Login Gmail dan Google (keputusan tim, 15 Okt 2026)
+- **Yang berubah:** selain `@binus.ac.id`, email `@gmail.com` boleh daftar dan masuk, dan tombol **Google** kini benar-benar login lewat OAuth Supabase. Facebook/Apple tetap tampilan.
+- **Alasan:** tidak semua mahasiswa memakai atau bisa mengakses email kampus dengan lancar, dan juri/penguji tanpa akun `@binus.ac.id` perlu bisa mencoba aplikasi.
+- **Batasan yang diakui:** akun Gmail **tidak terbukti mahasiswa BINUS**. Penjaga yang tetap berlaku: Match Map hanya aktif saat tersambung **Wi-Fi kampus** (fisik di kampus), event dikurasi, moderasi laporan dan blokir akun, serta rate limit.
+- **Jawaban untuk juri** ("kenapa bukan hanya mahasiswa kampus?"): *"Untuk pilot kami membuka Gmail supaya mahasiswa yang belum aktif memakai email kampus dan penguji bisa mencoba. Keamanan kampus tidak bergantung pada domain email saja: peta hanya bekerja di Wi-Fi kampus, event dikurasi, dan ada moderasi. Untuk peluncuran resmi, kami akan kembali ke email kampus saja atau menambah verifikasi KTM."*
+- **Rencana:** verifikasi KTM (foto, ditinjau admin) untuk akun Gmail sebelum bisa memakai fitur sosial; domain dikembalikan ke kampus saja bila bekerja sama resmi dengan kampus.
 
 ### 15.6 Pertanyaan terbuka tambahan
 - Apakah halaman Syarat & Ketentuan dan Kebijakan Privasi (disebut di checkbox Daftar) akan dibuat sebelum submit?

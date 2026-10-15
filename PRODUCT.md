@@ -17,14 +17,14 @@ AyokMatch mencocokkan mahasiswa dalam satu kampus untuk belajar bareng (Study Ma
 Lokasi hanya berupa **zona bernama dari access point Wi-Fi kampus** (tanpa GPS dan koordinat), bersifat opt-in, dan **timbal balik**: yang tidak tampil juga tidak bisa melihat orang lain; zona berisi satu orang hanya menampilkan jumlah. Dipadukan dengan 6 archetype tim dan kecocokan mata kuliah. Pembeda ini dikonfirmasi pengguna (11 Okt 2026).
 
 ## Operating Context
-- Aplikasi Android native (Expo / React Native), satu kampus pilot, login hanya `@binus.ac.id` (kata sandi + OTP email saat daftar dan saat HP baru).
+- Aplikasi Android native (Expo / React Native), satu kampus pilot, login `@binus.ac.id` atau `@gmail.com` (kata sandi + OTP email saat daftar dan saat HP baru) atau login Google (sejak 15 Okt 2026).
 - Kuis kepribadian 15 pertanyaan diisi sekali seumur akun; hasilnya terkunci permanen.
 - Backend Supabase (Postgres + RLS, Auth, Edge Functions). BSSID dibaca di HP saat aplikasi di foreground, dikirim hanya ke Edge Function, tidak disimpan dan tidak di-log.
 - Demo Grand Final memakai hotspot sebagai "access point kampus".
 
 ## Capabilities and Constraints
 - Teks UI dalam Bahasa Indonesia (nama archetype, Study Match, Competition Match, Match Map, dan nama jurusan versi BINUS tetap Inggris).
-- Tidak ada GPS/QR check-in, tidak ada pembayaran (biaya event hanya catatan), Android saja untuk MVP, tombol Google/Facebook/Apple hanya tampilan.
+- Tidak ada GPS/QR check-in, tidak ada pembayaran (biaya event hanya catatan), Android saja untuk MVP, tombol Facebook/Apple hanya tampilan (Google aktif).
 - Event luar kampus hanya dibuat role curator/admin; kuota sesi dan event dijaga di database; tanpa daftar tunggu.
 - Gerbang "HP baru wajib OTP" dicek di aplikasi dan **bukan 2FA sungguhan**; tidak boleh diklaim sebagai 2FA.
 - Belum diputuskan: opsi grup sesama gender di Meja Kecil, kebijakan retensi data setelah lomba, kategori lomba baku, kurator dan venue nyata.
