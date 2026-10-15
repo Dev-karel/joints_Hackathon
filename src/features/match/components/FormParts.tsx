@@ -28,7 +28,7 @@ export function Field({
 export function Input({ style, ...props }: TextInputProps) {
   return (
     <TextInput
- maxFontSizeMultiplier={1.1}
+ maxFontSizeMultiplier={1.3}
       placeholderTextColor="#94A3B8"
       style={[{ fontFamily: INTER.regular, paddingVertical: 0 }, style]}
       className="min-h-[46px] rounded-[14px] border border-slateBorder px-[14px] text-[14px] text-slateInk"

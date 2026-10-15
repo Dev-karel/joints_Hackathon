@@ -141,7 +141,7 @@ export default function DaftarWifiScreen() {
       <View className="gap-[8px]">
         <Text className="text-[13px] font-semibold text-slateInk">Atau tambah ruangan baru</Text>
         <TextInput
-          maxFontSizeMultiplier={1.1}
+          maxFontSizeMultiplier={1.3}
           value={newRoom}
           onChangeText={setNewRoom}
           placeholder="mis. Ruang Pitching"
@@ -184,7 +184,7 @@ export default function DaftarWifiScreen() {
       <View className="gap-[6px]">
         <Text className="text-[13px] font-semibold text-slateInk">Catatan (opsional)</Text>
         <TextInput
-          maxFontSizeMultiplier={1.1}
+          maxFontSizeMultiplier={1.3}
           value={label}
           onChangeText={setLabel}
           placeholder="mis. AP lantai 2, 5 GHz"

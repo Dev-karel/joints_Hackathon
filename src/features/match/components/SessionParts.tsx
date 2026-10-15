@@ -45,11 +45,11 @@ function Seat(props: SeatProps) {
         </View>
         {props.variant === 'host' ? (
           <View className="rounded-full bg-accentSoft px-[6px] py-px" style={{ position: "absolute", bottom: -8 }}>
-            <Text className="text-[9px] font-bold text-accentText">Host</Text>
+            <Text className="text-[12px] font-bold text-accentText">Host</Text>
           </View>
         ) : props.variant === 'kamu' ? (
           <View className="rounded-full bg-primary px-[6px] py-px" style={{ position: "absolute", bottom: -8 }}>
-            <Text className="text-[9px] font-bold text-white">Kamu</Text>
+            <Text className="text-[12px] font-bold text-white">Kamu</Text>
           </View>
         ) : null}
       </View>

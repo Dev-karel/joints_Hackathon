@@ -18,24 +18,7 @@ import {
 } from '@/features/friends/hooks';
 import { useProfileDetail } from '@/features/match/hooks';
 import { ReportSheet } from '@/features/moderation/ReportSheet';
-
-const ARCHETYPE_LABELS: Record<string, string> = {
-  groundbreaker: 'Groundbreaker',
-  heartkeeper: 'Heartkeeper',
-  kindled_flame: 'Kindled Flame',
-  mindsmith: 'Mindsmith',
-  sagekeeper: 'Sagekeeper',
-  wildheart: 'Wildheart',
-};
-
-const ARCHETYPE_COLORS: Record<string, string> = {
-  groundbreaker: '#10B981',
-  heartkeeper: '#EC4899',
-  kindled_flame: '#F59E0B',
-  mindsmith: '#8B5CF6',
-  sagekeeper: '#3B82F6',
-  wildheart: '#EF4444',
-};
+import { archetypeName, archetypePill } from '@/features/personality/archetype';
 
 export default function ViewProfileScreen() {
   const router = useRouter();
@@ -89,8 +72,6 @@ export default function ViewProfileScreen() {
     ]);
   };
 
-  const getArchetypeColor = (type: string | null) => ARCHETYPE_COLORS[type ?? ''] ?? palette.slate500;
-
   return (
     <View className="flex-1 bg-white">
       <Stack.Screen options={{ headerShown: false }} />
@@ -101,7 +82,7 @@ export default function ViewProfileScreen() {
             onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel="Kembali"
-            className="h-[40px] w-[40px] items-center justify-center"
+            className="h-[48px] w-[48px] items-center justify-center"
           >
             <ArrowLeft size={24} color={palette.slateInk} />
           </Pressable>
@@ -157,13 +138,13 @@ export default function ViewProfileScreen() {
               {profile.data.personality_type && (
                 <View
                   className="rounded-[12px] px-[16px] py-[8px]"
-                  style={{ backgroundColor: `${getArchetypeColor(profile.data.personality_type)}15` } as any}
+                  style={{ backgroundColor: archetypePill(profile.data.personality_type)?.bg ?? palette.slate100 }}
                 >
                   <Text
                     className="text-[14px] font-bold"
-                    style={{ color: getArchetypeColor(profile.data.personality_type) } as any}
+                    style={{ color: archetypePill(profile.data.personality_type)?.text ?? palette.slateInk }}
                   >
-                    {ARCHETYPE_LABELS[profile.data.personality_type] ?? profile.data.personality_type}
+                    {archetypeName(profile.data.personality_type) ?? profile.data.personality_type}
                   </Text>
                 </View>
               )}
@@ -236,15 +217,16 @@ export default function ViewProfileScreen() {
                 {Object.entries(profile.data.personality_scores)
                   .sort(([, a], [, b]) => (b as number) - (a as number))
                   .map(([key, value]) => {
-                    const label = ARCHETYPE_LABELS[key] ?? key;
-                    const color = ARCHETYPE_COLORS[key] ?? palette.slate500;
+                    const label = archetypeName(key) ?? key;
+                    // Warna batang dari pil archetype (palet aplikasi); angka tetap slateInk agar terbaca.
+                    const color = archetypePill(key)?.text ?? palette.slate500;
                     // Skor dari database sudah dalam persen (6 archetype berjumlah 100), bukan 0–1.
                     const percent = Math.min(100, Math.max(0, Math.round(value as number)));
                     return (
                       <View key={key} className="gap-[6px]">
                         <View className="flex-row items-center justify-between">
                           <Text className="text-[13px] font-semibold text-slateInk">{label}</Text>
-                          <Text className="text-[13px] font-bold" style={{ color } as any}>
+                          <Text className="text-[13px] font-bold text-slateInk">
                             {percent}%
                           </Text>
                         </View>

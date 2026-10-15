@@ -56,7 +56,7 @@ function Row({
       </View>
       {badge ? (
         <View className="rounded-full px-[9px] py-[4px]" style={{ backgroundColor: badgeStyle?.bg ?? '#F1F5F9' }}>
-          <Text className="text-[10px] font-bold" style={{ color: badgeStyle?.text ?? palette.slate500 }}>
+          <Text className="text-[12px] font-bold" style={{ color: badgeStyle?.text ?? palette.slate500 }}>
             {badge}
           </Text>
         </View>

@@ -2,6 +2,7 @@ import { LogOut } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 
+import { palette } from '@/components/onboarding/palette';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { INTER, Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
@@ -23,7 +24,7 @@ function DangerButton({
       onPress={onPress}
       disabled={off}
       accessibilityRole="button"
-      className={`w-full items-center rounded-[28px] bg-[#DC2626] py-[15px] ${off ? 'opacity-50' : ''}`}
+      className={`w-full items-center rounded-[28px] bg-dangerDot py-[15px] ${off ? 'opacity-50' : ''}`}
     >
       <Text className="text-[15px] font-bold text-white">{loading ? 'Memproses...' : label}</Text>
     </Pressable>
@@ -54,8 +55,8 @@ export function LeaveSheet({
 }) {
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <View className="h-[56px] w-[56px] items-center justify-center rounded-[28px] bg-[#FEF2F2]">
-        <LogOut size={26} color="#B91C1C" />
+      <View className="h-[56px] w-[56px] items-center justify-center rounded-[28px] bg-dangerSoft">
+        <LogOut size={26} color={palette.danger} />
       </View>
       <Text className="text-center text-[20px] font-extrabold text-slateInk">Keluar dari sesi ini?</Text>
       <Text className="text-center text-[13px] leading-[19px] text-slate500">
@@ -91,8 +92,8 @@ export function HostLeaveSheet({
   if (alone) {
     return (
       <BottomSheet visible={visible} onClose={onClose}>
-        <View className="h-[56px] w-[56px] items-center justify-center rounded-[28px] bg-[#FEF2F2]">
-          <LogOut size={26} color="#B91C1C" />
+        <View className="h-[56px] w-[56px] items-center justify-center rounded-[28px] bg-dangerSoft">
+          <LogOut size={26} color={palette.danger} />
         </View>
         <Text className="text-center text-[20px] font-extrabold text-slateInk">Batalkan sesi ini?</Text>
         <Text className="text-center text-[13px] leading-[19px] text-slate500">
@@ -115,7 +116,7 @@ export function HostLeaveSheet({
       <Text className="w-full text-[20px] font-extrabold text-slateInk">Keluar sebagai host</Text>
       <Text className="w-full text-[13px] font-bold text-slateInk">Alasan keluar (wajib)</Text>
       <TextInput
- maxFontSizeMultiplier={1.1}
+ maxFontSizeMultiplier={1.3}
         value={reason}
         onChangeText={setReason}
         placeholder="Tulis alasanmu"
@@ -204,7 +205,7 @@ export function ReportSheet({
             Ceritakan singkat apa yang terjadi. Satu laporan tidak langsung memblokir siapa pun.
           </Text>
           <TextInput
- maxFontSizeMultiplier={1.1}
+ maxFontSizeMultiplier={1.3}
             value={reason}
             onChangeText={setReason}
             placeholder="Tulis alasan laporan"

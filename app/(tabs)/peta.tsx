@@ -578,7 +578,7 @@ function RoomDetail({
               {!me && shared > 0 ? (
                 <View className="rounded-full bg-accentSoft px-[8px] py-[3px]">
                   <Text className="text-[11px] font-bold text-accentText">
-                    {shared} matkul sama
+                    {shared} mata kuliah sama
                   </Text>
                 </View>
               ) : null}

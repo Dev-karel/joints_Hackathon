@@ -115,7 +115,7 @@ export function ReportSheet({
             );
           })}
           <TextInput
-            maxFontSizeMultiplier={1.1}
+            maxFontSizeMultiplier={1.3}
             value={note}
             onChangeText={setNote}
             placeholder="Catatan tambahan (opsional)"

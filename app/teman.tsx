@@ -114,7 +114,7 @@ function PersonCard({ person, actions }: { person: Person; actions: ReactNode })
           </Text>
           {pill && name ? (
             <View className="rounded-full px-[9px] py-[4px]" style={{ backgroundColor: pill.bg }}>
-              <Text className="text-[10px] font-bold" style={{ color: pill.text }}>
+              <Text className="text-[12px] font-bold" style={{ color: pill.text }}>
                 {name}
               </Text>
             </View>
@@ -242,7 +242,7 @@ export default function TemanScreen() {
           <View className="flex-row items-center gap-[10px] rounded-[16px] bg-surfaceCanvas px-[16px] py-[12px]">
             <Search size={18} color={palette.slate500} />
             <TextInput
- maxFontSizeMultiplier={1.1}
+ maxFontSizeMultiplier={1.3}
               value={query}
               onChangeText={setQuery}
               placeholder="Cari nama mahasiswa..."

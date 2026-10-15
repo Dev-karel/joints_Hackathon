@@ -76,7 +76,7 @@ export function RoomCard({
         </Text>
         {state === 'mine' ? (
           <View className="rounded-full bg-white px-[8px] py-[2px]">
-            <Text className="text-[10px] font-bold text-primary">Kamu di sini</Text>
+            <Text className="text-[12px] font-bold text-primary">Kamu di sini</Text>
           </View>
         ) : null}
       </View>

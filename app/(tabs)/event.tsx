@@ -110,14 +110,14 @@ function EventCard({
       <View className="items-end gap-[4px]">
         <View
           className={`rounded-[8px] border px-[8px] py-[3px] ${
-            full ? 'border-[#FECACA] bg-[#FEF2F2]' : 'border-slateBorder bg-slateSurface'
+            full ? 'border-dangerBorder bg-dangerSoft' : 'border-slateBorder bg-slateSurface'
           }`}
         >
-          <Text className={`text-[12px] font-bold ${full ? 'text-[#B91C1C]' : 'text-slateInk'}`}>
+          <Text className={`text-[12px] font-bold ${full ? 'text-danger' : 'text-slateInk'}`}>
             {going}/{event.capacity}
           </Text>
         </View>
-        {full ? <Text className="text-[11px] font-semibold text-[#B91C1C]">Penuh</Text> : null}
+        {full ? <Text className="text-[11px] font-semibold text-danger">Penuh</Text> : null}
         {joined && !full ? (
           <Text className="text-[11px] font-semibold text-primary">Terdaftar</Text>
         ) : null}
@@ -172,6 +172,7 @@ export default function EventScreen() {
               onPress={() => router.push('/event/buat')}
               accessibilityRole="button"
               accessibilityLabel="Buat event"
+              hitSlop={{ top: 7, bottom: 7 }}
               className="flex-row items-center gap-[6px] rounded-full bg-accentSoft px-[14px] py-[8px]"
             >
               <Plus size={16} color={palette.accentText} />
@@ -194,6 +195,7 @@ export default function EventScreen() {
                   onPress={() => setFilter(f.id)}
                   accessibilityRole="button"
                   accessibilityState={{ selected: active }}
+                  hitSlop={{ top: 7, bottom: 7 }}
                   className={`rounded-full px-[14px] py-[7px] ${
                     active ? 'bg-primary' : 'border border-slateBorder bg-white'
                   }`}

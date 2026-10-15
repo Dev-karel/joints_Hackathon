@@ -188,8 +188,8 @@ export default function ProfilScreen() {
                 {subtitle || session?.user.email}
               </Text>
               <View className="flex-row items-center gap-[4px] pt-[3px]">
-                <BadgeCheck size={14} color="#15803D" />
-                <Text className="text-[11px] font-bold text-[#15803D]">Terverifikasi</Text>
+                <BadgeCheck size={14} color={palette.successText} />
+                <Text className="text-[11px] font-bold text-successText">Terverifikasi</Text>
               </View>
             </View>
           </Card>
@@ -346,9 +346,9 @@ export default function ProfilScreen() {
             disabled={loggingOut}
             accessibilityRole="button"
             accessibilityLabel="Keluar"
-            className={`items-center rounded-full bg-[#FEF2F2] py-[13px] ${loggingOut ? 'opacity-50' : ''}`}
+            className={`items-center rounded-full bg-dangerSoft py-[13px] ${loggingOut ? 'opacity-50' : ''}`}
           >
-            <Text className="text-[14px] font-bold text-[#B91C1C]">Keluar</Text>
+            <Text className="text-[14px] font-bold text-danger">Keluar</Text>
           </Pressable>
         </ScrollView>
       </SafeAreaView>

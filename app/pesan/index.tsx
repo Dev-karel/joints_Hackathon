@@ -107,7 +107,7 @@ export default function PesanScreen() {
             }}
             accessibilityRole="button"
             accessibilityLabel="Pesan baru"
-            className="h-[40px] w-[40px] items-center justify-center rounded-[20px] bg-surfaceSky"
+            className="h-[48px] w-[48px] items-center justify-center rounded-[24px] bg-surfaceSky"
           >
             <SquarePen size={20} color={palette.primary} />
           </Pressable>
@@ -117,7 +117,7 @@ export default function PesanScreen() {
           <View className="flex-row items-center gap-[8px] rounded-full bg-slate100 px-[14px] py-[11px]">
             <Search size={18} color={palette.slate500} />
             <TextInput
- maxFontSizeMultiplier={1.1}
+ maxFontSizeMultiplier={1.3}
               value={query}
               onChangeText={setQuery}
               placeholder="Cari teman atau grup"
@@ -223,7 +223,7 @@ export default function PesanScreen() {
                       </Text>
                       {c.kind === 'session' ? (
                         <View className="rounded-[6px] bg-surfaceSky px-[6px] py-px">
-                          <Text className="text-[10px] font-bold text-primary">Sesi</Text>
+                          <Text className="text-[12px] font-bold text-primary">Sesi</Text>
                         </View>
                       ) : null}
                       <View className="flex-1" />

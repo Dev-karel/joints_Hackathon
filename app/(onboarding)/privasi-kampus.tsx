@@ -10,7 +10,7 @@ export default function PrivasiKampusScreen() {
     <OnboardingScreenLayout
       step={3}
       visual={<PrivateCampusMapVisual />}
-      titleSegments={[{ text: 'Cari teman belajar mu ' }, { text: 'di kampus', highlight: true }]}
+      titleSegments={[{ text: 'Cari teman belajarmu ' }, { text: 'di kampus', highlight: true }]}
       description="Peta hanya menampilkan nama ruangan, bukan lokasi pastimu. Fitur ini mati secara default dan kamu yang memutuskan."
       secondary={{ kind: 'back' }}
       primaryLabel="Lanjut"

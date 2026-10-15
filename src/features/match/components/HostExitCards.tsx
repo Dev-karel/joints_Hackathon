@@ -18,8 +18,8 @@ const leftLabel = (m: number) => (m > 0 ? `sisa ${m} menit` : 'waktu habis');
 function CardHead({ title }: { title: string }) {
   return (
     <View className="flex-row items-center gap-[10px]">
-      <View className="rounded-[10px] bg-[#FEF2F2] p-[8px]">
-        <LogOut size={18} color="#B91C1C" />
+      <View className="rounded-[10px] bg-dangerSoft p-[8px]">
+        <LogOut size={18} color={palette.danger} />
       </View>
       <Text className="flex-1 text-[15px] font-bold text-slateInk">{title}</Text>
     </View>
@@ -163,10 +163,10 @@ export function VotingCard({
           disabled={disabled}
           accessibilityRole="button"
           className={`flex-1 items-center rounded-full border-[1.5px] py-[13px] ${
-            state?.my_approve === true ? 'border-[#B91C1C] bg-[#FEF2F2]' : 'border-[#FCA5A5]'
+            state?.my_approve === true ? 'border-danger bg-dangerSoft' : 'border-dangerLine'
           } ${disabled ? 'opacity-50' : ''}`}
         >
-          <Text className="text-[14px] font-bold text-[#B91C1C]">Setuju batal</Text>
+          <Text className="text-[14px] font-bold text-danger">Setuju batal</Text>
         </Pressable>
         <Pressable
           onPress={() => onVote(false)}
@@ -239,10 +239,10 @@ export function HostHistory({
                 onPress={() => onReport(e)}
                 accessibilityRole="button"
                 accessibilityLabel={`Laporkan ${nameOf(e.host_id)}`}
-                className="flex-row items-center justify-center gap-[6px] rounded-full border-[1.5px] border-[#FCA5A5] py-[11px]"
+                className="flex-row items-center justify-center gap-[6px] rounded-full border-[1.5px] border-dangerLine py-[11px]"
               >
-                <Flag size={16} color="#B91C1C" />
-                <Text className="text-[14px] font-bold text-[#B91C1C]">Laporkan {nameOf(e.host_id).split(' ')[0]}</Text>
+                <Flag size={16} color={palette.danger} />
+                <Text className="text-[14px] font-bold text-danger">Laporkan {nameOf(e.host_id).split(' ')[0]}</Text>
               </Pressable>
             ) : null}
           </View>

@@ -89,7 +89,7 @@ export default function EventDetailScreen() {
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Kembali"
-          className="h-[40px] w-[40px] items-center justify-center rounded-full border border-slateBorder"
+          className="h-[48px] w-[48px] items-center justify-center rounded-full border border-slateBorder"
         >
           <ChevronLeft size={20} color={palette.slate500} />
         </Pressable>
@@ -143,7 +143,7 @@ export default function EventDetailScreen() {
                 onPress={() => router.back()}
                 accessibilityRole="button"
                 accessibilityLabel="Kembali"
-                className="h-[40px] w-[40px] items-center justify-center rounded-[20px] bg-white"
+                className="h-[48px] w-[48px] items-center justify-center rounded-[24px] bg-white"
               >
                 <ChevronLeft size={20} color={palette.slate500} />
               </Pressable>

@@ -142,7 +142,7 @@ export default function SesiDetailScreen() {
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Kembali"
-          className="h-[40px] w-[40px] items-center justify-center rounded-full border border-slateBorder"
+          className="h-[48px] w-[48px] items-center justify-center rounded-full border border-slateBorder"
         >
           <ChevronLeft size={20} color={palette.slate500} />
         </Pressable>
@@ -361,14 +361,14 @@ export default function SesiDetailScreen() {
                   {isHost ? ' (kamu)' : ''}
                 </Text>
                 <View className="rounded-full bg-accentSoft px-[7px] py-px">
-                  <Text className="text-[10px] font-bold text-accentText">Host</Text>
+                  <Text className="text-[12px] font-bold text-accentText">Host</Text>
                 </View>
               </View>
               <View className="flex-row items-center gap-[6px]">
                 {host.major ? <Text className="text-[12px] text-slate500">{host.major}</Text> : null}
                 {archetypeName(host.personality_type) ? (
                   <View className="flex-row items-center gap-[4px] rounded-full border border-[#FAC96E] bg-accentSoft py-[3px] pl-[7px] pr-[8px]">
-                    <Sparkles size={12} color="#7C4700" />
+                    <Sparkles size={12} color={palette.accent800} />
                     <Text className="text-[11px] font-bold text-accent800">{archetypeName(host.personality_type)}</Text>
                   </View>
                 ) : null}
@@ -512,11 +512,11 @@ function LeaveButton({
       accessibilityRole="button"
       accessibilityState={{ disabled: !!disabled }}
       className={`flex-row items-center justify-center gap-[6px] rounded-[28px] py-[14px] ${
-        disabled ? 'bg-slate100' : 'border-[1.5px] border-[#FCA5A5]'
+        disabled ? 'bg-slate100' : 'border-[1.5px] border-dangerLine'
       }`}
     >
-      <LogOut size={18} color={disabled ? palette.slateMuted : '#B91C1C'} />
-      <Text className={`text-[15px] font-bold ${disabled ? 'text-slateMuted' : 'text-[#B91C1C]'}`}>{label}</Text>
+      <LogOut size={18} color={disabled ? palette.slateMuted : palette.danger} />
+      <Text className={`text-[15px] font-bold ${disabled ? 'text-slateMuted' : 'text-danger'}`}>{label}</Text>
     </Pressable>
   );
 }

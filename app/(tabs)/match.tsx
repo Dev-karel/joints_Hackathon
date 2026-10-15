@@ -29,6 +29,7 @@ import type { TeamOpening } from '@/features/lomba/api';
 import { useOpenings } from '@/features/lomba/hooks';
 import type { Partner, StudySession } from '@/features/match/api';
 import { usePartners, useProfiles, useSessions } from '@/features/match/hooks';
+import { archetypeName, archetypePill } from '@/features/personality/archetype';
 import { useNow } from '@/lib/useNow';
 import { COMPETITION_CATEGORIES } from '@/lib/validation/competition';
 import { SESSION_KINDS } from '@/lib/validation/studySession';
@@ -62,7 +63,7 @@ export default function MatchScreen() {
           <View className="flex-row items-center gap-[10px] rounded-[24px] border border-slateBorder bg-white p-[14px]">
             <Search size={18} color={palette.primary} />
             <TextInput
- maxFontSizeMultiplier={1.1}
+ maxFontSizeMultiplier={1.3}
               value={query}
               onChangeText={setQuery}
               placeholder="Cari sesi, mata kuliah, atau lomba"
@@ -101,7 +102,7 @@ export default function MatchScreen() {
         <Pressable
           onPress={() => router.push({ pathname: '/buat-sesi', params: { tipe: tab } })}
           accessibilityRole="button"
-          accessibilityLabel={tab === 'belajar' ? 'Buat sesi' : 'Cari anggota tim'}
+          accessibilityLabel={tab === 'belajar' ? 'Buat sesi' : 'Buka lowongan tim'}
           // Posisi lewat style (bukan kelas): di Android kelas "absolute bottom-/right-" tidak
           // terbaca dan tombol menempel di pojok kiri atas, menimpa status bar.
           className="flex-row items-center gap-[6px] rounded-full bg-primary py-[13px] pl-[16px] pr-[18px]"
@@ -109,7 +110,7 @@ export default function MatchScreen() {
         >
           <Plus size={18} color="#FFFFFF" />
           <Text className="text-[14px] font-bold text-white">
-            {tab === 'belajar' ? 'Buat sesi' : 'Cari anggota tim'}
+            {tab === 'belajar' ? 'Buat sesi' : 'Buka lowongan tim'}
           </Text>
         </Pressable>
       </SafeAreaView>
@@ -158,10 +159,10 @@ function CapacityBadge({ current, max }: { current: number; max: number }) {
   return (
     <View
       className={`rounded-[8px] border px-[8px] py-[3px] ${
-        full ? 'border-[#FECACA] bg-[#FEF2F2]' : 'border-slateBorder bg-slateSurface'
+        full ? 'border-dangerBorder bg-dangerSoft' : 'border-slateBorder bg-slateSurface'
       }`}
     >
-      <Text className={`text-[12px] font-bold ${full ? 'text-[#B91C1C]' : 'text-slateInk'}`}>
+      <Text className={`text-[12px] font-bold ${full ? 'text-danger' : 'text-slateInk'}`}>
         {current}/{max}
       </Text>
     </View>
@@ -171,30 +172,9 @@ function CapacityBadge({ current, max }: { current: number; max: number }) {
 // ───────────────────────── Partner Card ─────────────────────────
 
 function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => void }) {
-  const archetypeLabel: Record<string, string> = {
-    groundbreaker: 'Groundbreaker',
-    heartkeeper: 'Heartkeeper',
-    kindledflame: 'Kindled Flame',
-    mindsmith: 'Mindsmith',
-    sagekeeper: 'Sagekeeper',
-    wildheart: 'Wildheart',
-  };
-
-  const getArchetypeColor = (type: string | null): string => {
-    const colors: Record<string, string> = {
-      groundbreaker: '#10B981',
-      heartkeeper: '#EC4899',
-      kindledflame: '#F59E0B',
-      mindsmith: '#8B5CF6',
-      sagekeeper: '#3B82F6',
-      wildheart: '#EF4444',
-    };
-    return colors[type ?? ''] ?? palette.slate500;
-  };
-
   // Skor dari database sudah 0–100 (recommend_study_partners).
   const scorePercent = Math.max(0, Math.min(100, Math.round(partner.score)));
-  const scoreColor = scorePercent >= 80 ? '#10B981' : scorePercent >= 60 ? '#F59E0B' : palette.slate500;
+  const pill = archetypePill(partner.personality_type);
 
   return (
     <Pressable
@@ -231,16 +211,13 @@ function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => vo
         )}
 
         {/* Archetype Badge */}
-        {partner.personality_type && (
-          <View
-            className="rounded-[6px] px-[8px] py-[3px]"
-            style={{ backgroundColor: `${getArchetypeColor(partner.personality_type)}15` } as any}
-          >
-            <Text className="text-[10px] font-semibold" style={{ color: getArchetypeColor(partner.personality_type) } as any}>
-              {archetypeLabel[partner.personality_type] ?? partner.personality_type}
+        {pill ? (
+          <View className="rounded-[6px] px-[8px] py-[3px]" style={{ backgroundColor: pill.bg }}>
+            <Text className="text-[12px] font-semibold" style={{ color: pill.text }}>
+              {archetypeName(partner.personality_type)}
             </Text>
           </View>
-        )}
+        ) : null}
 
         {/* Shared Courses */}
         <View className="flex-row items-center gap-[4px]">
@@ -252,8 +229,8 @@ function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => vo
 
         {/* Match Score */}
         <View className="mt-[4px] w-full items-center rounded-[8px] bg-slate100 py-[6px]">
-          <Text className="text-[10px] font-semibold text-slate500">Kecocokan</Text>
-          <Text className="text-[18px] font-extrabold" style={{ color: scoreColor } as any}>
+          <Text className="text-[12px] font-semibold text-slate500">Kecocokan</Text>
+          <Text className="text-[18px] font-extrabold text-primary">
             {scorePercent}%
           </Text>
         </View>
@@ -399,7 +376,7 @@ function BelajarTab({ query }: { query: string }) {
                   }`}
                 >
                   <Text
-                    className={`text-[10px] font-bold ${
+                    className={`text-[12px] font-bold ${
                       active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
                     }`}
                   >
@@ -433,6 +410,7 @@ function BelajarTab({ query }: { query: string }) {
                     onPress={() => setCourseFilter(course)}
                     accessibilityRole="button"
                     accessibilityState={{ selected: active }}
+                    hitSlop={{ top: 7, bottom: 7 }}
                     className={`rounded-full px-[14px] py-[7px] ${
                       active ? 'bg-primary' : 'border border-slateBorder bg-white'
                     }`}
@@ -514,7 +492,7 @@ function BelajarTab({ query }: { query: string }) {
                         <View className="items-end gap-[4px]">
                           <CapacityBadge current={count} max={s.capacity} />
                           {full ? (
-                            <Text className="text-[11px] font-semibold text-[#B91C1C]">Penuh</Text>
+                            <Text className="text-[11px] font-semibold text-danger">Penuh</Text>
                           ) : friendsIn > 0 ? (
                             <Text className="text-[11px] font-semibold text-accentText">
                               {friendsIn} temanmu ikut
@@ -623,6 +601,7 @@ function LombaTab({ query }: { query: string }) {
                 onPress={() => setCategory(c)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
+                hitSlop={{ top: 7, bottom: 7 }}
                 className={`rounded-full px-[14px] py-[7px] ${
                   active ? 'bg-primary' : 'border border-slateBorder bg-white'
                 }`}
@@ -655,7 +634,7 @@ function LombaTab({ query }: { query: string }) {
           <View className="items-center gap-[6px] px-[20px] py-[40px]">
             <Text className="text-[15px] font-bold text-slateInk">Belum ada lowongan tim</Text>
             <Text className="text-center text-[13px] text-slate500">
-              Punya tim yang butuh anggota? Tekan tombol Cari anggota tim.
+              Punya tim yang butuh anggota? Tekan tombol Buka lowongan tim.
             </Text>
           </View>
         ) : (

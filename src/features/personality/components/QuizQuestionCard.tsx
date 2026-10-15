@@ -39,7 +39,7 @@ export function QuizQuestionCard({
               accessibilityLabel={option.text}
               style={({ pressed }) => [glassShadow, pressed ? { opacity: 0.9 } : null]}
               className={`flex-1 flex-row items-center gap-[16px] rounded-[20px] border-[1.5px] px-[20px] py-[18px] ${
-                active ? 'border-primary bg-surfaceSky' : 'border-slate300 bg-white/60'
+                active ? 'border-primary bg-surfaceSky' : 'border-slateBorderMuted bg-white/60'
               }`}
             >
               {/* Badge A/B di kiri */}

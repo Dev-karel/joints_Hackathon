@@ -45,7 +45,7 @@ function ArchetypePill({ type }: { type: string | null }) {
   if (!pill || !name) return null;
   return (
     <View className="self-start rounded-full px-[9px] py-[3px]" style={{ backgroundColor: pill.bg }}>
-      <Text className="text-[10px] font-bold" style={{ color: pill.text }}>
+      <Text className="text-[12px] font-bold" style={{ color: pill.text }}>
         {name}
       </Text>
     </View>
@@ -84,7 +84,7 @@ export default function LombaDetailScreen() {
         onPress={() => router.back()}
         accessibilityRole="button"
         accessibilityLabel="Kembali"
-        className="h-[40px] w-[40px] items-center justify-center"
+        className="h-[48px] w-[48px] items-center justify-center"
       >
         <ArrowLeft size={24} color={palette.slateInk} />
       </Pressable>
@@ -395,7 +395,7 @@ export default function LombaDetailScreen() {
           <SafeAreaView edges={['bottom']} className="border-t border-slateBorder bg-white">
             <View className="gap-[8px] px-[20px] py-[16px]">
               {canApply ? (
-                <PrimaryButton label="Ajukan Diri" onPress={openForm} />
+                <PrimaryButton label="Ajukan diri" onPress={openForm} />
               ) : myRequest?.status === 'requested' ? (
                 <PrimaryButton
                   label="Batalkan Permintaan"
@@ -445,7 +445,7 @@ export default function LombaDetailScreen() {
           })}
         </View>
         <TextInput
-          maxFontSizeMultiplier={1.1}
+          maxFontSizeMultiplier={1.3}
           value={message}
           onChangeText={setMessage}
           placeholder="Pesan singkat untuk host (opsional)"

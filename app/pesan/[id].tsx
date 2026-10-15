@@ -138,7 +138,7 @@ export default function RuangObrolanScreen() {
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Kembali"
-          className="h-[40px] w-[40px] items-center justify-center rounded-full border border-slateBorder"
+          className="h-[48px] w-[48px] items-center justify-center rounded-full border border-slateBorder"
         >
           <ChevronLeft size={20} color={palette.slate500} />
         </Pressable>
@@ -237,7 +237,7 @@ export default function RuangObrolanScreen() {
                     <Text className="text-[11px] font-bold text-primary">{nameOf(m.sender_id)}</Text>
                   ) : null}
                   <Text className={`text-[14px] ${mine ? 'text-white' : 'text-slateInk'}`}>{m.content}</Text>
-                  <Text className={`self-end text-[10px] ${mine ? 'text-skyBlob' : 'text-slate500'}`}>
+                  <Text className={`self-end text-[12px] ${mine ? 'text-skyBlob' : 'text-slate500'}`}>
                     {sending ? 'Mengirim…' : failed ? 'Gagal terkirim' : clockOf(m.created_at)}
                   </Text>
                 </Pressable>
@@ -251,7 +251,7 @@ export default function RuangObrolanScreen() {
                     </Pressable>
                   </View>
                 ) : isLastMine && !isGroup ? (
-                  <Text className="pt-[2px] text-[10px] text-slate500">{seen ? 'Dibaca' : 'Terkirim'}</Text>
+                  <Text className="pt-[2px] text-[12px] text-slate500">{seen ? 'Dibaca' : 'Terkirim'}</Text>
                 ) : null}
               </View>
             );
@@ -299,7 +299,7 @@ export default function RuangObrolanScreen() {
         <SafeAreaView edges={['bottom']} className="border-t border-slateBorder bg-white">
           <View className="flex-row items-center gap-[10px] px-[12px] pb-[8px] pt-[10px]">
             <TextInput
- maxFontSizeMultiplier={1.1}
+ maxFontSizeMultiplier={1.3}
               value={text}
               onChangeText={setText}
               placeholder="Tulis pesan…"
@@ -315,7 +315,7 @@ export default function RuangObrolanScreen() {
               disabled={text.trim().length === 0}
               accessibilityRole="button"
               accessibilityLabel="Kirim"
-              className={`h-[40px] w-[40px] items-center justify-center rounded-[20px] bg-primary ${
+              className={`h-[48px] w-[48px] items-center justify-center rounded-[24px] bg-primary ${
                 text.trim().length === 0 ? 'opacity-50' : ''
               }`}
             >

@@ -28,9 +28,9 @@ export function Text({ className, style, ...props }: AppTextProps) {
   return (
     <InsideText.Provider value>
       <RNText
-        // Ukuran font sistem dibatasi 1,1×: tanpa batas, pengaturan "Ukuran font" besar di HP
-        // (mis. Samsung) membuat teks memenuhi dan menembus kotak/pil yang ukurannya tetap.
-        maxFontSizeMultiplier={1.1}
+        // Ukuran font sistem dibatasi 1,3×: cukup besar untuk pengguna yang memperbesar font,
+        // tapi pil/kotak berukuran tetap belum didesain untuk 2×. Naikkan setelah pil memakai min-h.
+        maxFontSizeMultiplier={1.3}
         {...props}
         className={className?.replace(WEIGHT_CLASS, ' ').trim()}
         style={[fontFamily ? { fontFamily } : null, style]}

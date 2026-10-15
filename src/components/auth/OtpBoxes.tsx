@@ -54,7 +54,7 @@ export function OtpBoxes({ value, onChange, length, variant }: OtpBoxesProps) {
       </Pressable>
 
       <TextInput
- maxFontSizeMultiplier={1.1}
+ maxFontSizeMultiplier={1.3}
         ref={inputRef}
         value={value}
         onChangeText={(v) => onChange(v.replace(/\D/g, '').slice(0, length))}
