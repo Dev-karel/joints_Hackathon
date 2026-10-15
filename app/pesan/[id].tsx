@@ -1,12 +1,13 @@
 import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Send, Users } from 'lucide-react-native';
+import { Send, Users } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, KeyboardAvoidingView, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { INTER, Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -134,14 +135,7 @@ export default function RuangObrolanScreen() {
   if (!info || messages.isError) {
     return (
       <SafeAreaView className="flex-1 bg-white px-[20px] pt-[16px]" edges={['top', 'bottom']}>
-        <Pressable
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Kembali"
-          className="h-[48px] w-[48px] items-center justify-center rounded-full border border-slateBorder"
-        >
-          <ChevronLeft size={20} color={palette.slate500} />
-        </Pressable>
+        <BackButton />
         <View className="gap-[10px] pt-[24px]">
           <FormError message="Percakapan tidak ditemukan." size={14} />
           <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void messages.refetch()} />
@@ -156,9 +150,7 @@ export default function RuangObrolanScreen() {
     <View className="flex-1 bg-white">
       <SafeAreaView edges={['top']}>
         <View className="flex-row items-center gap-[10px] border-b border-slateBorder py-[10px] pl-[12px] pr-[16px]">
-          <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Kembali" hitSlop={10}>
-            <ChevronLeft size={24} color={palette.slateInk} />
-          </Pressable>
+          <BackButton />
           <Pressable
             disabled={isGroup || !info.other_id}
             onPress={() => info.other_id && router.push({ pathname: '/profil/[id]', params: { id: info.other_id } })}

@@ -1,11 +1,13 @@
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { ArrowLeft, BookOpen, User } from 'lucide-react-native';
+import { BookOpen, User } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -33,6 +35,7 @@ export default function ViewProfileScreen() {
   const startDirect = useStartDirect();
   const [actionError, setActionError] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   if (!id || !currentUserId) {
     return null;
@@ -64,13 +67,7 @@ export default function ViewProfileScreen() {
       const conversationId = await startDirect.mutateAsync(id);
       router.push({ pathname: '/pesan/[id]', params: { id: conversationId } });
     });
-  const handleRemoveFriend = () => {
-    const name = profile.data?.full_name ?? 'orang ini';
-    Alert.alert('Hapus teman?', `${name} akan dihapus dari daftar temanmu dan kalian tidak bisa saling kirim pesan lagi.`, [
-      { text: 'Batal', style: 'cancel' },
-      { text: 'Hapus', style: 'destructive', onPress: () => void run(() => removeFriend.mutateAsync(id)) },
-    ]);
-  };
+  const handleRemoveFriend = () => setConfirmRemove(true);
 
   return (
     <View className="flex-1 bg-white">
@@ -78,15 +75,8 @@ export default function ViewProfileScreen() {
       <SafeAreaView className="flex-1" edges={['top']}>
         {/* Header */}
         <View className="flex-row items-center gap-[12px] border-b border-slateBorder px-[20px] py-[12px]">
-          <Pressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Kembali"
-            className="h-[48px] w-[48px] items-center justify-center"
-          >
-            <ArrowLeft size={24} color={palette.slateInk} />
-          </Pressable>
-          <Text className="flex-1 text-[18px] font-extrabold text-slateInk">Profil</Text>
+          <BackButton />
+          <Text className="flex-1 text-[22px] font-extrabold text-slateInk">Profil</Text>
         </View>
 
         {profile.isPending ? (
@@ -267,6 +257,20 @@ export default function ViewProfileScreen() {
           targetName={profile.data.full_name}
         />
       ) : null}
+
+      <ConfirmModal
+        visible={confirmRemove}
+        title="Hapus teman?"
+        message={`${profile.data?.full_name ?? 'Orang ini'} akan dihapus dari daftar temanmu dan kalian tidak bisa saling kirim pesan lagi.`}
+        confirmLabel="Ya, hapus"
+        cancelLabel="Batal"
+        loading={removeFriend.isPending}
+        onConfirm={() => {
+          setConfirmRemove(false);
+          void run(() => removeFriend.mutateAsync(id));
+        }}
+        onCancel={() => setConfirmRemove(false)}
+      />
     </View>
   );
 }

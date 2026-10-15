@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Check, Search } from 'lucide-react-native';
+import { Check, Search } from 'lucide-react-native';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { INTER, Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -134,7 +135,6 @@ function PersonCard({ person, actions }: { person: Person; actions: ReactNode })
 // Cari teman + kelola permintaan pertemanan. Aturan (siapa boleh menyetujui, batas permintaan)
 // dijaga database (RLS + trigger), bukan layar ini.
 export default function TemanScreen() {
-  const router = useRouter();
   const userId = useAuthStore((s) => s.session?.user.id);
   const { data: me } = useProfile(userId);
   const [query, setQuery] = useState('');
@@ -228,15 +228,8 @@ export default function TemanScreen() {
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="gap-[16px] bg-white px-[20px] pb-[16px] pt-[8px]">
           <View className="flex-row items-center gap-[10px]">
-            <Pressable
-              onPress={() => router.back()}
-              accessibilityRole="button"
-              accessibilityLabel="Kembali"
-              hitSlop={10}
-            >
-              <ArrowLeft size={22} color={palette.slate500} />
-            </Pressable>
-            <Text className="text-[22px] font-extrabold text-slateInk">Cari Teman</Text>
+            <BackButton />
+            <Text className="flex-1 text-[22px] font-extrabold text-slateInk">Cari Teman</Text>
           </View>
 
           <View className="flex-row items-center gap-[10px] rounded-[16px] bg-surfaceCanvas px-[16px] py-[12px]">

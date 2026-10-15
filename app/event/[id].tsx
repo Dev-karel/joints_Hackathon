@@ -1,7 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   CalendarDays,
-  ChevronLeft,
   Coffee,
   Dices,
   Footprints,
@@ -19,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -85,14 +85,7 @@ export default function EventDetailScreen() {
   if (event.isError || !item || item.status !== 'published') {
     return (
       <SafeAreaView className="flex-1 bg-white px-[20px] pt-[16px]" edges={['top', 'bottom']}>
-        <Pressable
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Kembali"
-          className="h-[48px] w-[48px] items-center justify-center rounded-full border border-slateBorder"
-        >
-          <ChevronLeft size={20} color={palette.slate500} />
-        </Pressable>
+        <BackButton />
         <View className="gap-[10px] pt-[24px]">
           <FormError message="Event tidak ditemukan atau belum dibuka." size={14} />
           <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void event.refetch()} />
@@ -139,14 +132,7 @@ export default function EventDetailScreen() {
         <View className="bg-accentSoft px-[20px] pb-[20px]">
           <SafeAreaView edges={['top']}>
             <View className="pt-[8px]">
-              <Pressable
-                onPress={() => router.back()}
-                accessibilityRole="button"
-                accessibilityLabel="Kembali"
-                className="h-[48px] w-[48px] items-center justify-center rounded-[24px] bg-white"
-              >
-                <ChevronLeft size={20} color={palette.slate500} />
-              </Pressable>
+              <BackButton onSurface />
             </View>
           </SafeAreaView>
           <View className="items-center pb-[8px] pt-[4px]">

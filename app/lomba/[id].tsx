@@ -1,12 +1,14 @@
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { ArrowLeft, Clock, ExternalLink, Trophy } from 'lucide-react-native';
+import { Clock, ExternalLink, Trophy } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Image, Linking, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { INTER, Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { BottomSheet } from '@/components/ui/BottomSheet';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -75,20 +77,14 @@ export default function LombaDetailScreen() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [leaving, setLeaving] = useState<{ id: string; name: string } | null>(null);
 
   if (!id || !userId) return null;
 
   const header = (
     <View className="flex-row items-center gap-[12px] border-b border-slateBorder px-[20px] py-[12px]">
-      <Pressable
-        onPress={() => router.back()}
-        accessibilityRole="button"
-        accessibilityLabel="Kembali"
-        className="h-[48px] w-[48px] items-center justify-center"
-      >
-        <ArrowLeft size={24} color={palette.slateInk} />
-      </Pressable>
-      <Text className="flex-1 text-[18px] font-extrabold text-slateInk">Detail Lowongan</Text>
+      <BackButton />
+      <Text className="flex-1 text-[22px] font-extrabold text-slateInk">Detail Lowongan</Text>
     </View>
   );
 
@@ -165,21 +161,9 @@ export default function LombaDetailScreen() {
     }
   };
 
-  const confirmLeave = (memberId: string, name: string) => {
-    const self = memberId === userId;
-    Alert.alert(
-      self ? 'Keluar dari tim?' : `Keluarkan ${name}?`,
-      self ? 'Kamu bisa mengajukan diri lagi selama pendaftaran masih dibuka.' : 'Anggota ini akan dikeluarkan dari tim.',
-      [
-        { text: 'Batal', style: 'cancel' },
-        {
-          text: self ? 'Keluar' : 'Keluarkan',
-          style: 'destructive',
-          onPress: () => void run(() => leave.mutateAsync(memberId)),
-        },
-      ],
-    );
-  };
+  // Keluar sendiri atau mengeluarkan anggota: selalu lewat dialog konfirmasi.
+  const confirmLeave = (memberId: string, name: string) => setLeaving({ id: memberId, name });
+  const leavingSelf = leaving?.id === userId;
 
   const openProfile = (personId: string) =>
     personId === userId ? router.push('/profil') : router.push({ pathname: '/profil/[id]', params: { id: personId } });
@@ -462,6 +446,25 @@ export default function LombaDetailScreen() {
           <PrimaryButton label="Batal" variant="outline" onPress={() => setFormOpen(false)} />
         </View>
       </BottomSheet>
+
+      <ConfirmModal
+        visible={!!leaving}
+        title={leavingSelf ? 'Keluar dari tim?' : `Keluarkan ${leaving?.name ?? ''}?`}
+        message={
+          leavingSelf
+            ? 'Kamu bisa mengajukan diri lagi selama pendaftaran masih dibuka.'
+            : 'Anggota ini akan dikeluarkan dari tim.'
+        }
+        confirmLabel={leavingSelf ? 'Ya, keluar' : 'Ya, keluarkan'}
+        cancelLabel="Batal"
+        loading={leave.isPending}
+        onConfirm={() => {
+          const target = leaving;
+          setLeaving(null);
+          if (target) void run(() => leave.mutateAsync(target.id));
+        }}
+        onCancel={() => setLeaving(null)}
+      />
     </View>
   );
 }

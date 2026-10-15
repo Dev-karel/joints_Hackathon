@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
-import { ArrowLeft, MessageCircle, UserCheck, Users } from 'lucide-react-native';
+import { MessageCircle, UserCheck, Users } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -102,15 +103,8 @@ export default function NotifikasiScreen() {
     <View className="flex-1 bg-surfaceCanvas">
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="flex-row items-center gap-[10px] bg-white px-[20px] pb-[16px] pt-[8px]">
-          <Pressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Kembali"
-            hitSlop={10}
-          >
-            <ArrowLeft size={22} color={palette.slate500} />
-          </Pressable>
-          <Text className="text-[22px] font-extrabold text-slateInk">Notifikasi</Text>
+          <BackButton />
+          <Text className="flex-1 text-[22px] font-extrabold text-slateInk">Notifikasi</Text>
         </View>
 
         <ScrollView

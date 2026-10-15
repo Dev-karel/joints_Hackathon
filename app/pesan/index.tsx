@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Mail, Search, SquarePen, Users } from 'lucide-react-native';
+import { ChevronRight, Mail, Search, SquarePen, Users } from 'lucide-react-native';
 import { useState } from 'react';
 import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { INTER, Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -96,10 +97,8 @@ export default function PesanScreen() {
     <View className="flex-1 bg-white">
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="flex-row items-center gap-[10px] py-[8px] pl-[12px] pr-[16px]">
-          <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Kembali" hitSlop={10}>
-            <ChevronLeft size={24} color={palette.slateInk} />
-          </Pressable>
-          <Text className="flex-1 text-[24px] font-extrabold tracking-[-0.48px] text-slateInk">Pesan</Text>
+          <BackButton />
+          <Text className="flex-1 text-[22px] font-extrabold text-slateInk">Pesan</Text>
           <Pressable
             onPress={() => {
               setError(null);

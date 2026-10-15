@@ -1,11 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft } from 'lucide-react-native';
 import { useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -88,10 +88,8 @@ export default function AktivitasScreen() {
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="gap-[14px] bg-white px-[20px] pb-[14px] pt-[8px]">
           <View className="flex-row items-center gap-[10px]">
-            <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Kembali" hitSlop={10}>
-              <ArrowLeft size={22} color={palette.slate500} />
-            </Pressable>
-            <Text className="text-[22px] font-extrabold text-slateInk">Aktivitasku</Text>
+            <BackButton />
+            <Text className="flex-1 text-[22px] font-extrabold text-slateInk">Aktivitasku</Text>
           </View>
           <View className="flex-row gap-[8px]">
             {TABS.map((t) => {

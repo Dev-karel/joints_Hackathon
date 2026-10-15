@@ -2,7 +2,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   BookOpen,
   CalendarDays,
-  ChevronLeft,
   ChevronRight,
   Clock,
   LogOut,
@@ -20,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -138,14 +138,7 @@ export default function SesiDetailScreen() {
   if (session.isError || !s) {
     return (
       <SafeAreaView className="flex-1 bg-white px-[20px] pt-[16px]" edges={['top', 'bottom']}>
-        <Pressable
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Kembali"
-          className="h-[48px] w-[48px] items-center justify-center rounded-full border border-slateBorder"
-        >
-          <ChevronLeft size={20} color={palette.slate500} />
-        </Pressable>
+        <BackButton />
         <View className="gap-[10px] pt-[24px]">
           <FormError message="Sesi tidak ditemukan." size={14} />
           <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void session.refetch()} />
@@ -240,14 +233,7 @@ export default function SesiDetailScreen() {
     <View className="flex-1 bg-white">
       <SafeAreaView edges={['top']}>
         <View className="flex-row items-center gap-[10px] py-[6px] pl-[12px] pr-[16px]">
-          <Pressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Kembali"
-            hitSlop={10}
-          >
-            <ChevronLeft size={24} color={palette.slateInk} />
-          </Pressable>
+          <BackButton />
           <Text className="flex-1 text-[16px] font-bold text-slateInk">Detail sesi</Text>
           <Pressable onPress={onShare} accessibilityRole="button" accessibilityLabel="Bagikan sesi" hitSlop={10}>
             <Share2 size={22} color={palette.primary} />

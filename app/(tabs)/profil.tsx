@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { FormError } from '@/components/ui/FormError';
 import { useAuthStore } from '@/features/auth/authStore';
 import { logout } from '@/features/auth/useAuthActions';
@@ -92,6 +93,7 @@ export default function ProfilScreen() {
   const [avatarError, setAvatarError] = useState<string | null>(null);
 
   const [loggingOut, setLoggingOut] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const archetype = archetypeIdSchema.safeParse(profile?.personality_type);
   const info = archetype.success ? ARCHETYPES[archetype.data] : null;
@@ -339,10 +341,7 @@ export default function ProfilScreen() {
 
           {/* Keluar */}
           <Pressable
-            onPress={() => {
-              setLoggingOut(true);
-              void logout();
-            }}
+            onPress={() => setConfirmLogout(true)}
             disabled={loggingOut}
             accessibilityRole="button"
             accessibilityLabel="Keluar"
@@ -352,6 +351,20 @@ export default function ProfilScreen() {
           </Pressable>
         </ScrollView>
       </SafeAreaView>
+
+      <ConfirmModal
+        visible={confirmLogout}
+        title="Keluar dari akun?"
+        message="Kamu perlu masuk lagi dengan email dan kata sandi. Kalau HP ini belum dikenali, kode OTP akan dikirim ke email kampusmu."
+        confirmLabel="Ya, keluar"
+        cancelLabel="Batal"
+        loading={loggingOut}
+        onConfirm={() => {
+          setLoggingOut(true);
+          void logout();
+        }}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </View>
   );
 }
