@@ -147,7 +147,7 @@ export default function BerandaScreen() {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       <SafeAreaView className="flex-1" edges={['top']}>
         {/* Header: lockup merek + Pesan + Notifikasi (permintaan pertemanan) */}
-        <View className="flex-row items-center justify-between bg-white px-[36px] py-[12px]">
+        <View className="flex-row items-center justify-between bg-white px-[20px] py-[12px]">
           <Image
             source={brandLockup}
             resizeMode="contain"
@@ -194,7 +194,7 @@ export default function BerandaScreen() {
             onPress={() => router.push('/profil')}
             accessibilityRole="button"
             accessibilityLabel="Buka profilku"
-            className="mx-[29px] mb-[16px] min-h-[81px] flex-row items-center rounded-[20px] border border-[rgba(0,0,0,0.16)] bg-white p-[11px]"
+            className="mx-[20px] mb-[16px] min-h-[81px] flex-row items-center rounded-[20px] border border-[rgba(0,0,0,0.16)] bg-white p-[11px]"
             style={{ elevation: 4 }}
           >
             <View className="h-[60px] w-[60px] overflow-hidden rounded-[24px] bg-slate100">
