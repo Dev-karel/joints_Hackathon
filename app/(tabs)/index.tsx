@@ -410,7 +410,11 @@ export default function BerandaScreen() {
                           disabled={sendRequest.isPending}
                           onPress={() => void invite(p.user_id)}
                         >
-                          <Text className={`text-[12px] font-bold ${sent ? 'text-slate500' : 'text-white'}`}>
+                          <Text
+                            className={`px-[6px] text-center text-[12px] font-bold ${sent ? 'text-slate500' : 'text-white'}`}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                          >
                             {sent ? 'Menunggu balasan' : 'Tambah teman'}
                           </Text>
                         </Pressable>
