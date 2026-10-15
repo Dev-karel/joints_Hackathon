@@ -44,8 +44,9 @@ export default function MataKuliahScreen() {
     setError(null);
     try {
       await save.mutateAsync([...selected]);
-      // Redirect ke root untuk automatic routing ke fase selanjutnya
-      router.replace('/');
+      // Mata kuliah sudah tersimpan dan query sudah di-refresh (fase jadi 'ready'),
+      // jadi langsung ke Beranda tanpa lewat gerbang '/' yang ikut berubah fase.
+      router.replace('/(tabs)');
     } catch {
       setError('Gagal menyimpan. Periksa internet kamu lalu coba lagi.');
     }

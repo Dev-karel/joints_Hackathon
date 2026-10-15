@@ -6,8 +6,15 @@ import { z } from 'zod';
 const envSchema = z.object({
   supabaseUrl: z.url('EXPO_PUBLIC_SUPABASE_URL belum diisi / tidak valid'),
   supabaseAnonKey: z.string().min(20, 'EXPO_PUBLIC_SUPABASE_ANON_KEY belum diisi'),
+  // Satu atau beberapa domain dipisah koma, contoh: "binus.ac.id,gmail.com".
   allowedEmailDomain: z.string().min(3, 'EXPO_PUBLIC_ALLOWED_EMAIL_DOMAIN belum diisi'),
 });
+
+const parseDomains = (raw: string) =>
+  raw
+    .split(',')
+    .map((d) => d.trim().toLowerCase().replace(/^@/, ''))
+    .filter(Boolean);
 
 const parsed = envSchema.safeParse({
   supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
@@ -23,5 +30,5 @@ export const envProblem: string | null = parsed.success
 export const env = {
   supabaseUrl: parsed.success ? parsed.data.supabaseUrl : 'http://localhost',
   supabaseAnonKey: parsed.success ? parsed.data.supabaseAnonKey : 'missing-anon-key-placeholder',
-  allowedEmailDomain: parsed.success ? parsed.data.allowedEmailDomain : 'binus.ac.id',
+  allowedEmailDomains: parseDomains(parsed.success ? parsed.data.allowedEmailDomain : 'binus.ac.id'),
 };

@@ -11,17 +11,18 @@ import { TextField } from '@/components/auth/TextField';
 import { Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { signInWithGate } from '@/features/auth/useAuthActions';
+import { signInWithGate, signInWithGoogleGate } from '@/features/auth/useAuthActions';
 import { env } from '@/lib/env';
 import { signInSchema, type SignInValues } from '@/lib/validation/auth';
 
-const schema = signInSchema(env.allowedEmailDomain);
+const schema = signInSchema(env.allowedEmailDomains);
 
 // Frame Figma "Login Page" (3:189). Tautan "Lupa kata sandi?" di Figma belum ditampilkan
 // karena alur reset kata sandi belum ada.
 export default function MasukScreen() {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const {
     control,
     handleSubmit,
@@ -47,6 +48,19 @@ export default function MasukScreen() {
     }
   });
 
+  const onGoogle = async () => {
+    setFormError(null);
+    setGoogleLoading(true);
+    try {
+      // Berhasil: sesi terbentuk dan gerbang rute di root layout yang memindahkan layar.
+      await signInWithGoogleGate();
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : 'Terjadi kesalahan.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   return (
     <AuthScreen
       banner={<LoginBanner />}
@@ -70,7 +84,7 @@ export default function MasukScreen() {
         render={({ field }) => (
           <TextField
             label="Email"
-            placeholder="Masukkan email kampusmu"
+            placeholder="Masukkan emailmu"
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -103,7 +117,7 @@ export default function MasukScreen() {
       {formError ? <FormError message={formError} /> : null}
 
       <PrimaryButton label="Masuk" onPress={onSubmit} loading={isSubmitting} />
-      <SocialButtons />
+      <SocialButtons onGooglePress={onGoogle} googleLoading={googleLoading} />
     </AuthScreen>
   );
 }

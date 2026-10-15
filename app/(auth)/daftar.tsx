@@ -12,9 +12,9 @@ import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { signUp } from '@/features/auth/api';
 import { env } from '@/lib/env';
-import { signUpSchema, type SignUpValues } from '@/lib/validation/auth';
+import { formatDomains, signUpSchema, type SignUpValues } from '@/lib/validation/auth';
 
-const schema = signUpSchema(env.allowedEmailDomain);
+const schema = signUpSchema(env.allowedEmailDomains);
 
 // Frame Figma "Sign Up Page" (276:491). Halaman Syarat & Ketentuan / Kebijakan Privasi belum ada,
 // jadi teks persetujuan belum berupa tautan.
@@ -46,7 +46,7 @@ export default function DaftarScreen() {
   return (
     <AuthScreen
       title="Daftar Akun"
-      subtitle={`Pakai email kampusmu (@${env.allowedEmailDomain}) untuk mendaftar.`}
+      subtitle={`Daftar dengan email ${formatDomains(env.allowedEmailDomains)}. Kode verifikasi dikirim ke email itu.`}
       footer={
         <View className="flex-row items-center justify-center gap-[4px]">
           <Text className="text-[14px] text-slate500">Sudah punya akun?</Text>
@@ -82,8 +82,8 @@ export default function DaftarScreen() {
         name="email"
         render={({ field }) => (
           <TextField
-            label="Email Kampus"
-            placeholder={`nama@${env.allowedEmailDomain}`}
+            label="Email"
+            placeholder={`nama@${env.allowedEmailDomains[0]}`}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"

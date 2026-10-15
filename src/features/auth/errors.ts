@@ -20,7 +20,7 @@ export function toAuthError(error: {
   if (code === 'user_already_exists')
     return new AppAuthError('Email ini sudah terdaftar. Silakan masuk.');
   if (/Database error saving new user/i.test(msg))
-    return new AppAuthError('Pendaftaran ditolak. Pastikan memakai email kampus @binus.ac.id.');
+    return new AppAuthError('Pendaftaran ditolak. Pakai email @binus.ac.id atau @gmail.com.');
   if (/network|fetch/i.test(msg) || error.name === 'AuthRetryableFetchError')
     return new AppAuthError('Tidak ada koneksi. Periksa internet kamu lalu coba lagi.');
 

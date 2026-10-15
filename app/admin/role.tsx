@@ -33,7 +33,7 @@ export default function RoleScreen() {
 
   const save = async () => {
     setMessage(null);
-    const parsed = campusEmailSchema(env.allowedEmailDomain).safeParse(email);
+    const parsed = campusEmailSchema(env.allowedEmailDomains).safeParse(email);
     if (!parsed.success) {
       setMessage({ text: parsed.error.issues[0]?.message ?? 'Email tidak valid', ok: false });
       return;
@@ -54,10 +54,10 @@ export default function RoleScreen() {
       onBack={() => router.back()}
     >
       <TextField
-        label="Email kampus"
+        label="Email"
         value={email}
         onChangeText={setEmail}
-        placeholder={`nama@${env.allowedEmailDomain}`}
+        placeholder={`nama@${env.allowedEmailDomains[0]}`}
         autoCapitalize="none"
         keyboardType="email-address"
       />

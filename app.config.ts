@@ -8,7 +8,7 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'AyokMatch',
   slug: 'ayokmatch',
-  owner: 'dannyehh1s-team',
+  owner: 'sugarbbq',
   version: '0.2.0',
   scheme: 'ayokmatch',
   orientation: 'portrait',
@@ -32,6 +32,7 @@ const config: ExpoConfig = {
     'expo-location',
     'expo-notifications',
     'expo-secure-store',
+    'expo-web-browser', // login Google (OAuth lewat browser sistem)
     // expo-image-picker menyuntikkan izin RECORD_AUDIO (mikrofon) karena library-nya juga mendukung
     // perekaman video. MVP tidak merekam audio/video dan privasi adalah inti produk (PRD.md §10),
     // jadi izin mikrofon dimatikan (14 Okt 2026). Perlu build ulang agar manifest berubah.
@@ -52,8 +53,9 @@ const config: ExpoConfig = {
   experiments: {
     typedRoutes: true,
   },
+  // projectId diisi setelah `eas init` (project EAS milik akun `owner` di atas).
   extra: {
-    eas: { projectId: '7b4fcde5-081b-4fee-a36a-40fabe913128' },
+    eas: {},
   },
 };
 
