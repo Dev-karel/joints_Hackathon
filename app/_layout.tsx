@@ -42,7 +42,11 @@ function AppStack() {
           <Stack.Screen name="(onboarding)" />
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
-        <Stack.Protected guard={phase === 'needsQuiz' || phase === 'ready'}>
+        {/* needsCourses ikut diizinkan: layar hasil kuis harus tetap tampil setelah submit,
+            sebelum pengguna menekan "Lanjutkan" ke pilih mata kuliah. */}
+        <Stack.Protected
+          guard={phase === 'needsQuiz' || phase === 'needsCourses' || phase === 'ready'}
+        >
           <Stack.Screen name="(kuis)" />
         </Stack.Protected>
         <Stack.Protected guard={phase === 'needsCourses' || phase === 'ready'}>

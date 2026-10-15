@@ -4,6 +4,9 @@
 //    OTP email lagi (signInWithOtp shouldCreateUser:false -> verifyOtp('email')).
 // Catatan: gerbang HP baru ini dicek di aplikasi, BUKAN 2FA sungguhan (Supabase MFA tidak
 // mendukung OTP email). Jangan diklaim sebagai 2FA di depan juri.
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
+
 import { supabase } from '@/lib/supabase/client';
 
 import { getDeviceIdHash } from './deviceId';
@@ -80,6 +83,53 @@ export async function signIn(email: string, password: string): Promise<boolean> 
     await supabase.auth.signOut(); // jangan biarkan sesi menggantung bila gerbang HP gagal
     throw e;
   }
+}
+
+/**
+ * Masuk dengan Google lewat browser sistem (OAuth). Akun Google sudah terverifikasi oleh Google,
+ * jadi tidak ada OTP HP baru; HP langsung dicatat terverifikasi.
+ * @returns false bila pengguna menutup browser tanpa menyelesaikan login.
+ */
+export async function signInWithGoogle(): Promise<boolean> {
+  const redirectTo = Linking.createURL('auth/callback');
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo, skipBrowserRedirect: true },
+  });
+  if (error || !data.url) throw toAuthError(error ?? { message: 'oauth_url_missing' });
+
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  if (result.type !== 'success') return false;
+
+  // Supabase mengembalikan hasil lewat query (?code= / ?error=) atau fragment (#access_token=).
+  const url = new URL(result.url);
+  const params = new URLSearchParams(url.hash.replace(/^#/, ''));
+  url.searchParams.forEach((value, key) => params.set(key, value));
+
+  const oauthError = params.get('error_description') ?? params.get('error');
+  if (oauthError) throw toAuthError({ message: oauthError });
+
+  const code = params.get('code');
+  const accessToken = params.get('access_token');
+  const refreshToken = params.get('refresh_token');
+  let userId: string | undefined;
+  if (code) {
+    const { data: s, error: e } = await supabase.auth.exchangeCodeForSession(code);
+    if (e) throw toAuthError(e);
+    userId = s.user?.id;
+  } else if (accessToken && refreshToken) {
+    const { data: s, error: e } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    if (e) throw toAuthError(e);
+    userId = s.user?.id;
+  } else {
+    throw toAuthError({ message: 'oauth_no_session' });
+  }
+
+  if (userId) await trustCurrentDevice(userId);
+  return true;
 }
 
 export async function resendDeviceCode(email: string) {

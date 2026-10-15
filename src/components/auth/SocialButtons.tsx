@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 import { glassShadow } from '@/components/glass/tokens';
@@ -47,9 +47,15 @@ const PROVIDERS = [
   { name: 'Microsoft', Icon: MicrosoftIcon },
 ] as const;
 
-// Hanya tampilan di MVP: OAuth belum diimplementasikan (CLAUDE.md). Tombol bulat kuning muda
-// dengan bayangan, persis Figma ("Atau masuk dengan"), tanpa aksi.
-export function SocialButtons() {
+// Hanya Google yang aktif (OAuth); Facebook dan Microsoft masih tampilan saja. Tombol bulat
+// dengan bayangan, persis Figma ("Atau masuk dengan").
+export function SocialButtons({
+  onGooglePress,
+  googleLoading = false,
+}: {
+  onGooglePress: () => void;
+  googleLoading?: boolean;
+}) {
   return (
     <View className="w-full gap-[22px]">
       <View className="flex-row items-center gap-[16px]">
@@ -58,20 +64,39 @@ export function SocialButtons() {
         <View className="h-px flex-1 bg-slateBorder" />
       </View>
       <View className="flex-row justify-center gap-[39px]">
-        {PROVIDERS.map(({ name, Icon }) => (
-          <View
-            key={name}
-            accessible
-            accessibilityLabel={`${name} (segera hadir)`}
-            accessibilityState={{ disabled: true }}
-            className="size-[56px] items-center justify-center rounded-full border border-slateBorder bg-white opacity-70"
-            style={glassShadow}
-          >
-            <Icon />
-          </View>
-        ))}
+        {PROVIDERS.map(({ name, Icon }) =>
+          name === 'Google' ? (
+            <Pressable
+              key={name}
+              onPress={onGooglePress}
+              disabled={googleLoading}
+              accessibilityRole="button"
+              accessibilityLabel="Masuk dengan Google"
+              accessibilityState={{ disabled: googleLoading, busy: googleLoading }}
+              className={`size-[56px] items-center justify-center rounded-full border border-slateBorder bg-white ${
+                googleLoading ? 'opacity-50' : ''
+              }`}
+              style={glassShadow}
+            >
+              {googleLoading ? <ActivityIndicator color="#0072B8" /> : <Icon />}
+            </Pressable>
+          ) : (
+            <View
+              key={name}
+              accessible
+              accessibilityLabel={`${name} (segera hadir)`}
+              accessibilityState={{ disabled: true }}
+              className="size-[56px] items-center justify-center rounded-full border border-slateBorder bg-white opacity-70"
+              style={glassShadow}
+            >
+              <Icon />
+            </View>
+          )
+        )}
       </View>
-      <Text className="text-center text-[11px] text-slate500">Segera hadir</Text>
+      <Text className="text-center text-[11px] text-slate500">
+        Facebook dan Microsoft segera hadir
+      </Text>
     </View>
   );
 }
