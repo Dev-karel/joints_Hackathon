@@ -13,6 +13,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Share, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -139,7 +140,7 @@ export default function ProfilScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="px-[20px] pb-[12px] pt-[14px]">
           <Text className="text-[20px] font-extrabold text-slateInk">Profil saya</Text>
@@ -365,6 +366,6 @@ export default function ProfilScreen() {
         }}
         onCancel={() => setConfirmLogout(false)}
       />
-    </View>
+    </GlassBackground>
   );
 }

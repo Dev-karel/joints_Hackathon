@@ -20,6 +20,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { INTER, Text } from '@/components/ui/AppText';
 import { BottomSheet } from '@/components/ui/BottomSheet';
@@ -60,7 +61,7 @@ export default function MatchScreen() {
   const [query, setQuery] = useState('');
 
   return (
-    <View className="flex-1 bg-white">
+    <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="px-[20px] pb-[12px] pt-[8px]">
           <View className="flex-row items-center gap-[10px] rounded-[24px] border border-slateBorder bg-white p-[14px]">
@@ -117,7 +118,7 @@ export default function MatchScreen() {
           </Text>
         </Pressable>
       </SafeAreaView>
-    </View>
+    </GlassBackground>
   );
 }
 
@@ -328,7 +329,7 @@ function BelajarTab({ query }: { query: string }) {
       >
       {/* Rekomendasi Partner Belajar */}
       {!query && (
-        <View className="border-b border-slateBorder bg-white">
+        <View className="border-b border-slateBorder bg-surfaceCanvas">
           <View className="px-[20px] pb-[8px] pt-[12px]">
             <Text className="text-[13px] font-extrabold text-slateInk">Partner yang cocok denganmu</Text>
           </View>
@@ -357,7 +358,7 @@ function BelajarTab({ query }: { query: string }) {
           )}
         </View>
       )}
-        <View className="bg-white">
+        <View className="bg-surfaceCanvas">
         <View className="flex-row items-center border-b border-slateBorder bg-slateSurface">
           {uniqueCourses.length > 1 && !query ? (
             <Pressable

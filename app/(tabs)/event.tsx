@@ -14,6 +14,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
@@ -163,7 +164,7 @@ export default function EventScreen() {
     e.event_rsvps.filter((r) => r.status === 'going' && friendIds.has(r.user_id)).length;
 
   return (
-    <View className="flex-1 bg-white">
+    <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="flex-row items-center justify-between px-[20px] pb-[12px] pt-[8px]">
           <Text className="text-[26px] font-extrabold tracking-[-0.52px] text-slateInk">Event</Text>
@@ -336,6 +337,6 @@ export default function EventScreen() {
           )}
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </GlassBackground>
   );
 }

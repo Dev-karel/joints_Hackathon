@@ -15,6 +15,7 @@ import { ActivityIndicator, Image, Pressable, ScrollView, StatusBar, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ArchetypeArt } from '@/components/archetype/ArchetypeArt';
+import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
@@ -144,11 +145,11 @@ export default function BerandaScreen() {
     .slice(0, MAX_PARTNERS);
 
   return (
-    <View className="flex-1 bg-white">
+    <GlassBackground>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       <SafeAreaView className="flex-1" edges={['top']}>
         {/* Header: lockup merek + Pesan + Notifikasi (permintaan pertemanan) */}
-        <View className="flex-row items-center justify-between bg-white px-[20px] py-[12px]">
+        <View className="flex-row items-center justify-between px-[20px] py-[12px]">
           <Image
             source={brandLockup}
             resizeMode="contain"
@@ -454,6 +455,6 @@ export default function BerandaScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </GlassBackground>
   );
 }
