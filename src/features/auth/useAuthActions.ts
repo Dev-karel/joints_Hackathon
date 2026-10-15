@@ -1,6 +1,6 @@
 import { queryClient } from '@/lib/queryClient';
 
-import { resendDeviceCode, signIn, signOut, verifyDeviceCode } from './api';
+import { deleteMyAccount, resendDeviceCode, signIn, signOut, verifyDeviceCode } from './api';
 import { useAuthStore } from './authStore';
 
 const setGate = (gate: ReturnType<typeof useAuthStore.getState>['gate']) =>
@@ -36,4 +36,10 @@ export async function logout() {
   await signOut();
   setGate({ kind: 'none' });
   queryClient.clear();
+}
+
+/** Hapus akun lalu bersihkan sesi lokal (token lama sudah tidak berlaku). */
+export async function deleteAccount() {
+  await deleteMyAccount();
+  await logout();
 }

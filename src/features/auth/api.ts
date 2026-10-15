@@ -100,6 +100,12 @@ export async function signOut() {
   await supabase.auth.signOut();
 }
 
+/** Hapus akun sendiri secara permanen (fungsi delete_my_account di database). */
+export async function deleteMyAccount() {
+  const { error } = await supabase.rpc('delete_my_account');
+  if (error) throw new Error('Gagal menghapus akun. Periksa internet kamu lalu coba lagi.');
+}
+
 /**
  * Dipakai saat app dibuka: sesi tersimpan di HP yang belum terverifikasi tidak dipercaya.
  * Jika pengecekan gagal karena koneksi, sesi dipertahankan (fail-open) supaya app tetap

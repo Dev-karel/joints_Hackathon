@@ -20,7 +20,7 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { TabHero } from '@/components/ui/TabHero';
 import { FormError } from '@/components/ui/FormError';
 import { useAuthStore } from '@/features/auth/authStore';
-import { logout } from '@/features/auth/useAuthActions';
+import { deleteAccount, logout } from '@/features/auth/useAuthActions';
 import { useProfile } from '@/features/auth/useProfile';
 import { useCourses, useMyCourseIds } from '@/features/courses/hooks';
 import { useFriendships } from '@/features/friends/hooks';
@@ -96,6 +96,9 @@ export default function ProfilScreen() {
 
   const [loggingOut, setLoggingOut] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const archetype = archetypeIdSchema.safeParse(profile?.personality_type);
   const info = archetype.success ? ARCHETYPES[archetype.data] : null;
@@ -352,6 +355,20 @@ export default function ProfilScreen() {
           >
             <Text className="text-[14px] font-bold text-danger">Keluar</Text>
           </Pressable>
+
+          {/* Hapus akun: sengaja kecil dan terpisah dari Keluar supaya tidak tertekan tidak sengaja. */}
+          <Pressable
+            onPress={() => {
+              setDeleteError(null);
+              setConfirmDelete(true);
+            }}
+            disabled={deleting}
+            accessibilityRole="button"
+            className="min-h-[48px] items-center justify-center"
+          >
+            <Text className="text-[13px] font-semibold text-slate500 underline">Hapus akun</Text>
+          </Pressable>
+          {deleteError ? <FormError message={deleteError} /> : null}
         </ScrollView>
       </SafeAreaView>
 
@@ -367,6 +384,24 @@ export default function ProfilScreen() {
           void logout();
         }}
         onCancel={() => setConfirmLogout(false)}
+      />
+
+      <ConfirmModal
+        visible={confirmDelete}
+        title="Hapus akun permanen?"
+        message="Profil, hasil kuis, mata kuliah, teman, dan pesanmu dihapus dan tidak bisa dikembalikan. Sesi yang kamu host akan kehilangan host-nya."
+        confirmLabel="Ya, hapus akun"
+        cancelLabel="Batal"
+        loading={deleting}
+        onConfirm={() => {
+          setDeleting(true);
+          deleteAccount().catch((e: unknown) => {
+            setDeleting(false);
+            setConfirmDelete(false);
+            setDeleteError(e instanceof Error ? e.message : 'Gagal menghapus akun.');
+          });
+        }}
+        onCancel={() => setConfirmDelete(false)}
       />
     </GlassBackground>
   );
