@@ -14,6 +14,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, StatusBar, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ArchetypeArt } from '@/components/archetype/ArchetypeArt';
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
@@ -95,7 +96,7 @@ export default function BerandaScreen() {
     }
   };
 
-  // "Ajak belajar": teman → langsung ngobrol; bukan teman → kirim permintaan pertemanan dulu.
+  // Tombol kartu rekomendasi: teman → langsung ngobrol; bukan teman → kirim permintaan pertemanan dulu.
   const invite = async (partnerId: string) => {
     setError(null);
     const rel = rows.find((r) => r.other_id === partnerId);
@@ -156,18 +157,18 @@ export default function BerandaScreen() {
           />
           <View className="flex-row items-center gap-[8px]">
             <Pressable
-              className="h-[40px] w-[40px] items-center justify-center rounded-[20px] bg-surfaceSky"
+              className="h-[48px] w-[48px] items-center justify-center rounded-[24px] bg-surfaceSky"
               accessibilityRole="button"
               accessibilityLabel={unreadTotal > 0 ? `Pesan, ${unreadTotal} belum dibaca` : 'Pesan'}
               onPress={() => router.push('/pesan' as Href)}
             >
               <MessageCircle size={20} color={palette.primary} />
               {unreadTotal > 0 ? (
-                <View className="rounded-full border-2 border-white bg-[#DC2626]" style={{ position: "absolute", right: 6, top: 6, width: 10, height: 10 }} />
+                <View className="rounded-full border-2 border-white bg-dangerDot" style={{ position: "absolute", right: 6, top: 6, width: 10, height: 10 }} />
               ) : null}
             </Pressable>
             <Pressable
-              className="h-[40px] w-[40px] items-center justify-center rounded-[20px] bg-surfaceSky"
+              className="h-[48px] w-[48px] items-center justify-center rounded-[24px] bg-surfaceSky"
               accessibilityRole="button"
               accessibilityLabel={
                 incoming.length > 0 || unreadTotal > 0
@@ -178,7 +179,7 @@ export default function BerandaScreen() {
             >
               <Bell size={20} color={palette.primary} />
               {incoming.length > 0 || unreadTotal > 0 ? (
-                <View className="rounded-full border-2 border-white bg-[#DC2626]" style={{ position: "absolute", right: 6, top: 6, width: 10, height: 10 }} />
+                <View className="rounded-full border-2 border-white bg-dangerDot" style={{ position: "absolute", right: 6, top: 6, width: 10, height: 10 }} />
               ) : null}
             </Pressable>
           </View>
@@ -212,7 +213,7 @@ export default function BerandaScreen() {
               </Text>
               {archetype.success ? (
                 <View className="flex-row items-center gap-[8px] self-start rounded-[20px] bg-accentSoft px-[16px] py-[8px]">
-                  <User size={16} color="#7C4700" />
+                  <ArchetypeArt type={archetype.data} size={22} />
                   <Text className="text-[13px] font-bold text-accent800">{ARCHETYPES[archetype.data].name}</Text>
                 </View>
               ) : null}
@@ -278,6 +279,7 @@ export default function BerandaScreen() {
                       onPress={() => router.push('/peta')}
                       accessibilityRole="button"
                       accessibilityLabel={`${zone.name}, ${zone.count} online`}
+                      hitSlop={{ top: 11, bottom: 11 }}
                       className="flex-row items-center gap-[6px] rounded-full bg-white py-[5px] pl-[9px] pr-[5px]"
                     >
                       <Text className="text-[12px] font-semibold text-slateInk">{zone.name}</Text>
@@ -314,10 +316,11 @@ export default function BerandaScreen() {
                       <Text className="text-center text-[13px] font-bold text-slateInk" numberOfLines={1}>
                         {friend.full_name}
                       </Text>
-                      <Text className="text-center text-[10px] text-slate500" numberOfLines={1}>
+                      <Text className="text-center text-[12px] text-slate500" numberOfLines={1}>
                         {[friend.major, archetypeName(friend.personality_type)].filter(Boolean).join(' · ') || 'Mahasiswa'}
                       </Text>
                       <Pressable
+                        hitSlop={{ top: 9, bottom: 9 }}
                         className="flex-row items-center justify-center gap-[6px] rounded-full bg-primary px-[14px] py-[7px]"
                         accessibilityRole="button"
                         accessibilityLabel={`Pesan ${friend.full_name}`}
@@ -372,16 +375,17 @@ export default function BerandaScreen() {
                           <Text className="text-[11px] font-bold text-accentText">{p.score}% Cocok</Text>
                         </View>
                         <Pressable
+                          hitSlop={{ top: 9, bottom: 9 }}
                           className={`w-full items-center justify-center rounded-full py-[7px] ${
                             sent ? 'border border-slateBorder bg-slateSurface' : 'bg-primary'
                           }`}
                           accessibilityRole="button"
-                          accessibilityLabel={`Ajak belajar ${p.full_name}`}
+                          accessibilityLabel={sent ? `${p.full_name}, permintaan teman menunggu balasan` : `Tambah ${p.full_name} sebagai teman`}
                           disabled={sendRequest.isPending}
                           onPress={() => void invite(p.user_id)}
                         >
                           <Text className={`text-[12px] font-bold ${sent ? 'text-slate500' : 'text-white'}`}>
-                            {sent ? 'Terkirim' : 'Ajak belajar'}
+                            {sent ? 'Menunggu balasan' : 'Tambah teman'}
                           </Text>
                         </Pressable>
                       </View>

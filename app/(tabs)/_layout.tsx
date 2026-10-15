@@ -3,6 +3,7 @@ import { CalendarDays, House, MapPin, User, UserCheck } from 'lucide-react-nativ
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
+import { INTER } from '@/components/ui/AppText';
 import { useAuthStore } from '@/features/auth/authStore';
 import { usePresenceHeartbeat } from '@/features/map/hooks';
 
@@ -22,7 +23,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: palette.accentText,
         tabBarInactiveTintColor: palette.slate500,
         tabBarActiveBackgroundColor: palette.accentSoft,
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 12, fontFamily: INTER.semibold },
         tabBarItemStyle: { marginHorizontal: 6, marginVertical: 8, borderRadius: 16, overflow: 'hidden' },
         tabBarStyle: {
           height: 72 + insets.bottom,
