@@ -19,6 +19,7 @@ import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { TabHero } from '@/components/ui/TabHero';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useProfile } from '@/features/auth/useProfile';
 import { goingCount, type EventItem } from '@/features/events/api';
@@ -166,9 +167,9 @@ export default function EventScreen() {
   return (
     <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
-        <View className="flex-row items-center justify-between px-[20px] pb-[12px] pt-[8px]">
-          <Text className="text-[26px] font-extrabold tracking-[-0.52px] text-slateInk">Event</Text>
-          {canCreate ? (
+        <TabHero
+          title="Event"
+          right={canCreate ? (
             <Pressable
               onPress={() => router.push('/event/buat')}
               accessibilityRole="button"
@@ -179,8 +180,8 @@ export default function EventScreen() {
               <Plus size={16} color={palette.accentText} />
               <Text className="text-[13px] font-bold text-accentText">Buat event</Text>
             </Pressable>
-          ) : null}
-        </View>
+          ) : undefined}
+        />
 
         <View>
           <ScrollView

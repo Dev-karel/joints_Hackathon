@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import {
+  CircleQuestionMark,
   CloudOff,
   Eye,
   EyeOff,
@@ -18,6 +19,9 @@ import { Text } from '@/components/ui/AppText';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { RankRow } from '@/components/ui/RankRow';
+import { SelectSheet } from '@/components/ui/SelectSheet';
+import { TabHero } from '@/components/ui/TabHero';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useProfile } from '@/features/auth/useProfile';
 import { useCourses, useMyCourseIds } from '@/features/courses/hooks';
@@ -52,33 +56,37 @@ const BANNER: Record<
   checking: {
     icon: Wifi,
     title: 'Memeriksa Wi-Fi...',
-    subtitle: 'Sebentar, mencocokkan ruanganmu',
+    subtitle: 'Mencocokkan ruanganmu',
   },
-  outside: { icon: WifiOff, title: 'Tidak di Wi-Fi kampus', subtitle: 'Kamu tidak tampil di peta' },
+  outside: {
+    icon: WifiOff,
+    title: 'Tidak di Wi-Fi kampus',
+    subtitle: 'Kamu tidak terlihat di peta',
+  },
   'no-wifi': {
     icon: WifiOff,
     title: 'Belum tersambung Wi-Fi',
-    subtitle: 'Kamu tidak tampil di peta',
+    subtitle: 'Kamu tidak terlihat di peta',
   },
   'no-permission': {
     icon: MapPinOff,
     title: 'Izin lokasi tepat belum ada',
-    subtitle: 'Hanya untuk membaca Wi-Fi, bukan GPS',
+    subtitle: 'Cuma untuk baca Wi-Fi',
   },
   'location-off': {
     icon: MapPinOff,
     title: 'Lokasi HP mati',
-    subtitle: 'Android butuh lokasi menyala untuk membaca Wi-Fi',
+    subtitle: 'Nyalakan lokasi untuk baca Wi-Fi',
   },
   unavailable: {
     icon: WifiOff,
     title: 'Wi-Fi tidak terbaca',
-    subtitle: 'Coba putuskan lalu sambungkan ulang Wi-Fi',
+    subtitle: 'Sambungkan ulang Wi-Fi',
   },
   offline: {
     icon: CloudOff,
     title: 'Tidak bisa menghubungi server',
-    subtitle: 'Wi-Fi kampus mungkin perlu login dulu',
+    subtitle: 'Mungkin perlu login Wi-Fi dulu',
   },
 };
 
@@ -121,6 +129,7 @@ export default function PetaScreen() {
   const [filter, setFilter] = useState<Filter>({ kind: 'all' });
   const [openZone, setOpenZone] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState<Notice | null>(null);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   const byZone = useMemo(
     () => new Map((canView ? (presence.data ?? []) : []).map((p) => [p.zone_id, p])),
@@ -216,6 +225,13 @@ export default function PetaScreen() {
     return sections.sort((a, b) => Number(b.mine) - Number(a.mine));
   }, [zones.data, byZone, canView, zoneId, userId, filter]);
 
+  // Peringkat ruangan berdasarkan jumlah orang (mengikuti filter yang aktif), 5 teratas.
+  const ranked = groups
+    .flatMap((g) => g.rooms.map((r) => ({ ...r, building: g.name })))
+    .filter((r) => r.count > 0)
+    .sort((a, b) => b.count - a.count || a.zone.name.localeCompare(b.zone.name))
+    .slice(0, 5);
+
   const notice: Notice | null = !sharing
     ? 'show'
     : status === 'no-wifi'
@@ -245,24 +261,29 @@ export default function PetaScreen() {
     <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-          <View className="flex-row items-center justify-between gap-[8px] px-[20px] pb-[10px] pt-[8px]">
-            <Text className="text-[24px] font-extrabold tracking-[-0.48px] text-slateInk">
-              Match Map
-            </Text>
+          <TabHero
+            title="Match Map"
+            right={
+              <Pressable
+                onPress={() => setGuideOpen(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Panduan Match Map"
+                className="min-h-[44px] flex-row items-center gap-[6px] rounded-full bg-white px-[14px]"
+              >
+                <CircleQuestionMark size={18} color={palette.primary} />
+                <Text className="text-[13px] font-bold text-primary">Panduan</Text>
+              </Pressable>
+            }
+          >
             <Pressable
               onPress={() => void sharingSwitch.toggle()}
               disabled={!profile || sharingSwitch.busy}
               accessibilityRole="switch"
               accessibilityState={{ checked: sharing, disabled: !profile || sharingSwitch.busy }}
-              accessibilityLabel="Tampil di peta"
-              hitSlop={6}
-              className="min-h-[48px] flex-row items-center gap-[8px]"
+              accessibilityLabel="Aku di kampus"
+              className="min-h-[52px] flex-row items-center justify-between gap-[8px] rounded-[18px] bg-white px-[16px]"
             >
-              <Text
-                className={`text-[13px] font-semibold ${sharing ? 'text-primary' : 'text-slate500'}`}
-              >
-                Tampil di peta
-              </Text>
+              <Text className="text-[15px] font-bold text-slateInk">Aku di kampus</Text>
               <View pointerEvents="none" className={sharingSwitch.busy ? 'opacity-60' : ''}>
                 <Switch
                   value={sharing}
@@ -271,41 +292,26 @@ export default function PetaScreen() {
                 />
               </View>
             </Pressable>
-          </View>
+          </TabHero>
 
           <View className="gap-[8px] px-[20px] pb-[12px]">
             <StatusBanner {...banner} active={sharing && status === 'in_zone'} />
             {sharingSwitch.message ? <FormError message={sharingSwitch.message} /> : null}
           </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className={canView ? '' : 'opacity-40'}
-            contentContainerStyle={{ gap: 8, paddingHorizontal: 20, paddingBottom: 16 }}
-          >
-            {chips.map((c) => {
-              const active = JSON.stringify(c.filter) === JSON.stringify(filter);
-              return (
-                <Pressable
-                  key={c.label}
-                  onPress={() => setFilter(c.filter)}
-                  disabled={!canView}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active, disabled: !canView }}
-                  className={`min-h-[40px] justify-center rounded-full px-[13px] ${
-                    active ? 'bg-primary' : 'border border-slateBorder bg-white'
-                  }`}
-                >
-                  <Text
-                    className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}
-                  >
-                    {c.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
+          <View className="px-[20px] pb-[16px]">
+            <SelectSheet
+              label="Tampilkan"
+              value={JSON.stringify(filter)}
+              disabled={!canView}
+              options={chips.map((c) => ({ value: JSON.stringify(c.filter), label: c.label }))}
+              onChange={(key) =>
+                setFilter(
+                  chips.find((c) => JSON.stringify(c.filter) === key)?.filter ?? { kind: 'all' }
+                )
+              }
+            />
+          </View>
 
           {zones.isPending ? (
             <ActivityIndicator color={palette.primary} />
@@ -331,6 +337,30 @@ export default function PetaScreen() {
                 accessibilityElementsHidden={!!shownNotice}
                 importantForAccessibility={shownNotice ? 'no-hide-descendants' : 'auto'}
               >
+                {canView && ranked.length > 0 ? (
+                  <View className="gap-[10px]">
+                    <View className="flex-row items-center justify-between gap-[8px]">
+                      <Text className="text-[17px] font-extrabold text-slateInk">
+                        Paling ramai sekarang
+                      </Text>
+                      <Legend />
+                    </View>
+                    {ranked.map((r, i) => (
+                      <RankRow
+                        key={r.zone.id}
+                        title={r.zone.name}
+                        subtitle={r.state === 'mine' ? `${r.building} · kamu di sini` : r.building}
+                        value={r.count}
+                        unit="orang"
+                        dotColor={levelColor(r.count)}
+                        highlight={i === 0}
+                        onPress={() => setOpenZone(r.zone.id)}
+                        a11yLabel={`Peringkat ${i + 1}, ${r.zone.name}, ${r.count} orang`}
+                      />
+                    ))}
+                  </View>
+                ) : null}
+
                 {groups.map((g) => (
                   <View key={g.id} className="gap-[10px]">
                     <View className="flex-row flex-wrap items-center gap-[8px]">
@@ -366,8 +396,7 @@ export default function PetaScreen() {
                   </View>
                 ))}
                 <Text className="text-[12px] leading-[18px] text-slate500">
-                  Ruangan dikenali dari access point Wi-Fi yang tersambung, jadi bisa terbaca
-                  sebagai ruangan sebelah. Kehadiran hilang sendiri 15 menit setelah aplikasi
+                  Bisa terbaca sebagai ruangan sebelah. Hilang sendiri 15 menit setelah aplikasi
                   ditutup.
                 </Text>
               </View>
@@ -388,6 +417,36 @@ export default function PetaScreen() {
         </ScrollView>
       </SafeAreaView>
 
+      <BottomSheet visible={guideOpen} onClose={() => setGuideOpen(false)}>
+        <Text className="w-full text-[20px] font-extrabold text-slateInk">
+          Cara kerja Match Map
+        </Text>
+        {[
+          [
+            'Wi-Fi → nama ruangan',
+            'Ruanganmu dikenali dari access point Wi-Fi kampus yang tersambung.',
+          ],
+          ['Tanpa GPS', 'Posisimu tidak dibaca. Yang terlihat cuma nama ruangan.'],
+          [
+            'Timbal balik',
+            'Kamu baru bisa melihat orang lain kalau kamu juga menyalakan "Aku di kampus".',
+          ],
+          ['Hilang 15 menit', 'Tutup aplikasi atau matikan saklar, kamu hilang sendiri dari peta.'],
+          [
+            'Satu orang = anonim',
+            'Ruangan berisi satu orang hanya menampilkan jumlah, tanpa nama.',
+          ],
+        ].map(([t, d]) => (
+          <View
+            key={t}
+            className="w-full gap-[2px] rounded-[14px] bg-surfaceSky px-[14px] py-[10px]"
+          >
+            <Text className="text-[14px] font-bold text-slateInk">{t}</Text>
+            <Text className="text-[13px] leading-[19px] text-slate500">{d}</Text>
+          </View>
+        ))}
+      </BottomSheet>
+
       <BottomSheet visible={!!open} onClose={() => setOpenZone(null)}>
         {open ? (
           <RoomDetail
@@ -406,6 +465,27 @@ export default function PetaScreen() {
         ) : null}
       </BottomSheet>
     </GlassBackground>
+  );
+}
+
+// Tingkat keramaian, sama dengan warna kartu ruangan: sepi abu, tenang biru muda, ramai biru.
+const levelColor = (count: number) =>
+  count >= 3 ? palette.primary : count > 0 ? palette.skyBlob : palette.slateBorderMuted;
+
+function Legend() {
+  return (
+    <View
+      className="flex-row items-center gap-[6px]"
+      accessibilityLabel="Skala: sepi, tenang, ramai"
+    >
+      <Text className="text-[12px] text-slate500">Sepi</Text>
+      <View className="h-[8px] w-[60px] flex-row overflow-hidden rounded-full">
+        <View className="flex-1" style={{ backgroundColor: palette.slateBorderMuted }} />
+        <View className="flex-1" style={{ backgroundColor: palette.skyBlob }} />
+        <View className="flex-1" style={{ backgroundColor: palette.primary }} />
+      </View>
+      <Text className="text-[12px] text-slate500">Ramai</Text>
+    </View>
   );
 }
 
@@ -449,10 +529,10 @@ function MapNotice({
     return (
       <NoticeCard
         icon={Eye}
-        title="Tampil dulu untuk melihat teman"
-        body="Peta hanya terbuka kalau kamu juga tampil. Orang lain cuma melihat nama ruanganmu, bukan posisi persisnya."
+        title="Nyalakan dulu buat lihat teman"
+        body="Orang lain cuma lihat nama ruanganmu, bukan posisimu."
       >
-        <PrimaryButton label="Tampilkan saya di peta" onPress={onShow} loading={busy} size="sm" />
+        <PrimaryButton label="Nyalakan sekarang" onPress={onShow} loading={busy} size="sm" />
         {permissionError ? (
           <Pressable
             onPress={() => void Linking.openSettings()}
@@ -472,7 +552,7 @@ function MapNotice({
       <NoticeCard
         icon={MapPinOff}
         title="Izinkan lokasi tepat"
-        body="Android hanya memberi nama Wi-Fi ke aplikasi yang punya izin lokasi tepat. AyokMatch tidak memakai GPS-mu."
+        body="Izin ini cuma untuk membaca Wi-Fi. GPS-mu tidak dipakai."
       >
         <PrimaryButton
           label="Buka pengaturan izin"
@@ -488,7 +568,7 @@ function MapNotice({
       <NoticeCard
         icon={MapPinOff}
         title="Nyalakan lokasi HP"
-        body="Saat lokasi mati, Android menyembunyikan nama Wi-Fi. Posisimu tetap tidak dipakai, hanya Wi-Fi-nya."
+        body="Android butuh lokasi menyala untuk membaca Wi-Fi. GPS-mu tidak dipakai."
       >
         <PrimaryButton
           label="Buka pengaturan lokasi"
@@ -505,8 +585,8 @@ function MapNotice({
       title="Sambung ke Wi-Fi kampus"
       body={
         kind === 'outside'
-          ? 'Wi-Fi yang tersambung belum terdaftar sebagai Wi-Fi kampus. Ruanganmu dikenali dari Wi-Fi yang tersambung. Tanpa GPS.'
-          : 'Ruanganmu dikenali dari Wi-Fi yang tersambung. Tanpa GPS.'
+          ? 'Wi-Fi ini belum terdaftar sebagai Wi-Fi kampus.'
+          : 'Ruanganmu dikenali dari Wi-Fi, tanpa GPS.'
       }
     >
       <PrimaryButton
@@ -550,7 +630,7 @@ function RoomDetail({
         <Text className="text-[14px] leading-[21px] text-slate500">
           {room.state === 'mine'
             ? 'Hanya kamu di ruangan ini.'
-            : 'Identitas disembunyikan karena hanya satu orang di ruangan ini.'}
+            : 'Cuma satu orang, jadi namanya disembunyikan.'}
         </Text>
       ) : (
         members.map((m) => {

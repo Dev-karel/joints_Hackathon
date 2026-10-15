@@ -95,7 +95,7 @@ export default function DaftarWifiScreen() {
   return (
     <AuthScreen
       title="Daftarkan Wi-Fi"
-      subtitle="Sambungkan HP ke Wi-Fi di ruangan yang mau didaftarkan, lalu pilih zonanya. Ulangi untuk tiap access point dan band."
+      subtitle="Sambungkan ke Wi-Fi ruangan, lalu pilih zonanya. Ulangi untuk tiap access point."
       onBack={() => router.back()}
     >
       <View className="gap-[6px]">

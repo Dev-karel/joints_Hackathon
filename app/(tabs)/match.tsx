@@ -17,13 +17,24 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { INTER, Text } from '@/components/ui/AppText';
 import { BottomSheet } from '@/components/ui/BottomSheet';
+import { RankRow } from '@/components/ui/RankRow';
+import { SelectSheet } from '@/components/ui/SelectSheet';
+import { TabHero } from '@/components/ui/TabHero';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -31,9 +42,9 @@ import { formatTime } from '@/features/events/format';
 import { useFriendships } from '@/features/friends/hooks';
 import type { TeamOpening } from '@/features/lomba/api';
 import { useOpenings } from '@/features/lomba/hooks';
-import type { Partner, StudySession } from '@/features/match/api';
+import type { StudySession } from '@/features/match/api';
 import { usePartners, useProfiles, useSessions } from '@/features/match/hooks';
-import { archetypeName, archetypePill } from '@/features/personality/archetype';
+import { archetypeName } from '@/features/personality/archetype';
 import { useNow } from '@/lib/useNow';
 import { COMPETITION_CATEGORIES } from '@/lib/validation/competition';
 import { SESSION_KINDS } from '@/lib/validation/studySession';
@@ -43,7 +54,9 @@ const DAYS_UPPER = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
 const sameDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();
 
 // Ikon mata kuliah: tebakan dari nama; cadangannya buku.
 function subjectIcon(courseName: string | undefined): LucideIcon {
@@ -63,11 +76,34 @@ export default function MatchScreen() {
   return (
     <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
-        <View className="px-[20px] pb-[12px] pt-[8px]">
-          <View className="flex-row items-center gap-[10px] rounded-[24px] border border-slateBorder bg-white p-[14px]">
+        <TabHero title="Match">
+          {/* Belajar / Lomba sebagai pilihan bersegmen di dalam blok biru */}
+          <View className="flex-row rounded-full bg-primaryDeep p-[4px]">
+            {(['belajar', 'lomba'] as const).map((t) => {
+              const active = tab === t;
+              return (
+                <Pressable
+                  key={t}
+                  onPress={() => setTab(t)}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: active }}
+                  className={`min-h-[44px] flex-1 items-center justify-center rounded-full ${
+                    active ? 'bg-white' : ''
+                  }`}
+                >
+                  <Text
+                    className={`text-[15px] font-bold ${active ? 'text-primary' : 'text-white'}`}
+                  >
+                    {t === 'belajar' ? 'Belajar' : 'Lomba'}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <View className="min-h-[48px] flex-row items-center gap-[10px] rounded-[18px] bg-white px-[14px]">
             <Search size={18} color={palette.primary} />
             <TextInput
- maxFontSizeMultiplier={1.3}
+              maxFontSizeMultiplier={1.3}
               value={query}
               onChangeText={setQuery}
               placeholder="Cari sesi, mata kuliah, atau lomba"
@@ -79,27 +115,7 @@ export default function MatchScreen() {
               className="flex-1 text-[14px] text-slateInk"
             />
           </View>
-        </View>
-
-        <View className="flex-row border-b border-slateBorder">
-          {(['belajar', 'lomba'] as const).map((t) => {
-            const active = tab === t;
-            return (
-              <Pressable
-                key={t}
-                onPress={() => setTab(t)}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: active }}
-                className="flex-1 items-center gap-[10px] pt-[12px]"
-              >
-                <Text className={`text-[15px] font-bold ${active ? 'text-primary' : 'text-slate500'}`}>
-                  {t === 'belajar' ? 'Belajar' : 'Lomba'}
-                </Text>
-                <View className={`h-[3px] w-full rounded-t-[3px] ${active ? 'bg-primary' : ''}`} />
-              </Pressable>
-            );
-          })}
-        </View>
+        </TabHero>
 
         {tab === 'belajar' ? <BelajarTab query={query} /> : <LombaTab query={query} />}
 
@@ -147,11 +163,13 @@ function GroupHeader({
         tone === 'warm' ? 'bg-accent50' : 'bg-slate100'
       }`}
     >
-      <Text className={`text-[16px] font-extrabold ${tone === 'warm' ? 'text-accent800' : 'text-slateInk'}`}>
+      <Text
+        className={`text-[16px] font-extrabold ${tone === 'warm' ? 'text-accent800' : 'text-slateInk'}`}
+      >
         {title}
       </Text>
       <Text className="flex-1 text-[13px] text-slate500">
-        | {count} {unit}
+        · {count} {unit}
       </Text>
       {onToggle ? <Chevron size={20} color={palette.slate500} /> : null}
     </Pressable>
@@ -173,73 +191,24 @@ function CapacityBadge({ current, max }: { current: number; max: number }) {
   );
 }
 
-// ───────────────────────── Partner Card ─────────────────────────
+// ───────────────────────── Avatar partner ─────────────────────────
 
-function PartnerCard({ partner, onPress }: { partner: Partner; onPress: () => void }) {
-  // Skor dari database sudah 0–100 (recommend_study_partners).
-  const scorePercent = Math.max(0, Math.min(100, Math.round(partner.score)));
-  const pill = archetypePill(partner.personality_type);
-
+function PartnerAvatar({ name, uri }: { name: string; uri: string | null }) {
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={`Partner ${partner.full_name}`}
-      className="w-[160px] rounded-[16px] border border-slateBorder bg-white p-[12px]"
-    >
-      <View className="items-center gap-[8px]">
-        {/* Avatar */}
-        <View className="h-[56px] w-[56px] items-center justify-center rounded-full bg-surfaceSky">
-          {partner.avatar_url ? (
-            <Image
-              source={{ uri: partner.avatar_url }}
-              className="h-full w-full rounded-full"
-              resizeMode="cover"
-              accessibilityIgnoresInvertColors
-            />
-          ) : (
-            <User size={28} color={palette.primary} />
-          )}
-        </View>
-
-        {/* Nama */}
-        <Text className="text-center text-[14px] font-bold text-slateInk" numberOfLines={1}>
-          {partner.full_name}
+    <View className="size-[44px] items-center justify-center overflow-hidden rounded-full bg-surfaceSky">
+      {uri ? (
+        <Image
+          source={{ uri }}
+          className="h-full w-full"
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+        />
+      ) : (
+        <Text className="text-[17px] font-extrabold text-primary">
+          {name.trim().charAt(0).toUpperCase()}
         </Text>
-
-        {/* Major */}
-        {partner.major && (
-          <Text className="text-center text-[11px] text-slate500" numberOfLines={1}>
-            {partner.major}
-          </Text>
-        )}
-
-        {/* Archetype Badge */}
-        {pill ? (
-          <View className="rounded-[6px] px-[8px] py-[3px]" style={{ backgroundColor: pill.bg }}>
-            <Text className="text-[12px] font-semibold" style={{ color: pill.text }}>
-              {archetypeName(partner.personality_type)}
-            </Text>
-          </View>
-        ) : null}
-
-        {/* Shared Courses */}
-        <View className="flex-row items-center gap-[4px]">
-          <BookOpen size={12} color={palette.slate500} />
-          <Text className="text-[11px] text-slate500">
-            {partner.shared_courses} mata kuliah sama
-          </Text>
-        </View>
-
-        {/* Match Score */}
-        <View className="mt-[4px] w-full items-center rounded-[8px] bg-slate100 py-[6px]">
-          <Text className="text-[12px] font-semibold text-slate500">Kecocokan</Text>
-          <Text className="text-[18px] font-extrabold text-primary">
-            {scorePercent}%
-          </Text>
-        </View>
-      </View>
-    </Pressable>
+      )}
+    </View>
   );
 }
 
@@ -256,6 +225,7 @@ function BelajarTab({ query }: { query: string }) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [courseFilter, setCourseFilter] = useState<string>('Semua');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [showAllPartners, setShowAllPartners] = useState(false);
 
   const days = useMemo(
     () => Array.from({ length: 7 }, (_, i) => new Date(now + i * DAY_MS)),
@@ -269,7 +239,10 @@ function BelajarTab({ query }: { query: string }) {
     id ? (hosts.data?.find((h) => h.id === id)?.full_name ?? '...') : null;
 
   const friendIds = useMemo(
-    () => new Set((friendships.data ?? []).filter((f) => f.status === 'accepted').map((f) => f.other_id)),
+    () =>
+      new Set(
+        (friendships.data ?? []).filter((f) => f.status === 'accepted').map((f) => f.other_id)
+      ),
     [friendships.data]
   );
 
@@ -285,9 +258,15 @@ function BelajarTab({ query }: { query: string }) {
     courseFilter === 'Semua' || s.courses?.name === courseFilter;
 
   const all = useMemo(() => sessions.data ?? [], [sessions.data]);
-  const countOn = (d: Date) => all.filter((s) => sameDay(new Date(s.starts_at), d) && matchesCourseFilter(s)).length;
+  const countOn = (d: Date) =>
+    all.filter((s) => sameDay(new Date(s.starts_at), d) && matchesCourseFilter(s)).length;
   // Saat mencari, tampilkan semua hari supaya hasilnya tidak tersembunyi di hari lain.
-  const visible = all.filter((s) => matchesQuery(s) && matchesCourseFilter(s) && (q !== '' || sameDay(new Date(s.starts_at), days[dayIndex])));
+  const visible = all.filter(
+    (s) =>
+      matchesQuery(s) &&
+      matchesCourseFilter(s) &&
+      (q !== '' || sameDay(new Date(s.starts_at), days[dayIndex]))
+  );
 
   // Get unique courses for filter
   const uniqueCourses = useMemo(() => {
@@ -301,7 +280,10 @@ function BelajarTab({ query }: { query: string }) {
   const groups = useMemo(() => {
     const byHour = new Map<string, StudySession[]>();
     for (const s of visible) {
-      const key = q !== '' ? `${DAYS_UPPER[new Date(s.starts_at).getDay()]} ${formatTime(s.starts_at)}` : formatTime(s.starts_at);
+      const key =
+        q !== ''
+          ? `${DAYS_UPPER[new Date(s.starts_at).getDay()]} ${formatTime(s.starts_at)}`
+          : formatTime(s.starts_at);
       byHour.set(key, [...(byHour.get(key) ?? []), s]);
     }
     return [...byHour.entries()];
@@ -324,100 +306,148 @@ function BelajarTab({ query }: { query: string }) {
         contentContainerStyle={{ paddingBottom: 96 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={sessions.isRefetching} onRefresh={() => void sessions.refetch()} />
+          <RefreshControl
+            refreshing={sessions.isRefetching}
+            onRefresh={() => void sessions.refetch()}
+          />
         }
       >
-      {/* Rekomendasi Partner Belajar */}
-      {!query && (
-        <View className="border-b border-slateBorder bg-surfaceCanvas">
-          <View className="px-[20px] pb-[8px] pt-[12px]">
-            <Text className="text-[13px] font-extrabold text-slateInk">Partner yang cocok denganmu</Text>
+        {/* Rekomendasi Partner Belajar */}
+        {!query && (
+          <View className="border-b border-slateBorder bg-surfaceCanvas">
+            <View className="gap-[6px] px-[20px] pb-[10px] pt-[14px]">
+              <Text className="text-[17px] font-extrabold text-slateInk">Partner terbaik</Text>
+              {/* Transparansi skor (METHODOLOGY §15): menjawab "skornya dari mana?". */}
+              <Text className="text-[12px] leading-[18px] text-slate500">
+                Skor dari 100 = mata kuliah sama (60, berbobot SKS) + archetype (20 sama, 10 beda) +
+                jurusan sama (10) + sesi bersama (10).
+              </Text>
+            </View>
+            {partners.isPending ? (
+              <View className="items-center py-[16px]">
+                <ActivityIndicator size="small" color={palette.primary} />
+              </View>
+            ) : partners.isError ? (
+              <View className="gap-[10px] px-[20px] pb-[14px]">
+                <FormError message="Gagal memuat rekomendasi. Periksa internet kamu." size={13} />
+                <PrimaryButton
+                  label="Coba lagi"
+                  variant="outline"
+                  onPress={() => void partners.refetch()}
+                />
+              </View>
+            ) : (partners.data ?? []).length === 0 ? (
+              <View className="px-[20px] pb-[14px]">
+                <Text className="text-[13px] text-slate500">
+                  Belum ada rekomendasi. Lengkapi mata kuliahmu dulu.
+                </Text>
+              </View>
+            ) : (
+              <View className="gap-[8px] px-[20px] pb-[14px]">
+                {(partners.data ?? []).slice(0, showAllPartners ? 10 : 3).map((p, i) => (
+                  <RankRow
+                    key={p.user_id}
+                    title={p.full_name}
+                    subtitle={[
+                      archetypeName(p.personality_type),
+                      `${p.shared_courses} mata kuliah sama`,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                    value={Math.max(0, Math.min(100, Math.round(p.score)))}
+                    unit="dari 100"
+                    highlight={i === 0}
+                    leading={<PartnerAvatar name={p.full_name} uri={p.avatar_url} />}
+                    onPress={() =>
+                      router.push({ pathname: '/profil/[id]', params: { id: p.user_id } })
+                    }
+                    a11yLabel={`Peringkat ${i + 1}, ${p.full_name}, skor ${Math.round(p.score)} dari 100`}
+                  />
+                ))}
+                {(partners.data ?? []).length > 3 ? (
+                  <Pressable
+                    onPress={() => setShowAllPartners((v) => !v)}
+                    accessibilityRole="button"
+                    className="min-h-[44px] items-center justify-center"
+                  >
+                    <Text className="text-[14px] font-semibold text-primary">
+                      {showAllPartners
+                        ? 'Tampilkan lebih sedikit'
+                        : `Lihat ${Math.min(10, partners.data!.length) - 3} lainnya`}
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            )}
           </View>
-          {partners.isPending ? (
-            <View className="items-center py-[16px]">
-              <ActivityIndicator size="small" color={palette.primary} />
-            </View>
-          ) : partners.isError ? (
-            <View className="px-[20px] pb-[12px]">
-              <Text className="text-[12px] text-slate500">Gagal memuat rekomendasi.</Text>
-            </View>
-          ) : (partners.data ?? []).length === 0 ? (
-            <View className="px-[20px] pb-[12px]">
-              <Text className="text-[12px] text-slate500">Belum ada rekomendasi. Lengkapi mata kuliahmu dulu.</Text>
-            </View>
-          ) : (
+        )}
+        <View className="bg-surfaceCanvas">
+          <View className="flex-row items-center border-b border-slateBorder bg-slateSurface">
+            {uniqueCourses.length > 1 && !query ? (
+              <Pressable
+                onPress={() => setFilterOpen(true)}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  courseFilter === 'Semua'
+                    ? 'Filter mata kuliah'
+                    : `Filter mata kuliah: ${courseFilter}`
+                }
+                style={{ width: 50, height: 56, borderRadius: 14, marginLeft: 20 }}
+                className={`items-center justify-center ${
+                  courseFilter === 'Semua' ? 'border border-slateBorder bg-white' : 'bg-primary'
+                }`}
+              >
+                <SlidersHorizontal
+                  size={20}
+                  color={courseFilter === 'Semua' ? palette.slateInk : '#FFFFFF'}
+                />
+              </Pressable>
+            ) : null}
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12, gap: 12 }}
+              className="flex-1"
+              contentContainerStyle={{
+                paddingHorizontal: 12,
+                paddingLeft: uniqueCourses.length > 1 && !query ? 8 : 20,
+                paddingVertical: 12,
+                gap: 8,
+              }}
             >
-              {partners.data?.slice(0, 10).map((p) => (
-                <PartnerCard key={p.user_id} partner={p} onPress={() => router.push('/profil/' + p.user_id as any)} />
-              ))}
+              {days.map((d, i) => {
+                const active = i === dayIndex;
+                const empty = countOn(d) === 0;
+                return (
+                  <Pressable
+                    key={i}
+                    onPress={() => setDayIndex(i)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    // Ukuran lewat style supaya chip tidak menyusut jadi pil sempit.
+                    style={{ width: 50, height: 56, borderRadius: 14, flexShrink: 0 }}
+                    className={`items-center justify-center ${
+                      active ? 'bg-primary' : 'border border-slateBorder bg-white'
+                    }`}
+                  >
+                    <Text
+                      className={`text-[12px] font-bold ${
+                        active ? 'text-white' : empty ? 'text-slate500' : 'text-slateInk'
+                      }`}
+                    >
+                      {DAYS_UPPER[d.getDay()]}
+                    </Text>
+                    <Text
+                      className={`text-[17px] font-extrabold ${
+                        active ? 'text-white' : empty ? 'text-slate500' : 'text-slateInk'
+                      }`}
+                    >
+                      {d.getDate()}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </ScrollView>
-          )}
-        </View>
-      )}
-        <View className="bg-surfaceCanvas">
-        <View className="flex-row items-center border-b border-slateBorder bg-slateSurface">
-          {uniqueCourses.length > 1 && !query ? (
-            <Pressable
-              onPress={() => setFilterOpen(true)}
-              accessibilityRole="button"
-              accessibilityLabel={
-                courseFilter === 'Semua' ? 'Filter mata kuliah' : `Filter mata kuliah: ${courseFilter}`
-              }
-              style={{ width: 50, height: 56, borderRadius: 14, marginLeft: 20 }}
-              className={`items-center justify-center ${
-                courseFilter === 'Semua' ? 'border border-slateBorder bg-white' : 'bg-primary'
-              }`}
-            >
-              <SlidersHorizontal
-                size={20}
-                color={courseFilter === 'Semua' ? palette.slateInk : '#FFFFFF'}
-              />
-            </Pressable>
-          ) : null}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="flex-1"
-            contentContainerStyle={{ paddingHorizontal: 12, paddingLeft: uniqueCourses.length > 1 && !query ? 8 : 20, paddingVertical: 12, gap: 8 }}
-          >
-            {days.map((d, i) => {
-              const active = i === dayIndex;
-              const empty = countOn(d) === 0;
-              return (
-                <Pressable
-                  key={i}
-                  onPress={() => setDayIndex(i)}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                  // Ukuran lewat style supaya chip tidak menyusut jadi pil sempit.
-                  style={{ width: 50, height: 56, borderRadius: 14, flexShrink: 0 }}
-                  className={`items-center justify-center ${
-                    active ? 'bg-primary' : 'border border-slateBorder bg-white'
-                  }`}
-                >
-                  <Text
-                    className={`text-[12px] font-bold ${
-                      active ? 'text-white' : empty ? 'text-slate500' : 'text-slateInk'
-                    }`}
-                  >
-                    {DAYS_UPPER[d.getDay()]}
-                  </Text>
-                  <Text
-                    className={`text-[17px] font-extrabold ${
-                      active ? 'text-white' : empty ? 'text-slate500' : 'text-slateInk'
-                    }`}
-                  >
-                    {d.getDate()}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </View>
+          </View>
         </View>
         {sessions.isPending ? (
           <View className="items-center py-[32px]">
@@ -426,7 +456,11 @@ function BelajarTab({ query }: { query: string }) {
         ) : sessions.isError ? (
           <View className="gap-[10px] px-[20px] pt-[16px]">
             <FormError message="Gagal memuat sesi. Periksa internet kamu." size={14} />
-            <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void sessions.refetch()} />
+            <PrimaryButton
+              label="Coba lagi"
+              variant="outline"
+              onPress={() => void sessions.refetch()}
+            />
           </View>
         ) : groups.length === 0 ? (
           <View className="items-center gap-[6px] px-[20px] py-[40px]">
@@ -453,12 +487,16 @@ function BelajarTab({ query }: { query: string }) {
                     const Icon = subjectIcon(s.courses?.name);
                     const count = s.study_session_members.length;
                     const full = count >= s.capacity;
-                    const friendsIn = s.study_session_members.filter((m) => friendIds.has(m.user_id)).length;
+                    const friendsIn = s.study_session_members.filter((m) =>
+                      friendIds.has(m.user_id)
+                    ).length;
                     const host = hostName(s.host_id);
                     return (
                       <Pressable
                         key={s.id}
-                        onPress={() => router.push({ pathname: '/sesi/[id]', params: { id: s.id } })}
+                        onPress={() =>
+                          router.push({ pathname: '/sesi/[id]', params: { id: s.id } })
+                        }
                         accessibilityRole="button"
                         accessibilityLabel={s.title}
                         className="flex-row items-start gap-[12px] border-b border-slateBorder px-[20px] py-[14px]"
@@ -467,10 +505,15 @@ function BelajarTab({ query }: { query: string }) {
                           <Icon size={18} color={palette.primary} />
                         </View>
                         <View className="flex-1 gap-[3px]">
-                          <Text className="text-[11px] font-semibold text-slate500" numberOfLines={1}>
+                          <Text
+                            className="text-[11px] font-semibold text-slate500"
+                            numberOfLines={1}
+                          >
                             {host ? `oleh ${host}` : 'Tanpa host'}
                           </Text>
-                          <Text className="text-[15px] font-extrabold text-slateInk">{s.title}</Text>
+                          <Text className="text-[15px] font-extrabold text-slateInk">
+                            {s.title}
+                          </Text>
                           <View className="flex-row items-center gap-[8px] pt-[3px]">
                             <View className="rounded-[6px] bg-slate100 px-[8px] py-[3px]">
                               <Text className="text-[11px] font-semibold text-slateInk">
@@ -610,30 +653,16 @@ function LombaTab({ query }: { query: string }) {
 
   return (
     <View className="flex-1">
-      <View className="bg-slateSurface">
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
-        >
-          {['Semua', ...COMPETITION_CATEGORIES.filter((c) => c !== 'Lainnya')].map((c) => {
-            const active = c === category;
-            return (
-              <Pressable
-                key={c}
-                onPress={() => setCategory(c)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                hitSlop={{ top: 7, bottom: 7 }}
-                className={`rounded-full px-[14px] py-[7px] ${
-                  active ? 'bg-primary' : 'border border-slateBorder bg-white'
-                }`}
-              >
-                <Text className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}>{c}</Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+      <View className="border-b border-slateBorder bg-slateSurface px-[20px] py-[12px]">
+        <SelectSheet
+          label="Kategori"
+          value={category}
+          options={['Semua', ...COMPETITION_CATEGORIES.filter((c) => c !== 'Lainnya')].map((c) => ({
+            value: c,
+            label: c,
+          }))}
+          onChange={setCategory}
+        />
       </View>
 
       <ScrollView
@@ -641,7 +670,10 @@ function LombaTab({ query }: { query: string }) {
         contentContainerStyle={{ paddingBottom: 96 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={openings.isRefetching} onRefresh={() => void openings.refetch()} />
+          <RefreshControl
+            refreshing={openings.isRefetching}
+            onRefresh={() => void openings.refetch()}
+          />
         }
       >
         {openings.isPending ? (
@@ -651,7 +683,11 @@ function LombaTab({ query }: { query: string }) {
         ) : openings.isError ? (
           <View className="gap-[10px] px-[20px] pt-[16px]">
             <FormError message="Gagal memuat lomba. Periksa internet kamu." size={14} />
-            <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void openings.refetch()} />
+            <PrimaryButton
+              label="Coba lagi"
+              variant="outline"
+              onPress={() => void openings.refetch()}
+            />
           </View>
         ) : list.length === 0 ? (
           <View className="items-center gap-[6px] px-[20px] py-[40px]">

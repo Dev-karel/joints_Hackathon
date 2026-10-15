@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { useToggleSharing } from './hooks';
 
 const NO_PERMISSION =
-  'Izin lokasi presisi ditolak. Izin ini hanya dipakai untuk membaca nama Wi-Fi, bukan untuk GPS. Aktifkan di pengaturan lalu coba lagi.';
+  'Izin lokasi tepat ditolak. Aktifkan di pengaturan, lalu coba lagi.';
 const FAILED = 'Gagal mengubah pengaturan. Periksa internet kamu lalu coba lagi.';
 
 /**

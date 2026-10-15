@@ -335,7 +335,7 @@ export default function TemanScreen() {
               {searching
                 ? 'Tidak ada mahasiswa dengan nama itu.'
                 : filter === 'all'
-                  ? 'Belum ada rekomendasi. Pilih mata kuliah di Profil supaya kami bisa mencarikan.'
+                  ? 'Belum ada rekomendasi. Pilih mata kuliah di Profil dulu.'
                   : 'Belum ada yang cocok dengan filter ini.'}
             </Text>
           ) : (

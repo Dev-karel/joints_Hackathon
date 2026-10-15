@@ -17,6 +17,7 @@ import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { TabHero } from '@/components/ui/TabHero';
 import { FormError } from '@/components/ui/FormError';
 import { useAuthStore } from '@/features/auth/authStore';
 import { logout } from '@/features/auth/useAuthActions';
@@ -142,9 +143,10 @@ export default function ProfilScreen() {
   return (
     <GlassBackground>
       <SafeAreaView className="flex-1" edges={['top']}>
-        <View className="px-[20px] pb-[12px] pt-[14px]">
-          <Text className="text-[20px] font-extrabold text-slateInk">Profil saya</Text>
-        </View>
+        <TabHero
+          title="Profil saya"
+          subtitle={info ? `${info.name} · ${info.tagline}` : 'Kepribadian, teman, dan privasimu.'}
+        />
 
         <ScrollView
           className="flex-1"
@@ -281,14 +283,14 @@ export default function ProfilScreen() {
                 checked: sharingSwitch.value,
                 disabled: !profile || sharingSwitch.busy,
               }}
-              accessibilityLabel="Tampil di peta"
+              accessibilityLabel="Aku di kampus"
               className="min-h-[64px] flex-row items-center gap-[12px] py-[12px]"
             >
               <MapPin size={20} color={palette.primary} />
               <View className="flex-1">
-                <Text className="text-[14px] font-bold text-slateInk">Tampil di peta</Text>
+                <Text className="text-[14px] font-bold text-slateInk">Aku di kampus</Text>
                 <Text className="text-[12px] text-slate500">
-                  Hanya nama ruangan yang terlihat, bukan lokasi pastimu.
+                  Orang lain cuma lihat nama ruanganmu.
                 </Text>
               </View>
               <View pointerEvents="none" className={sharingSwitch.busy ? 'opacity-60' : ''}>
@@ -356,7 +358,7 @@ export default function ProfilScreen() {
       <ConfirmModal
         visible={confirmLogout}
         title="Keluar dari akun?"
-        message="Kamu perlu masuk lagi dengan email dan kata sandi. Kalau HP ini belum dikenali, kode OTP akan dikirim ke email kampusmu."
+        message="Kamu perlu masuk lagi dengan email dan kata sandi."
         confirmLabel="Ya, keluar"
         cancelLabel="Batal"
         loading={loggingOut}

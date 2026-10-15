@@ -19,6 +19,7 @@ import { GlassBackground } from '@/components/glass/GlassBackground';
 import { palette } from '@/components/onboarding/palette';
 import { Text } from '@/components/ui/AppText';
 import { FormError } from '@/components/ui/FormError';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
 import { useProfile } from '@/features/auth/useProfile';
 import { useStartDirect, useUnreadTotal } from '@/features/chat/hooks';
@@ -127,8 +128,8 @@ export default function BerandaScreen() {
     onlineTotal > 0
       ? `${onlineTotal} orang online di kampus`
       : profile?.show_on_map
-        ? 'Sambungkan ke Wi-Fi kampus untuk tampil di peta'
-        : 'Nyalakan "Tampil di peta" untuk melihat siapa yang online';
+        ? 'Sambungkan ke Wi-Fi kampus'
+        : 'Nyalakan "Aku di kampus" buat lihat siapa yang online';
 
   const todayList = useMemo(() => {
     const now = new Date();
@@ -191,36 +192,98 @@ export default function BerandaScreen() {
           contentContainerStyle={{ paddingTop: 8, paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Kartu profil → tab Profil */}
-          <Pressable
-            onPress={() => router.push('/profil')}
-            accessibilityRole="button"
-            accessibilityLabel="Buka profilku"
-            className="mx-[20px] mb-[16px] min-h-[81px] flex-row items-center rounded-[20px] border border-[rgba(0,0,0,0.16)] bg-white p-[11px]"
-            style={{ elevation: 4 }}
-          >
-            <View className="h-[60px] w-[60px] overflow-hidden rounded-[24px] bg-slate100">
-              {profile?.avatar_url ? (
-                <Image source={{ uri: profile.avatar_url }} className="h-full w-full" resizeMode="cover" />
-              ) : (
-                <View className="h-full w-full items-center justify-center bg-surfaceSky">
-                  <User size={32} color={palette.primary} />
+          {/* Blok pembuka: siapa kamu + status Match Map (pembeda AyokMatch) dalam satu bidang biru. */}
+          <View className="mx-[20px] mb-[18px] gap-[16px] rounded-[28px] bg-primary px-[20px] pb-[18px] pt-[18px]">
+            <Pressable
+              onPress={() => router.push('/profil')}
+              accessibilityRole="button"
+              accessibilityLabel="Buka profilku"
+              className="flex-row items-center gap-[14px]"
+            >
+              <View className="flex-1 gap-[8px]">
+                <Text className="text-[14px] text-white">Halo,</Text>
+                <Text
+                  className="text-[26px] font-extrabold leading-[32px] tracking-[-0.4px] text-white"
+                  numberOfLines={2}
+                >
+                  {profile?.full_name ?? '...'}
+                </Text>
+                {archetype.success ? (
+                  <View className="self-start rounded-full bg-accentSoft px-[14px] py-[6px]">
+                    <Text className="text-[13px] font-bold text-accentText">
+                      {ARCHETYPES[archetype.data].name} · {ARCHETYPES[archetype.data].tagline}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+              {/* Foto profil, dengan ilustrasi archetype sebagai lencana di pojoknya. */}
+              <View>
+                <View className="h-[84px] w-[84px] items-center justify-center overflow-hidden rounded-full border-[3px] border-white bg-surfaceSky">
+                  {profile?.avatar_url ? (
+                    <Image
+                      source={{ uri: profile.avatar_url }}
+                      className="h-full w-full"
+                      resizeMode="cover"
+                      accessibilityIgnoresInvertColors
+                    />
+                  ) : (
+                    <User size={36} color={palette.primary} />
+                  )}
                 </View>
-              )}
-            </View>
-            <View className="ml-[13px] flex-1 gap-[5px]">
-              <Text className="text-[16px] font-bold text-slateInk" numberOfLines={1}>
-                {profile?.full_name ?? '...'}
-              </Text>
-              {archetype.success ? (
-                <View className="flex-row items-center gap-[8px] self-start rounded-[20px] bg-accentSoft px-[16px] py-[8px]">
-                  <ArchetypeArt type={archetype.data} size={22} />
-                  <Text className="text-[13px] font-bold text-accent800">{ARCHETYPES[archetype.data].name}</Text>
+                {archetype.success ? (
+                  <View
+                    className="h-[40px] w-[40px] items-center justify-center rounded-full border-2 border-primary bg-white"
+                    style={{ position: 'absolute', right: -6, bottom: -6 }}
+                  >
+                    <ArchetypeArt type={archetype.data} size={28} />
+                  </View>
+                ) : null}
+              </View>
+            </Pressable>
+
+            {/* Status Match Map → tab Peta */}
+            <View className="gap-[10px] rounded-[20px] bg-white px-[14px] py-[12px]">
+              <Pressable
+                className="min-h-[48px] flex-row items-center gap-[10px]"
+                accessibilityRole="button"
+                accessibilityLabel="Buka Match Map"
+                onPress={() => router.push('/peta')}
+              >
+                <View className="h-[40px] w-[40px] items-center justify-center rounded-[12px] bg-surfaceSky">
+                  <Wifi size={20} color={palette.primary} />
+                </View>
+                <View className="flex-1 gap-px">
+                  <Text className="text-[15px] font-bold text-slateInk" numberOfLines={1}>
+                    {campusTitle}
+                  </Text>
+                  <Text className="text-[12px] text-slate500" numberOfLines={2}>
+                    {campusSub}
+                  </Text>
+                </View>
+                <ChevronRight size={20} color={palette.slate500} />
+              </Pressable>
+
+              {busyZones.length > 0 ? (
+                <View className="flex-row flex-wrap gap-[6px]">
+                  {busyZones.map((zone) => (
+                    <Pressable
+                      key={zone.id}
+                      onPress={() => router.push('/peta')}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${zone.name}, ${zone.count} online`}
+                      hitSlop={{ top: 11, bottom: 11 }}
+                      className="flex-row items-center gap-[6px] rounded-full bg-surfaceSky py-[5px] pl-[9px] pr-[5px]"
+                    >
+                      <Text className="text-[12px] font-semibold text-slateInk">{zone.name}</Text>
+                      <View className="items-center justify-center rounded-full bg-primary px-[7px] py-px">
+                        <Text className="text-[11px] font-bold text-white">{zone.count}</Text>
+                      </View>
+                    </Pressable>
+                  ))}
                 </View>
               ) : null}
             </View>
-            <ChevronRight size={18} color={palette.slate500} />
-          </Pressable>
+          </View>
 
           <View className="gap-[22px]">
             {/* Aksi cepat */}
@@ -248,49 +311,6 @@ export default function BerandaScreen() {
                   <Text className={`text-[12px] font-bold ${soft ? 'text-accentText' : 'text-primary'}`}>{label}</Text>
                 </Pressable>
               ))}
-            </View>
-
-            {/* Sekarang di kampus → tab Peta */}
-            <View className="mx-[20px] gap-[12px] rounded-[20px] bg-surfaceSky px-[16px] py-[14px]">
-              <Pressable
-                className="flex-row items-center gap-[10px]"
-                accessibilityRole="button"
-                accessibilityLabel="Buka Match Map"
-                onPress={() => router.push('/peta')}
-              >
-                <View className="h-[40px] w-[40px] items-center justify-center rounded-[12px] bg-primary">
-                  <Wifi size={20} color="white" />
-                </View>
-                <View className="flex-1 gap-px">
-                  <Text className="text-[14px] font-bold text-slateInk" numberOfLines={1}>
-                    {campusTitle}
-                  </Text>
-                  <Text className="text-[12px] text-slate500" numberOfLines={2}>
-                    {campusSub}
-                  </Text>
-                </View>
-                <ChevronRight size={20} color={palette.slate500} />
-              </Pressable>
-
-              {busyZones.length > 0 ? (
-                <View className="flex-row flex-wrap gap-[6px]">
-                  {busyZones.map((zone) => (
-                    <Pressable
-                      key={zone.id}
-                      onPress={() => router.push('/peta')}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${zone.name}, ${zone.count} online`}
-                      hitSlop={{ top: 11, bottom: 11 }}
-                      className="flex-row items-center gap-[6px] rounded-full bg-white py-[5px] pl-[9px] pr-[5px]"
-                    >
-                      <Text className="text-[12px] font-semibold text-slateInk">{zone.name}</Text>
-                      <View className="items-center justify-center rounded-full bg-primary px-[7px] py-px">
-                        <Text className="text-[11px] font-bold text-white">{zone.count}</Text>
-                      </View>
-                    </Pressable>
-                  ))}
-                </View>
-              ) : null}
             </View>
 
             {error ? (
@@ -337,6 +357,11 @@ export default function BerandaScreen() {
               ) : partners.isPending ? (
                 <View className="items-center py-[16px]">
                   <ActivityIndicator color={palette.primary} />
+                </View>
+              ) : partners.isError ? (
+                <View className="mx-[20px] gap-[10px]">
+                  <FormError message="Gagal memuat rekomendasi. Periksa internet kamu." size={13} />
+                  <PrimaryButton label="Coba lagi" variant="outline" onPress={() => void partners.refetch()} />
                 </View>
               ) : suggestions.length === 0 ? (
                 <View className="mx-[20px] gap-[8px] rounded-[18px] border border-slateBorder p-[16px]">

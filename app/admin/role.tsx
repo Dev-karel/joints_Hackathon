@@ -50,7 +50,7 @@ export default function RoleScreen() {
   return (
     <AuthScreen
       title="Atur role"
-      subtitle="Akun harus sudah mendaftar di aplikasi. Perubahan berlaku saat pengguna membuka aplikasi lagi."
+      subtitle="Akun harus sudah terdaftar di aplikasi."
       onBack={() => router.back()}
     >
       <TextField

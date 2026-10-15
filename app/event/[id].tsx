@@ -249,7 +249,7 @@ export default function EventDetailScreen() {
       <ConfirmModal
         visible={confirmLeave && joined}
         title="Batal ikut acara?"
-        message="Tempatmu akan dibuka untuk peserta lain. Kamu bisa daftar lagi selama kuota masih ada."
+        message="Tempatmu akan dibuka untuk orang lain."
         confirmLabel="Ya, batal ikut"
         cancelLabel="Tetap ikut"
         loading={rsvp.isPending}

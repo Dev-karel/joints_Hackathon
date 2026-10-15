@@ -1,4 +1,11 @@
 import { View } from 'react-native';
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeInDown,
+  ReduceMotion,
+  ZoomIn,
+} from 'react-native-reanimated';
 import { Text } from '@/components/ui/AppText';
 
 import { ArchetypeArt } from '@/components/archetype/ArchetypeArt';
@@ -17,6 +24,13 @@ type ArchetypeResultProps = {
   scores: Partial<Record<ArchetypeId, number>>;
 };
 
+// Satu momen gerak di aplikasi: pengungkapan hasil kuis (puncak emosi onboarding).
+// Ilustrasi muncul membesar, nama menyusul, lalu sisi lain berurutan. Ease-out eksponensial;
+// dimatikan otomatis bila "Kurangi animasi" aktif di HP.
+const OUT = Easing.out(Easing.exp);
+const reveal = (delay: number) =>
+  FadeInDown.delay(delay).duration(420).easing(OUT).reduceMotion(ReduceMotion.System);
+
 // Presentasi hasil sesuai METHODOLOGY §7: identitas utama + trait sekunder terurut.
 export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
   const info = ARCHETYPES[type];
@@ -28,31 +42,42 @@ export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
     <View className="gap-[18px]">
       <GlassCard strong className="gap-[6px] p-[22px]">
         <View className="items-center justify-center pb-[6px]" style={{ height: 230 }}>
-          <View className="absolute opacity-40">
+          <Animated.View
+            className="absolute opacity-40"
+            entering={FadeIn.delay(150).duration(900).reduceMotion(ReduceMotion.System)}
+          >
             <ArchetypeConstellation type={type} size={230} />
-          </View>
-          <ArchetypeArt type={type} size={190} />
+          </Animated.View>
+          <Animated.View
+            entering={ZoomIn.duration(650).easing(OUT).reduceMotion(ReduceMotion.System)}
+          >
+            <ArchetypeArt type={type} size={190} />
+          </Animated.View>
         </View>
-        <Text className="text-[12px] font-bold tracking-[1px] text-primary">
-          KAMU ADALAH {info.tagline.toUpperCase()}
-        </Text>
-        <Text className="text-[32px] font-bold text-slateInk">{info.name}</Text>
-        <Text className="text-[16px] font-semibold text-titleAccent">
-          {info.name} — {(scores[type] ?? 0).toFixed(1)}%
-        </Text>
-        <Text className="pt-[6px] text-[14px] leading-[21px] text-slate500">
-          {info.description}
-        </Text>
-        <Text className="pt-[6px] text-[14px] font-semibold text-slateInk">Perananmu: {info.role}</Text>
+        <Animated.View entering={reveal(280)} className="gap-[6px]">
+          <Text className="text-[12px] font-bold tracking-[1px] text-primary">
+            KAMU ADALAH {info.tagline.toUpperCase()}
+          </Text>
+          <Text className="text-[32px] font-bold text-slateInk">{info.name}</Text>
+          <Text className="text-[16px] font-semibold text-titleAccent">
+            Skor tertinggi: {Math.round(scores[type] ?? 0)}%
+          </Text>
+          <Text className="pt-[6px] text-[14px] leading-[21px] text-slate500">
+            {info.description}
+          </Text>
+          <Text className="pt-[6px] text-[14px] font-semibold text-slateInk">
+            Perananmu: {info.role}
+          </Text>
+        </Animated.View>
       </GlassCard>
 
       <GlassCard className="gap-[8px] p-[18px]">
-        <Text className="text-[14px] font-bold text-slateInk">Trait sekunder</Text>
-        {secondary.map(({ id, value }) => (
-          <View key={id} className="gap-[4px]">
+        <Text className="text-[14px] font-bold text-slateInk">Sisi lain dirimu</Text>
+        {secondary.map(({ id, value }, i) => (
+          <Animated.View key={id} entering={reveal(520 + i * 70)} className="gap-[4px]">
             <View className="flex-row justify-between">
               <Text className="text-[13px] text-slateInk">{ARCHETYPES[id].name}</Text>
-              <Text className="text-[13px] text-slate500">{value.toFixed(1)}%</Text>
+              <Text className="text-[13px] text-slate500">{Math.round(value)}%</Text>
             </View>
             <View className="h-[6px] overflow-hidden rounded-full bg-white/70">
               <View
@@ -60,7 +85,7 @@ export function ArchetypeResult({ type, scores }: ArchetypeResultProps) {
                 style={{ width: `${Math.min(value, 100)}%` }}
               />
             </View>
-          </View>
+          </Animated.View>
         ))}
       </GlassCard>
 

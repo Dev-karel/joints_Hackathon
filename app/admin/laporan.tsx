@@ -65,7 +65,7 @@ export default function LaporanScreen() {
   return (
     <AuthScreen
       title="Laporan"
-      subtitle="Tinjau laporan pengguna. Satu laporan tidak otomatis memblokir siapa pun."
+      subtitle="Satu laporan tidak otomatis memblokir."
       onBack={() => router.back()}
     >
       <View className="flex-row gap-[8px]">
@@ -177,7 +177,7 @@ export default function LaporanScreen() {
         }
         message={
           decision?.ban
-            ? 'Akun tidak bisa memakai aplikasi lagi dan hilang dari peta, rekomendasi, dan daftar profil. Bisa dibuka lagi dari tab Valid.'
+            ? 'Akun tidak bisa dipakai dan hilang dari peta dan daftar. Bisa dibuka lagi dari tab Valid.'
             : 'Keputusan ini tercatat dan laporan pindah dari daftar Menunggu.'
         }
         confirmLabel="Ya, simpan"
