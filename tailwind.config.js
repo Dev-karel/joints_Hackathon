@@ -38,7 +38,13 @@ module.exports = {
         accent200: '#FDE2B3',
         accent800: '#7C4700',
         skyBlob: '#CCE8F6',
-        primaryDeep: '#0C447C', // teks di atas skyBlob (kartu ruangan "Ramai", Figma Peta)
+        primaryDeep: '#0C447C',
+        // Merah untuk error/bahaya (sebelumnya hex tersebar di layar). danger di atas dangerSoft ≈ 6:1.
+        danger: '#B91C1C',
+        dangerSoft: '#FEF2F2',
+        dangerBorder: '#FECACA',
+        dangerLine: '#FCA5A5',
+        dangerDot: '#DC2626', // teks di atas skyBlob (kartu ruangan "Ramai", Figma Peta)
         slate500: '#64748B',
         slate100: '#F1F5F9',
         successSoft: '#DCF4E5',
