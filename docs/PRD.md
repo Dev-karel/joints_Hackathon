@@ -206,7 +206,7 @@ Wi-Fi venue (FMIPA UGM) bukan Wi-Fi kampus tim (BINUS @Kemanggisan), jadi demo m
 
 ## 8. Tab Match: Belajar & Lomba
 
-Tab Match punya dua sub-tab dengan satu tombol tambah yang labelnya menyesuaikan: **"Buat sesi"** di Belajar dan **"Cari anggota tim"** di Lomba.
+Tab Match punya dua sub-tab dengan satu tombol tambah yang labelnya menyesuaikan: **"Buat sesi"** di Belajar dan **"Buka lowongan tim"** di Lomba.
 
 | | Belajar (Study Match) | Lomba (Competition Match) |
 |---|---|---|
