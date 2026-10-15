@@ -46,3 +46,6 @@ expo-env.d.ts
 
 # Sumber logo resolusi tinggi (tidak dipakai langsung di aplikasi)
 assets/logo_jernih/
+
+# Arsip critique Impeccable (lokal)
+.impeccable/
