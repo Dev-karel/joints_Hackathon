@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import {
   Atom,
   BookOpen,
+  Check,
   ChevronDown,
   ChevronUp,
   Code2,
@@ -10,6 +11,7 @@ import {
   Plus,
   Search,
   Sigma,
+  SlidersHorizontal,
   Trophy,
   User,
   type LucideIcon,
@@ -20,6 +22,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette } from '@/components/onboarding/palette';
 import { INTER, Text } from '@/components/ui/AppText';
+import { BottomSheet } from '@/components/ui/BottomSheet';
 import { FormError } from '@/components/ui/FormError';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useAuthStore } from '@/features/auth/authStore';
@@ -251,6 +254,7 @@ function BelajarTab({ query }: { query: string }) {
   const [dayIndex, setDayIndex] = useState(0);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [courseFilter, setCourseFilter] = useState<string>('Semua');
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const days = useMemo(
     () => Array.from({ length: 7 }, (_, i) => new Date(now + i * DAY_MS)),
@@ -354,11 +358,30 @@ function BelajarTab({ query }: { query: string }) {
         </View>
       )}
         <View className="bg-white">
-        <View className="bg-slateSurface">
+        <View className="flex-row items-center border-b border-slateBorder bg-slateSurface">
+          {uniqueCourses.length > 1 && !query ? (
+            <Pressable
+              onPress={() => setFilterOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel={
+                courseFilter === 'Semua' ? 'Filter mata kuliah' : `Filter mata kuliah: ${courseFilter}`
+              }
+              style={{ width: 50, height: 56, borderRadius: 14, marginLeft: 20 }}
+              className={`items-center justify-center ${
+                courseFilter === 'Semua' ? 'border border-slateBorder bg-white' : 'bg-primary'
+              }`}
+            >
+              <SlidersHorizontal
+                size={20}
+                color={courseFilter === 'Semua' ? palette.slateInk : '#FFFFFF'}
+              />
+            </Pressable>
+          ) : null}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
+            className="flex-1"
+            contentContainerStyle={{ paddingHorizontal: 12, paddingLeft: uniqueCourses.length > 1 && !query ? 8 : 20, paddingVertical: 12, gap: 8 }}
           >
             {days.map((d, i) => {
               const active = i === dayIndex;
@@ -377,14 +400,14 @@ function BelajarTab({ query }: { query: string }) {
                 >
                   <Text
                     className={`text-[12px] font-bold ${
-                      active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
+                      active ? 'text-white' : empty ? 'text-slate500' : 'text-slateInk'
                     }`}
                   >
                     {DAYS_UPPER[d.getDay()]}
                   </Text>
                   <Text
                     className={`text-[17px] font-extrabold ${
-                      active ? 'text-white' : empty ? 'text-slateBorderMuted' : 'text-slateInk'
+                      active ? 'text-white' : empty ? 'text-slate500' : 'text-slateInk'
                     }`}
                   >
                     {d.getDate()}
@@ -394,36 +417,6 @@ function BelajarTab({ query }: { query: string }) {
             })}
           </ScrollView>
         </View>
-        {/* Filter Mata Kuliah */}
-        {uniqueCourses.length > 1 && !query && (
-          <View className="border-b border-slateBorder bg-white">
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
-            >
-              {uniqueCourses.map((course) => {
-                const active = course === courseFilter;
-                return (
-                  <Pressable
-                    key={course}
-                    onPress={() => setCourseFilter(course)}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
-                    hitSlop={{ top: 7, bottom: 7 }}
-                    className={`rounded-full px-[14px] py-[7px] ${
-                      active ? 'bg-primary' : 'border border-slateBorder bg-white'
-                    }`}
-                  >
-                    <Text className={`text-[13px] font-semibold ${active ? 'text-white' : 'text-slateInk'}`}>
-                      {course}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </View>
-        )}
         </View>
         {sessions.isPending ? (
           <View className="items-center py-[32px]">
@@ -506,6 +499,35 @@ function BelajarTab({ query }: { query: string }) {
           ))
         )}
       </ScrollView>
+
+      {/* Filter mata kuliah: satu tombol di strip hari, pilihan di lembar bawah. */}
+      <BottomSheet visible={filterOpen} onClose={() => setFilterOpen(false)}>
+        <Text className="w-full text-[20px] font-extrabold text-slateInk">Filter mata kuliah</Text>
+        <View className="w-full gap-[8px]">
+          {uniqueCourses.map((course) => {
+            const active = course === courseFilter;
+            return (
+              <Pressable
+                key={course}
+                onPress={() => {
+                  setCourseFilter(course);
+                  setFilterOpen(false);
+                }}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: active }}
+                className={`min-h-[52px] flex-row items-center justify-between rounded-[14px] border px-[14px] ${
+                  active ? 'border-primary bg-surfaceSky' : 'border-slateBorder bg-white'
+                }`}
+              >
+                <Text className="flex-1 text-[15px] font-semibold text-slateInk">
+                  {course === 'Semua' ? 'Semua mata kuliah' : course}
+                </Text>
+                {active ? <Check size={18} color={palette.primary} /> : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      </BottomSheet>
     </View>
   );
 }
