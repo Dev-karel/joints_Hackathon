@@ -57,7 +57,7 @@ export default function RoleScreen() {
         label="Email"
         value={email}
         onChangeText={setEmail}
-        placeholder={`nama@${env.allowedEmailDomains[0]}`}
+        placeholder="Masukkan emailmu"
         autoCapitalize="none"
         keyboardType="email-address"
       />

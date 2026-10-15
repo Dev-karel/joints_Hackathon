@@ -83,7 +83,7 @@ export default function DaftarScreen() {
         render={({ field }) => (
           <TextField
             label="Email"
-            placeholder={`nama@${env.allowedEmailDomains[0]}`}
+            placeholder="Masukkan emailmu"
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
