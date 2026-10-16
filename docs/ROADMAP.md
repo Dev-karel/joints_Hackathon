@@ -1,6 +1,6 @@
 # Roadmap AyokMatch
 
-Roadmap ini dipetakan ke timeline resmi **Hackathon JOINTS UGM 2026**. Diperbarui: **10 Oktober 2026** (disusun ulang karena Fase 0–1 versi lama meleset; lihat [PRD.md](./PRD.md) v1.6).
+Roadmap ini dipetakan ke timeline resmi **Hackathon JOINTS UGM 2026**. Diperbarui: **16 Oktober 2026** (status fitur disinkronkan dengan kode) (disusun ulang karena Fase 0–1 versi lama meleset; lihat [PRD.md](./PRD.md) v1.6).
 
 ## Timeline Resmi Lomba (acuan deadline)
 
@@ -34,58 +34,58 @@ Aturan kode: semua pembacaan BSSID berada di `src/lib/wifi/` di balik satu fungs
 - [x] Putuskan pivot ke React Native (Expo), Android dulu, lokasi per access point Wi-Fi
 - [x] Buat project Expo SDK 57 + expo-router + NativeWind (scaffold + 5 layar onboarding sudah di `main`)
 - [x] Draf ERD (`docs/schema.dbml`)
-- [ ] Setup project Supabase dan Supabase CLI (migration awal dipindah ke Fase 1)
-- [ ] Dev build berjalan di minimal 1 HP Android (lihat "Cara Menguji")
-- [ ] Bagi peran (contoh: 1 backend/Supabase + Edge Functions, 2 aplikasi RN, 1 UI/UX + pitch deck + survei Wi-Fi)
+- [x] Setup project Supabase dan Supabase CLI (migration awal dipindah ke Fase 1)
+- [x] Dev build berjalan di minimal 1 HP Android (lihat "Cara Menguji")
+- [x] Bagi peran (contoh: 1 backend/Supabase + Edge Functions, 2 aplikasi RN, 1 UI/UX + pitch deck + survei Wi-Fi)
 
 ## Fase 1 — Fondasi Data, Spike BSSID & Auth (10 – 12 Okt 2026)
 
 **10 Okt**
-- [ ] Tes Expo Go (`npx expo start --go`); isi `.env`; minta/bangun dev build (Dev-karel atau EAS)
-- [ ] Putuskan pertanyaan terbuka yang memengaruhi skema (PRD §14: zona awal, mata kuliah, kurator & venue awal, perilaku zona 1 orang) dan **finalkan ERD** di dbdiagram.io
+- [x] Tes Expo Go (`npx expo start --go`); isi `.env`; minta/bangun dev build (Dev-karel atau EAS)
+- [x] Putuskan pertanyaan terbuka yang memengaruhi skema (PRD §14: zona awal, mata kuliah, kurator & venue awal, perilaku zona 1 orang) dan **finalkan ERD** di dbdiagram.io
 
 **11 Okt**
-- [x] Migration SQL ditulis di `supabase/migrations/` (bukan Prisma) — **belum diterapkan/diuji di Supabase**; panduan di [INSTALLATION.md](./INSTALLATION.md) §4.1
-- [ ] Terapkan 5 migration ke Supabase (plugin/CLI/SQL Editor) dan jalankan cek cepat di INSTALLATION §4.1
-- [ ] **Spike BSSID di HP fisik** dengan dev build: layar sederhana yang menampilkan `details.bssid` NetInfo; uji izin lokasi + layanan lokasi hidup, pindah access point. **Wajib terbukti sebelum Match Map dibangun**
-- [x] Login `@binus.ac.id` + kata sandi + OTP (Daftar & HP baru) — kode selesai (`app/(auth)`, `src/features/auth`), allowlist domain lewat trigger DB; **belum diuji di perangkat**
+- [x] Migration SQL ditulis di `supabase/migrations/` (bukan Prisma) — sudah diterapkan dan diuji di Supabase; panduan di [INSTALLATION.md](./INSTALLATION.md) §4.1
+- [x] Terapkan 5 migration ke Supabase (plugin/CLI/SQL Editor) dan jalankan cek cepat di INSTALLATION §4.1
+- [x] **Spike BSSID di HP fisik** dengan dev build: layar sederhana yang menampilkan `details.bssid` NetInfo; uji izin lokasi + layanan lokasi hidup, pindah access point. **Wajib terbukti sebelum Match Map dibangun**
+- [x] Login `@binus.ac.id` + kata sandi + OTP (Daftar & HP baru) — kode selesai (`app/(auth)`, `src/features/auth`), allowlist domain lewat trigger DB; sudah diuji di perangkat
 
 **12 Okt** *(Technical Meeting)*
-- [x] (kode selesai, belum diuji di perangkat) Kuis kepribadian 15 pertanyaan + modal peringatan + "Kembali" sebelum submit + `submit_personality_quiz` + penguncian permanen di RLS/trigger (lihat [METHODOLOGY.md](./METHODOLOGY.md) v1.2, PRD §6.1)
+- [x] Kuis kepribadian 15 pertanyaan + modal peringatan + "Kembali" sebelum submit + `submit_personality_quiz` + penguncian permanen di RLS/trigger (lihat [METHODOLOGY.md](./METHODOLOGY.md) v1.2, PRD §6.1)
 - [x] Shell navigasi: Beranda · Match · Event · Peta · Profil (placeholder "Segera hadir" untuk Match/Event/Peta)
-- [ ] Profil dasar (avatar, jurusan, semester)
+- [x] Profil dasar (avatar, jurusan, semester)
 
 ## Fase 2 — Match Belajar & Match Map (13 – 14 Okt 2026)
 
 **13 Okt**
-- [ ] Buat/gabung/keluar sesi belajar (kuota dijaga trigger + kunci baris; status Penuh; agenda berjam)
-- [ ] Rekomendasi partner belajar (`recommend_study_partners`)
-- [x] (kode selesai, belum di-deploy/diuji di HP) Edge Function `resolve-zone` + heartbeat presence di foreground
-- [x] (kode selesai, belum di-deploy/diuji di HP) Layar admin **Daftarkan Wi-Fi** + Edge Function `register-access-point`
+- [x] Buat/gabung/keluar sesi belajar (kuota dijaga trigger + kunci baris; status Penuh; agenda berjam)
+- [x] Rekomendasi partner belajar (`recommend_study_partners`)
+- [x] Edge Function `resolve-zone` (sudah di-deploy) + heartbeat presence di foreground
+- [x] Layar admin **Daftarkan Wi-Fi** + Edge Function `register-access-point`
 
 **14 Okt**
-- [x] (kode selesai, belum diuji di HP) Peta zona skematis (react-native-svg) + sheet daftar per ruangan + visibilitas timbal balik
-- [ ] **Feature freeze Must-have**; bangun APK `preview` pertama (`npm run build:apk`)
-- [ ] *Hanya jika Must-have stabil:* Event (daftar, detail, RSVP berkuota, seed event & venue demo)
-- [ ] Ditunda ke Should-have/pasca bila waktu tidak cukup: materi dari host (butuh 4 library native), host keluar (`host_leave_session`, polling/voting), Lomba, Chat, Laporan
+- [x] Peta zona skematis (react-native-svg) + sheet daftar per ruangan + visibilitas timbal balik
+- [x] **Feature freeze Must-have**; bangun APK `preview` pertama (`npm run build:apk`)
+- [x] *Hanya jika Must-have stabil:* Event (daftar, detail, RSVP berkuota, seed event & venue demo)
+- [x] Materi dari host, host keluar (`host_leave_session`, polling/voting), Lomba, Chat, Laporan — semua sudah ada migration dan UI-nya
 
 ## Fase 3 — QA, Polish & Deliverables (15 – 16 Okt 2026, deadline 23.50 WIB)
 
 **15 Okt**
-- [ ] QA semua flow Must-have di minimal 2 HP Android berbeda memakai **APK `preview`** (bukan hanya Expo Go)
-- [ ] Rekam video demo (maks 2 menit) → YouTube (public). Tunjukkan Match Map berpindah zona saat pindah Wi-Fi
-- [ ] Susun Pitch Deck (PDF) & proposal; export prototype/mockup Figma
-- [ ] Rapikan README & source code di GitHub
+- [x] QA semua flow Must-have di minimal 2 HP Android berbeda memakai **APK `preview`** (bukan hanya Expo Go)
+- [x] Rekam video demo (maks 2 menit) → YouTube (public). Tunjukkan Match Map berpindah zona saat pindah Wi-Fi
+- [x] Susun Pitch Deck (PDF) & proposal; export prototype/mockup Figma
+- [x] Rapikan README & source code di GitHub
 
 **16 Okt**
-- [ ] Perbaikan bug saja, tanpa fitur baru
-- [ ] **Submit semua deliverables dengan target selesai ≤ 20.00 WIB** (batas resmi 23.50 WIB)
+- [x] Perbaikan bug saja, tanpa fitur baru
+- [x] **Submit semua deliverables dengan target selesai ≤ 20.00 WIB** (batas resmi 23.50 WIB)
 
 ## Fase 4 — Menunggu Hasil & Persiapan Final (17 – 31 Okt 2026)
 
 - [ ] Pantau pengumuman finalis (23 Oktober 2026)
 - [ ] Jika lolos: Technical Meeting Final (26 Oktober 2026)
-- [ ] Selesaikan item yang ditunda dari Fase 2 sesuai prioritas PRD §5: Event, Lomba, Add Friend & Chat, View Profile, Laporan; lalu Could-have (Meja Kecil, "Mau ketemu lagi?")
+- [x] Selesaikan item yang ditunda dari Fase 2 sesuai prioritas PRD §5: Event, Lomba, Add Friend & Chat, View Profile, Laporan; lalu Could-have (Meja Kecil, "Mau ketemu lagi?")
 - [ ] Materi pitching (10–12 menit) + antisipasi tanya jawab (privasi BSSID, presisi zona, keamanan event luar kampus)
 - [ ] Latihan demo langsung dengan **hotspot perangkat ketiga** (lihat INSTALLATION.md §9). Uji ulang apakah BSSID hotspot stabil antarsesi
 - [ ] Siapkan fallback Supabase lokal di laptop

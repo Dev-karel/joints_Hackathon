@@ -6,6 +6,21 @@ Dibuat untuk **Hackathon JOINTS UGM 2026** (FMIPA UGM) — track **Healthcare** 
 
 ---
 
+## Coba Cepat (untuk Juri)
+
+Tidak perlu menjalankan kode atau mengisi `.env`: backend (Supabase) sudah aktif dan konfigurasinya sudah tertanam di APK.
+
+1. Di HP Android (10 atau lebih baru), unduh APK terbaru dari **[Releases](https://github.com/Dev-karel/joints_Hackathon/releases/latest)** lalu pasang. Izinkan "Pasang dari sumber tidak dikenal" bila diminta.
+2. **Daftar** dengan email `@binus.ac.id` atau `@gmail.com` (kode OTP 6 angka dikirim ke email), atau pilih **Masuk dengan Google**.
+3. Selesaikan kuis kepribadian (15 pertanyaan, hasilnya jadi label permanen akun), lalu pilih mata kuliah.
+4. Jelajahi Beranda, Match (Belajar dan Lomba), Event, Peta, dan Profil.
+
+Panduan langkah demi langkah ada di **[PANDUAN-PENGGUNA.md](./docs/PANDUAN-PENGGUNA.md)**.
+
+> **Catatan Match Map:** peta hanya menampilkan pengguna yang tersambung ke **Wi-Fi kampus yang sudah terdaftar** (lokasi dibaca dari access point, bukan GPS). Di luar itu, layar Peta kosong, dan itu memang disengaja. Cara mencobanya ada di panduan pengguna §6.
+
+---
+
 ## Latar Belakang
 
 Interaksi dengan teman sebaya terbukti berkontribusi besar terhadap kemampuan kognitif dan rasa percaya diri mahasiswa dalam mengerjakan tugas. Tapi kelompok sebaya juga cenderung eksklusif — mahasiswa yang gagal menemukan "teman sefrekuensi" berisiko terisolasi.
@@ -18,7 +33,7 @@ Data I-NAMHS menunjukkan 1 dari 3 remaja Indonesia (34,9%, ±15,5 juta jiwa) pun
 
 | Tab | Fitur | Deskripsi |
 |---|---|---|
-| — | Login kampus | Email `@binus.ac.id` + kata sandi; kode OTP ke email kampus saat daftar dan di HP baru |
+| — | Login | Email `@binus.ac.id` atau `@gmail.com` + kata sandi, atau login Google; kode OTP ke email saat daftar dan di HP baru |
 | — | Kuis kepribadian | 15 pertanyaan A/B onboarding → salah satu dari 6 archetype tim (contoh: Sagekeeper). Metodologi & skoring di [METHODOLOGY.md](./docs/METHODOLOGY.md). Boleh navigasi "Kembali" sebelum submit akhir, tapi hasilnya jadi label permanen akun setelah disubmit — lihat [PRD.md §6.1](./docs/PRD.md) |
 | Match › Belajar | Study Match | Rekomendasi partner belajar + buat/gabung sesi belajar di ruangan kampus |
 | Match › Lomba | Competition Match | Lowongan anggota tim lomba + permintaan bergabung |
@@ -80,13 +95,14 @@ Fitur Match Map harus diuji di HP Android fisik yang tersambung Wi-Fi.
 
 ## Dokumentasi Lain
 
-- **[CATATAN-TIM.md](./docs/CATATAN-TIM.md) — baca ini dulu kalau baru `git pull`**: ringkasan perubahan besar, penjelasan berkas yang tidak ikut repo (`.env` dll), dan jebakan build yang sudah terdiagnosis (JDK 17, `npm.cmd`, aset logo)
 - [PRD.md](./docs/PRD.md) — kebutuhan produk & scope MVP
-- [CLAUDE.md](./CLAUDE.md) — konteks & konvensi kerja untuk AI coding assistant
 - [ARCHITECTURE.md](./docs/ARCHITECTURE.md) — arsitektur sistem, data model, dan pertimbangan keamanan
 - [METHODOLOGY.md](./docs/METHODOLOGY.md) — metodologi & skoring kuis kepribadian (archetype tim)
-- [INSTALLATION.md](./docs/INSTALLATION.md) — panduan instalasi & setup environment
+- [PANDUAN-PENGGUNA.md](./docs/PANDUAN-PENGGUNA.md) — panduan memasang dan mencoba aplikasi (untuk juri)
+- [INSTALLATION.md](./docs/INSTALLATION.md) — panduan instalasi & setup environment (build dari kode sumber)
 - [ROADMAP.md](./docs/ROADMAP.md) — timeline pengembangan mengikuti jadwal hackathon
+- [CATATAN-TIM.md](./docs/CATATAN-TIM.md) — catatan internal tim (jebakan build yang sudah terdiagnosis: JDK 17, `npm.cmd`, aset logo); hanya relevan untuk kontributor
+- [CLAUDE.md](./CLAUDE.md) dan folder `.kiro/` — konteks untuk AI coding assistant yang dipakai selama pengembangan
 
 ## Tim
 

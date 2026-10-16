@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD) — AyokMatch
 
-> Versi: 1.6 — 30 September 2026 (+ §15 draft, 11 Oktober 2026)
+> Versi: 1.8 — 15 Oktober 2026 (riwayat lengkap di tabel di bawah)
 > Untuk: Hackathon JOINTS UGM 2026 (FMIPA UGM), track **Healthcare** dengan sentuhan **Education**
 
 Dokumen pelengkap: [README.md](../README.md) (latar belakang & fitur), [ARCHITECTURE.md](./ARCHITECTURE.md) (arsitektur & data model), [METHODOLOGY.md](./METHODOLOGY.md) (isi & skoring kuis kepribadian), [ROADMAP.md](./ROADMAP.md) (timeline), [CLAUDE.md](../CLAUDE.md) (konvensi kerja AI assistant).

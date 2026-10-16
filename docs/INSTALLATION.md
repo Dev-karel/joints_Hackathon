@@ -62,7 +62,7 @@ Untuk menambah library native baru, selalu gunakan `npx expo install <paket>`, b
    ```
 
    CLI ini baru dibutuhkan saat sudah ada migration/Edge Function — bukan syarat untuk menjalankan aplikasi pertama kali.
-4. **Authentication → Providers → Email**: aktifkan (dengan kata sandi dan konfirmasi email), lalu ubah template **Confirm signup** dan **Magic Link** agar mengirim **kode OTP** (`{{ .Token }}`), bukan hanya link. Allowlist domain `binus.ac.id` ditegakkan oleh trigger di database (`supabase/migrations/20261010000200_auth_guards.sql`), jadi tidak butuh Auth Hook. Detail pengaturan di §4.1.
+4. **Authentication → Providers → Email**: aktifkan (dengan kata sandi dan konfirmasi email), lalu ubah template **Confirm signup** dan **Magic Link** agar mengirim **kode OTP** (`{{ .Token }}`), bukan hanya link. Allowlist domain (`binus.ac.id` dan `gmail.com`) ditegakkan oleh trigger di database (`supabase/migrations/20261010000200_auth_guards.sql`), jadi tidak butuh Auth Hook. Detail pengaturan di §4.1.
 5. **Storage**: buat bucket privat `avatars`, `ktm-verification`, `report-evidence`, `session-materials`.
 6. Aktifkan ekstensi **pg_cron** (Database → Extensions) untuk membersihkan `presence` yang kedaluwarsa.
 7. Deploy Edge Functions. **Tanpa CLI** (paling mudah): Dashboard → **Edge Functions** → **Deploy a new function** → beri nama persis `resolve-zone` lalu tempel isi `supabase/functions/resolve-zone/index.ts`; ulangi untuk `register-access-point`. Biarkan *Verify JWT* aktif. `SUPABASE_URL`, `SUPABASE_ANON_KEY`, dan `SUPABASE_SERVICE_ROLE_KEY` sudah tersedia otomatis di runtime, jadi tidak perlu diatur manual. Dengan CLI:
@@ -81,25 +81,27 @@ Untuk menambah library native baru, selalu gunakan `npx expo install <paket>`, b
 Urutan migration (jalankan berurutan; satu file per tahap supaya mudah di-debug). Pakai `supabase db push` atau tempel satu per satu di **SQL Editor**:
 
 1. `20261010000100_init_schema.sql` — enum, tabel, FK, index
-2. `20261010000200_auth_guards.sql` — allowlist `@binus.ac.id`, profil otomatis saat daftar, fungsi bantu RLS
+2. `20261010000200_auth_guards.sql` — allowlist domain email (awalnya `@binus.ac.id`; `@gmail.com` ditambah migration `allow_gmail`), profil otomatis saat daftar, fungsi bantu RLS
 3. `20261010000300_rls.sql` — RLS semua tabel + view `public_profiles`
 4. `20261010000400_functions_triggers.sql` — `submit_personality_quiz`, kuota sesi/event, `get_zone_presence`, `recommend_study_partners`, pembersih presence (pg_cron)
 5. `20261010000500_seed.sql` — data awal
 6. `20261011000100_user_courses.sql` — tabel `user_courses`, `set_my_courses`, dan rekomendasi partner belajar v2 (mata kuliah sama)
+7. Sisanya (kuis v1.2, Study Match, katalog mata kuliah, teman, chat, host keluar, materi, moderasi, rate limit, `allow_gmail`, hapus akun) ada di `supabase/migrations/`. Jalankan **semua file (22) berurutan sesuai nama**; `supabase db push` melakukannya otomatis
 
 Pengaturan di **Dashboard → Authentication** (tidak bisa lewat migration):
 
 - **Providers → Email**: *Confirm email* ON; panjang kata sandi minimal 8.
 - **Email Templates**: template **Confirm signup** dan **Magic Link** harus memuat `{{ .Token }}` (kode 6 angka), mis. `Kode verifikasi AyokMatch kamu: {{ .Token }}`.
 - **SMTP Settings → Custom SMTP**: wajib diisi kalau mau mengetes OTP berulang. SMTP bawaan Supabase hanya mengizinkan beberapa email per jam dan akan memblokir pengetesan. Contoh Resend: host `smtp.resend.com`, port `465`, username `resend`, password = API key. Contoh Gmail: host `smtp.gmail.com`, port `465`, password = *App Password* (butuh verifikasi 2 langkah di akun Google). Isi kredensial hanya di Dashboard, jangan di repo.
+- **Providers → Google** (untuk tombol Masuk dengan Google): buat OAuth Client ID tipe Web di Google Cloud Console, isi Client ID dan Secret di Supabase, lalu salin *Callback URL* Supabase ke "Authorized redirect URIs" di Google. Di **Authentication → URL Configuration → Redirect URLs** tambahkan `ayokmatch://auth/callback` (scheme aplikasi di `app.config.ts`).
 - **Rate limits**: naikkan jumlah email per jam setelah SMTP sendiri aktif.
 - **Database → Extensions**: aktifkan `pg_cron` bila migration 4 mencetak notice bahwa pg_cron tidak aktif, lalu jalankan ulang blok `do $$ ... $$` di akhir file itu.
 
 Cek cepat setelah migration (SQL Editor):
 
 ```sql
--- harus GAGAL: email non-kampus ditolak trigger
-insert into auth.users (id, email) values (gen_random_uuid(), 'x@gmail.com');
+-- harus GAGAL: domain di luar allowlist ditolak trigger
+insert into auth.users (id, email) values (gen_random_uuid(), 'x@yahoo.com');
 -- harus 30 baris, tiap archetype 5x primer dan 5x sekunder
 select primary_archetype, count(*) from personality_scoring group by 1;
 -- semua tabel harus rowsecurity = true
@@ -119,7 +121,7 @@ Isi `.env`:
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=xxxxxxxxxxxxxxxx
-EXPO_PUBLIC_ALLOWED_EMAIL_DOMAIN=binus.ac.id
+EXPO_PUBLIC_ALLOWED_EMAIL_DOMAIN=binus.ac.id,gmail.com
 ```
 
 > Semua variabel `EXPO_PUBLIC_*` ikut terbundel ke dalam APK dan bisa dibaca siapa pun. Jangan pernah menaruh `service_role key` di file ini.
